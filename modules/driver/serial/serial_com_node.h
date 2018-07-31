@@ -52,12 +52,14 @@
 #include "messages/EnemyPos.h"
 #include "messages/ShootState.h"
 #include "messages/ShootInfo.h"
+#include "messages/GripperInfo.h"
 
 #include "messages/GameBuffStatus.h"
 #include "messages/ChassisMode.h"
 #include "messages/GimbalMode.h"
 #include "messages/ShootModeControl.h"
 #include "messages/CheckStatus.h"
+#include "messages/GripperCmd.h"
 
 #include "modules/driver/serial/infantry_info.h"
 #include "modules/driver/serial/proto/serial_com_config.pb.h"
@@ -243,9 +245,16 @@ class SerialComNode : public rrts::common::RRTS {
    */
   void ChassisControlCallback(const geometry_msgs::Twist::ConstPtr &vel);
 
+  /**
+   * @brief Callback of gripper control(cmd_grip) message
+   */
+  void GripperControlCallback(const messages::GripperCmdConstPtr &msg);
+
   void SendChassisControl(const ChassisControl &chassis_control);
 
   void SendGimbalControl(const GimbalControl &gimbal_control);
+
+  void SendGripperControl(const GripperControl &gripper_control);
 
   bool SetChassisMode(messages::ChassisMode::Request &req,
                       messages::ChassisMode::Response &res);
@@ -275,7 +284,7 @@ class SerialComNode : public rrts::common::RRTS {
   bool is_open_, stop_receive_, stop_send_, is_sim_, is_debug_, is_debug_tx_;
   ros::NodeHandle nh_;
   //TODO(krik): use actionlib and add more subscribers, more publishers.
-  ros::Subscriber sub_cmd_vel_, sub_cmd_gim_, sub_cmd_shoot_;
+  ros::Subscriber sub_cmd_vel_, sub_cmd_gim_, sub_cmd_shoot_, sub_cmd_grip_;
   ros::Publisher odom_pub_,
       gim_pub_,
       uwb_pose_pub_,
@@ -283,7 +292,8 @@ class SerialComNode : public rrts::common::RRTS {
       robot_hurt_data_pub_,
       rfid_info_pub_,
       game_buff_info_pub_,
-      shoot_info_pub_;
+      shoot_info_pub_,
+      gripper_info_pub_;
 
   ros::ServiceClient game_buff_status_srv_;
   ros::ServiceServer chassis_mode_srv_,
@@ -296,6 +306,7 @@ class SerialComNode : public rrts::common::RRTS {
   messages::RfidInfo rfid_info_msg_;
   messages::GimbalAngle gim_angle_;
   messages::ShootInfo shoot_info_msg_;
+  messages::GripperInfo gripper_info_msg_;
   messages::GameBuffStatus game_buff_status_;
   geometry_msgs::PoseStamped uwb_position_msg_;
   geometry_msgs::TransformStamped arm_tf_;
@@ -330,6 +341,7 @@ class SerialComNode : public rrts::common::RRTS {
   CalibrateResponse cali_response_data_;
   RcInfo rc_info_data_;
   VersionInfo version_info_data_;
+  GripperInfo gripper_info_data_;
 };
 
 } //namespace serial

@@ -56,6 +56,7 @@ SerialComNode::SerialComNode(std::string module_name)
   robot_hurt_data_pub_ = nh_.advertise<messages::RobotHurtData>("referee_system/robot_hurt_data", 30);
   rfid_info_pub_ = nh_.advertise<messages::RfidInfo>("referee_system/rfid_info", 30);
   shoot_info_pub_ = nh_.advertise<messages::ShootInfo>("referee_system/shoot_info", 30);
+  gripper_info_pub_ = nh_.advertise<messages::GripperInfo>("gripper",30);
 
   game_buff_status_srv_ = nh_.serviceClient<messages::GameBuffStatus>("referee_system/set_buff_status");
   chassis_mode_srv_ = nh_.advertiseService("set_chassis_mode", &SerialComNode::SetChassisMode, this);
@@ -172,6 +173,7 @@ void SerialComNode::Run() {
   receive_loop_thread_ = new std::thread(boost::bind(&SerialComNode::ReceiveLoop, this));
   sub_cmd_gim_ = nh_.subscribe("/constraint_set/enemy_pos", 1, &SerialComNode::GimbalRelativeControlCallback, this);
   sub_cmd_vel_ = nh_.subscribe("cmd_vel", 1, &SerialComNode::ChassisControlCallback, this);
+  sub_cmd_grip_ = nh_.subscribe("cmd_grip", 1, &SerialComNode::GripperControlCallback, this);
   send_loop_thread_ = new std::thread(boost::bind(&SerialComNode::SendPack, this));
   ros::spin();
 }
@@ -450,6 +452,17 @@ void SerialComNode::DataHandle() {
         printf("Bottom Version-->%d\n", version_info_data_.num[0]);
       }
       break;
+    case GRIPPER_DATA_ID: memcpy(&gripper_info_data_, data_addr, data_length);
+      gripper_info_msg_.mode = gripper_info_data_.mode;
+      gripper_info_msg_.motor1_speed = gripper_info_data_.motor1_speed;
+      gripper_info_msg_.motor2_speed = gripper_info_data_.motor2_speed;
+      gripper_info_msg_.motor1_angle = gripper_info_data_.motor1_angle;
+      gripper_info_msg_.motor2_angle = gripper_info_data_.motor2_angle;
+      gripper_info_pub_.publish(gripper_info_msg_);
+      if (is_debug_) {
+        printf("Gripper Info -->");
+      }
+      break;
     default:
       break;
   }
@@ -518,6 +531,21 @@ void SerialComNode::SendChassisControl(const ChassisControl &chassis_control){
     }
 }
 
+void SerialComNode::SendGripperControl(const GripperControl &gripper_control){
+  std::unique_lock<std::mutex> lock(mutex_pack_);
+  uint8_t pack[PACK_MAX_SIZE];
+  GripperControl gripper_control_data = gripper_control;
+  int length = sizeof(GripperControl), pack_length = length + HEADER_LEN + CMD_LEN + CRC_LEN;
+    SendDataHandle(GRIPPER_CTRL_ID, (uint8_t *) &gripper_control_data, pack, length);
+    if (pack_length <= free_length_) {
+      memcpy(tx_buf_ + total_length_, pack, pack_length);
+      free_length_ -= pack_length;
+      total_length_ += pack_length;
+    } else {
+      LOG_WARNING << "Overflow in Gripper CB";
+    }
+}
+
 void SerialComNode::ChassisControlCallback(const geometry_msgs::Twist::ConstPtr &vel) {
  if (chassis_mode_ == ChassisMode::AUTO_SEPARATE_GIMBAL) {
     uint8_t pack[PACK_MAX_SIZE];
@@ -532,6 +560,14 @@ void SerialComNode::ChassisControlCallback(const geometry_msgs::Twist::ConstPtr 
 
     SendChassisControl(chassis_control_data);
   }
+}
+
+void SerialComNode::GripperControlCallback(const messages::GripperCmdConstPtr &msg) {
+  GripperControl gripper_control_data;
+  gripper_control_data.cmd = msg->cmd;
+  gripper_control_data.motor1_ref = msg->motor1_ref;
+  gripper_control_data.motor2_ref = msg->motor2_ref;
+  SendGripperControl(gripper_control_data);
 }
 
 bool SerialComNode::CheckStatusCallback(messages::CheckStatus::Request  &req,

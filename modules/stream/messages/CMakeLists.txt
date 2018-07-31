@@ -25,6 +25,8 @@ add_message_files(
   ShootInfo.msg
   RobotHurtData.msg
   GoalTask.msg
+  GripperCmd.msg
+  GripperInfo.msg
 )
 
 add_service_files(

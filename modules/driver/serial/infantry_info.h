@@ -55,6 +55,7 @@ typedef enum {
   CALI_RESPONSE_ID = 0x0015,
   REMOTE_CTRL_INFO_ID = 0x0016,
   BOTTOM_VERSION_ID = 0x0017,
+  GRIPPER_DATA_ID = 0x0018,
 
   CHASSIS_CTRL_ID = 0x00A0,
   GIMBAL_CTRL_ID = 0x00A1,
@@ -62,6 +63,7 @@ typedef enum {
   ERROR_LEVEL_ID = 0x00A3,
   INFANTRY_STRUCT_ID = 0x00A4,
   CALI_GIMBAL_ID = 0x00A5,
+  GRIPPER_CTRL_ID = 0x00A6,
 
   CLIENT_SHOW_ID = 0x0100,
   USER_TO_SERVER_ID = 0x0101,
@@ -405,6 +407,17 @@ typedef struct {
   uint8_t num[4];
 } __attribute__((packed)) VersionInfo;
 
+/**
+  * @brief  gripper information(0x0018)
+  */
+typedef struct {
+  uint8_t mode;
+  int16_t motor1_speed;  /* speed of motor 1 */
+  int16_t motor2_speed;    /* speed of motor 2 */
+  int32_t motor1_angle; /* total angle turned of motor 1 */
+  int32_t motor2_angle; /* total angle turned of motor 1 */
+} __attribute__((packed)) GripperInfo;
+
 /************************ the control information from computer ************************/
 
 typedef struct {
@@ -474,6 +487,15 @@ typedef struct {
 typedef struct {
   uint8_t type;        /* 0x01 calibrate gimbal center, 0x02 calibrate camera */
 } __attribute__((packed)) CalibrateCommand;
+
+/**
+  * @brief  gripper control information(0x00A6)
+  */
+typedef struct {
+  uint8_t cmd; /* chassis control mode */
+  int16_t motor1_ref;   /* speed of motor No.1 */
+  int16_t motor2_ref;   /* speed of motor No.2 */
+} __attribute__((packed)) GripperControl;
 } //namespace serial
 } //namespace driver
 } //namespace rrts

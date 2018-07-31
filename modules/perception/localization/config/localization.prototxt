@@ -13,7 +13,7 @@ initial_cov_xx :0.1
 initial_cov_yy :0.1
 initial_cov_aa :0.1
 
-enable_uwb : true
+enable_uwb : false
 uwb_frame_id : "uwb"
 uwb_topic_name : "uwb"
 use_sim_uwb : false
