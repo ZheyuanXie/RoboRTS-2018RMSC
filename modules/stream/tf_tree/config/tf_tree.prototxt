@@ -15,6 +15,21 @@ transformation {
 }
 
 transformation {
+  sensor: "top_laser_link"
+  base: "base_link"
+  rotation{
+    pitch: 0.0
+    yaw  : 0.0 
+    roll : 3.1415926
+  }
+  translation{
+    x: 0.0
+    y: 0.0
+    z: 0.65
+  }
+}
+
+transformation {
   sensor: "camera1"
   base: "base_link"
   rotation{
