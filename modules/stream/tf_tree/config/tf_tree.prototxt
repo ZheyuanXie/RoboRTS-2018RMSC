@@ -20,7 +20,7 @@ transformation {
   rotation{
     pitch: 0.0
     yaw  : 0.0 
-    roll : 3.1415926
+    roll : 0.0
   }
   translation{
     x: 0.0
