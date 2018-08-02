@@ -10,6 +10,7 @@ add_action_files(
   ArmorDetection.action
   Localization.action
   BotGoal.action
+  GetAmmo.action
 )
 
 
