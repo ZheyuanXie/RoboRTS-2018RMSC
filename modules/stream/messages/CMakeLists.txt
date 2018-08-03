@@ -12,6 +12,7 @@ add_action_files(
   BotGoal.action
   GetAmmo.action
   NavTo.action
+  LookAndMove.action
 )
 
 

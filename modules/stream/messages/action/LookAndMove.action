@@ -1,5 +1,5 @@
 #goal definition
-int32 parameter
+geometry_msgs/PoseStamped relative_pose
 ---
 #result definition RUNNING = 0, SUCCESS = 1, FAILURE = 2
 int32  error_code
