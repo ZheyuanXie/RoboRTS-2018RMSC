@@ -25,10 +25,9 @@ class GripperController:
         self.feedback = False
 
     def Initialize(self):
-        rospy.sleep(1.)
-        self.SendGripperCmd(GripperState.Release)
+        rospy.sleep(.5)
         self.SendGripperCmd(GripperState.Normal)
-        rospy.sleep(1.)
+        rospy.sleep(.5)
 
     def SendGripperCmd(self, cmd, repeat=3):
         gcmd = GripperCmd()
