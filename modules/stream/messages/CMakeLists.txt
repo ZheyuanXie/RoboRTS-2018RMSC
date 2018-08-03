@@ -11,6 +11,7 @@ add_action_files(
   Localization.action
   BotGoal.action
   GetAmmo.action
+  NavTo.action
 )
 
 
