@@ -12,9 +12,10 @@ from visualization_msgs.msg import MarkerArray, Marker
 from messages.msg import LocalPlannerAction, GlobalPlannerAction
 from messages.msg import NavToAction, NavToActionGoal
 from messages.msg import GetAmmoAction, GetAmmoActionResult, GetAmmoActionFeedback
+from messages.msg import GripperCmd, GripperInfo
 from actionlib_msgs.msg import GoalStatus
 
-from GripperControl import GripperController, GripperState, GripperFeedback
+from gripper import GripperController
 
 # debug mode
 SERVO_ONLY = False
@@ -67,7 +68,7 @@ class GetAmmoNode(object):
 
         # initialize gripper
         self.gripper = GripperController()
-        self.gripper.Initialize()
+        self.gripper.SetState(GripperCmd.NORMAL)
 
         # initialize navto action server
         if not SERVO_ONLY:
@@ -123,7 +124,7 @@ class GetAmmoNode(object):
             self.navto_failed = False
             self._ac_navto.send_goal(g.goal,done_cb=self.NavToDoneCB)
         
-        self.gripper.SendGripperCmd(GripperState.Normal)
+        self.gripper.SetState(GripperCmd.NORMAL)
         while not rospy.is_shutdown():
             # Check Preempt Request
             if self._as.is_preempt_requested():
@@ -149,18 +150,18 @@ class GetAmmoNode(object):
                         self._as.set_succeeded()
                         self.state = GetAmmoStatus.IDLE
                         break
-                    self.gripper.SendGripperCmd(GripperState.Get_High)
+                    self.gripper.SetState(GripperCmd.GRIP_HIGH)
                     self.state = GetAmmoStatus.BLIND
 
             elif self.state == GetAmmoStatus.BLIND:
                 self.SendCmdVel(BLIND_APPROACH_VX,0.,0.)
-                if self.gripper.feedback == GripperFeedback.Touched:
+                if self.gripper.feedback == GripperInfo.TOUCHED:
                     # Gripper movement is triggered automatically by the MCU
                     self.state = GetAmmoStatus.GRASP
                     
             elif self.state == GetAmmoStatus.GRASP:
                 self.SendCmdVel(0.,0.,0.)
-                if self.gripper.feedback == GripperFeedback.Done:
+                if self.gripper.feedback == GripperInfo.DONE:
                     self.withdraw_cnt = 0
                     self.state = GetAmmoStatus.WITHDRAW
 
@@ -172,7 +173,7 @@ class GetAmmoNode(object):
                     self.state = GetAmmoStatus.IDLE
                     break
             rate.sleep()
-        self.gripper.SendGripperCmd(GripperState.Normal)
+        self.gripper.SetState(GripperCmd.NORMAL)
         rospy.sleep(.1)
         self.SendCmdVel(0.,0.,0.)
         rospy.sleep(.1)

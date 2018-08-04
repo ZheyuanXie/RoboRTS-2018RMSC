@@ -3,7 +3,7 @@ import rospy
 from threading import Thread
 import tf
 import numpy as np
-from actionlib import SimpleActionClient, SimpleActionServer
+from actionlib import SimpleActionServer
 from messages.msg import LookAndMoveAction
 from geometry_msgs.msg import PoseStamped, Twist
 
