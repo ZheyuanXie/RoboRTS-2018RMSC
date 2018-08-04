@@ -43,7 +43,7 @@ class LookAndMove(object):
         self.pub_cmd_vel.publish(self.cmd_vel)
 
 if __name__ == "__main__":
-    rospy.init_node("look_and_move_test_node")
+    rospy.init_node("look_and_move_test")
     lam = LookAndMove()
     p = Pose()
     p.position.x = 0

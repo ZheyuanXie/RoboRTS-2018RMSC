@@ -11,7 +11,7 @@ class NavToStatus:
     IDLE        = 0
     MOVING      = 0
 
-class NavigationTestNode:
+class NavToNode(object):
     def __init__(self):
         # action client
         self._ac_gp = SimpleActionClient("global_planner_node_action", GlobalPlannerAction)
@@ -20,7 +20,7 @@ class NavigationTestNode:
         self._ac_lp.wait_for_server()
 
         # action servergoal
-        self._as = SimpleActionServer("navigation_node_action", NavToAction, self.ExecuteCB, auto_start=False)
+        self._as = SimpleActionServer("nav_to_node_action", NavToAction, self.ExecuteCB, auto_start=False)
 
         # define goals to send
         self.global_planner_goal_ = GlobalPlannerGoal()
@@ -83,6 +83,6 @@ class NavigationTestNode:
         self.local_planner_done = True
 
 if __name__ == "__main__":
-    rospy.init_node("navto_action_server_node")
-    nt = NavigationTestNode()
+    rospy.init_node("nav_to_node")
+    nt = NavToNode()
     rospy.spin()

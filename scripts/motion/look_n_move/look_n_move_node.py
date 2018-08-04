@@ -17,7 +17,7 @@ class LookAndMoveStatus:
     IDLE        = 0
     MOVING      = 0
 
-class LookAndMove(object):
+class LookAndMoveNode(object):
     cmd_vel = Twist()
     def __init__(self):
         self.tf_listener = tf.TransformListener()
@@ -26,7 +26,7 @@ class LookAndMove(object):
         self.target_pose = PoseStamped()
         self.observe_frame = ''
         self.state = LookAndMoveStatus.IDLE
-        self._as = SimpleActionServer("looknmove", LookAndMoveAction, self.ExecuteCB, auto_start=False)
+        self._as = SimpleActionServer("look_n_move_node_action", LookAndMoveAction, self.ExecuteCB, auto_start=False)
         self._as.start()
 
     def ExecuteCB(self,goal):
@@ -68,6 +68,6 @@ class LookAndMove(object):
         #print self.cmd_vel
 
 if __name__ == "__main__":
-    rospy.init_node("looknmove_action_server_node")
-    lam = LookAndMove()
+    rospy.init_node("look_n_move_node")
+    lam = LookAndMoveNode()
     rospy.spin()

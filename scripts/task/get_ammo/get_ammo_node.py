@@ -57,10 +57,10 @@ class GetAmmoStatus:
     GRASP       = 4
     WITHDRAW    = 5
 
-class GetAmmo(object):
+class GetAmmoNode(object):
     _feedback = GetAmmoActionFeedback()
     _result = GetAmmoActionResult()
-    def __init__(self, name):
+    def __init__(self, name="get_ammo_node_action"):
         self.action_name = name
         self._as = SimpleActionServer(self.action_name, GetAmmoAction, execute_cb=self.ExecuteCB, auto_start=False)
         self._as.start()
@@ -71,7 +71,7 @@ class GetAmmo(object):
 
         # initialize navto action server
         if not SERVO_ONLY:
-            self._ac_navto = SimpleActionClient("navigation_node_action", NavToAction)
+            self._ac_navto = SimpleActionClient("nav_to_node_action", NavToAction)
             print 'tring to connect NavTo action server...'
             ret = self._ac_navto.wait_for_server(timeout=rospy.Duration(5.0))
             print 'sever connected!' if ret else 'error: server not started!'
@@ -229,6 +229,6 @@ class GetAmmo(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node("get_ammo_action_server_node")
-    ga = GetAmmo("get_ammo")
+    rospy.init_node("get_ammo_node")
+    ga = GetAmmoNode()
     rospy.spin()

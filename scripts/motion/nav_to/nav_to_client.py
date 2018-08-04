@@ -18,8 +18,8 @@ def active_cb():
     print "GOAL RCV"
 
 if __name__ == "__main__":
-    rospy.init_node("navto_action_client_node")
-    ac_ = SimpleActionClient("navigation_node_action", NavToAction)
+    rospy.init_node("nav_to_client")
+    ac_ = SimpleActionClient("nav_to_node_action", NavToAction)
     ac_.wait_for_server()
     print 'sever connected!'
     help()

@@ -12,8 +12,8 @@ def help():
     '''
 
 if __name__ == "__main__":
-    rospy.init_node("looknmove_action_client_node")
-    ac_ = SimpleActionClient("looknmove", LookAndMoveAction)
+    rospy.init_node("look_n_move_client")
+    ac_ = SimpleActionClient("look_n_move_node_action", LookAndMoveAction)
     ac_.wait_for_server()
     print 'sever connected!'
     help()

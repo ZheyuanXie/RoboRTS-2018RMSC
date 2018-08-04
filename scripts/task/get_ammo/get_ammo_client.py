@@ -17,8 +17,8 @@ def active_cb():
     print "GOAL RCV"
 
 if __name__ == "__main__":
-    rospy.init_node("get_ammo_action_client_node")
-    ac_ = SimpleActionClient("get_ammo", GetAmmoAction)
+    rospy.init_node("get_ammo_client")
+    ac_ = SimpleActionClient("get_ammo_node_action", GetAmmoAction)
     ac_.wait_for_server()
     print 'sever connected!'
     help()
