@@ -10,6 +10,12 @@ def help():
     3 - Exit
     '''
 
+def done_cb(terminal_state,result):
+    print "DONE:",terminal_state, result
+
+def active_cb():
+    print "GOAL RCV"
+
 if __name__ == "__main__":
     rospy.init_node("get_ammo_action_client_node")
     ac_ = SimpleActionClient("get_ammo", GetAmmoAction)
@@ -22,7 +28,7 @@ if __name__ == "__main__":
             ai = input('ammobox index:')
             g = GetAmmoActionGoal()
             g.goal.ammobox_index = ai
-            ac_.send_goal(g.goal)
+            ac_.send_goal(g.goal, done_cb=done_cb, active_cb=active_cb, feedback_cb=None)
         elif cmd == '2':
             ac_.cancel_all_goals()
         elif cmd == '3':
