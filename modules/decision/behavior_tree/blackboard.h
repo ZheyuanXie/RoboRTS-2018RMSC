@@ -37,6 +37,7 @@
 #include "messages/ShootModeControl.h"
 #include "messages/GoalTask.h"
 #include "messages/SelfCheck.h"
+#include "messages/ConditionOverride.h"
 
 #include "common/io.h"
 #include "modules/decision/behavior_tree/proto/decision.pb.h"
@@ -163,6 +164,11 @@ class Blackboard {
      */
     game_buff_status_server_ = referee_nh.advertiseService("set_buff_status", &Blackboard::GameBuffStatusCallback, this);
 
+    // Debug
+    ros::NodeHandle debug_nh("debug");
+
+    condition_override_sub_ = debug_nh.subscribe("condition_override", 30, &Blackboard::ConditionOverrideCallback, this);
+
     ros::NodeHandle nh;
     self_check_client_ = nh.serviceClient<messages::SelfCheck>("self_check");
     chassis_mode_client_ = nh.serviceClient<messages::ChassisMode>("set_chassis_mode");
@@ -219,6 +225,21 @@ class Blackboard {
       LOG_ERROR << "Failed to run SelfCheck!";
     }
       LOG_INFO << "SelfCheck "<<self_check_msg.response.passed ? "Passed":"Not Passed";
+  }
+
+  void ConditionOverrideCallback(const messages::ConditionOverride::ConstPtr & condition_override){
+    LOG_ERROR<<"condition override received!";
+    condition_override_ = *condition_override;
+    //LOG_ERROR<<condition_override_;
+  }
+
+  messages::ConditionOverride GetConditionOverride() {
+    return condition_override_;
+  }
+
+  bool GetConditionOverrideEnable() {
+    if (condition_override_.condition_override_enable) return true;
+    else return false;
   }
 
   // Game Info
@@ -582,6 +603,8 @@ class Blackboard {
 
   ros::Subscriber shoot_info_sub_;
 
+  ros::Subscriber condition_override_sub_;
+
   ros::Publisher track_pub_;
 
   ros::ServiceServer game_buff_status_server_;
@@ -640,6 +663,9 @@ class Blackboard {
   //! Enemy info
   geometry_msgs::PoseStamped enemy_pose_;
   bool enemy_detected_;
+
+  // Debug Info
+  messages::ConditionOverride condition_override_;
 
 };
 } //namespace decision

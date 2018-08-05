@@ -20,7 +20,8 @@
 
 #include "common/log.h"
 
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
   google::InitGoogleLogging(argv[0]);
   FLAGS_stderrthreshold = google::WARNING;
   FLAGS_colorlogtostderr = true;
@@ -54,13 +55,13 @@ int main(int argc, char **argv){
    *                                                                                                                                  CH        TWA
    *
    */
-  auto blackboard_ptr_ = std::make_shared<rrts::decision::Blackboard>("/modules/decision/vic_decision/config/decision.prototxt");
+  auto blackboard_ptr_ = std::make_shared<rrts::decision::Blackboard>("/modules/decision/ICRA_decision/config/decision.prototxt");
 
   auto goal_factory_ = std::make_shared<rrts::decision::GoalFactory>(blackboard_ptr_,
-                                                                     "/modules/decision/vic_decision/config/decision.prototxt");
+                                                                     "/modules/decision/ICRA_decision/config/decision.prototxt");
 
   rrts::decision::DecisionConfig robot_config;
-  rrts::common::ReadProtoFromTextFile("/modules/decision/vic_decision/config/decision.prototxt", &robot_config);
+  rrts::common::ReadProtoFromTextFile("/modules/decision/ICRA_decision/config/decision.prototxt", &robot_config);
 
   //action
   auto shoot_action_ = std::make_shared<rrts::decision::ShootAction>(blackboard_ptr_, goal_factory_);
@@ -78,31 +79,47 @@ int main(int argc, char **argv){
   auto auxiliary_action = std::make_shared<rrts::decision::AuxiliaryAction>(blackboard_ptr_, goal_factory_);
   auto wing_auxiliary_action = std::make_shared<rrts::decision::AuxiliaryAction>(blackboard_ptr_, goal_factory_);
 
-
   //detected and swinging shoot
 
   auto detect_shoot_condition_ = std::make_shared<rrts::decision::PreconditionNode>("rfid active detect shoot condition",
                                                                                     blackboard_ptr_,
                                                                                     shoot_action_,
                                                                                     [&]() {
-                                                                                      if (blackboard_ptr_->GetEnemyDetected()) {
+                                                                                      if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                      {
+                                                                                        if (blackboard_ptr_->GetConditionOverride().detect_shoot_condition_)
+                                                                                          return true;
+                                                                                        else
+                                                                                          return false;
+                                                                                      }
+                                                                                      else if (blackboard_ptr_->GetEnemyDetected())
+                                                                                      {
                                                                                         return true;
-                                                                                      } else {
+                                                                                      }
+                                                                                      else
+                                                                                      {
                                                                                         return false;
                                                                                       }
-                                                                                    } ,
+                                                                                    },
                                                                                     rrts::decision::AbortType::BOTH);
 
   auto rfid_active_detected_condition_ = std::make_shared<rrts::decision::PreconditionNode>("rfid active detected condition",
                                                                                             blackboard_ptr_,
                                                                                             color_detected_action_,
                                                                                             [&]() {
-                                                                                              if (blackboard_ptr_->GetColordetected()
-                                                                                                  != rrts::decision::ColorDetected ::NONE
-                                                                                                  && blackboard_ptr_->GetColordetected()
-                                                                                                      != rrts::decision::ColorDetected ::FRONT) {
+                                                                                              if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                              {
+                                                                                                if (blackboard_ptr_->GetConditionOverride().rfid_active_detected_condition_)
+                                                                                                  return true;
+                                                                                                else
+                                                                                                  return false;
+                                                                                              }
+                                                                                              else if (blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::NONE && blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::FRONT)
+                                                                                              {
                                                                                                 return true;
-                                                                                              } else {
+                                                                                              }
+                                                                                              else
+                                                                                              {
                                                                                                 return false;
                                                                                               }
                                                                                             },
@@ -114,9 +131,19 @@ int main(int argc, char **argv){
                                                                                     blackboard_ptr_,
                                                                                     chase_action_,
                                                                                     [&]() {
-                                                                                      if (blackboard_ptr_->GetEnemyDetected()) {
+                                                                                      if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                      {
+                                                                                        if (blackboard_ptr_->GetConditionOverride().detect_enemy_condition_)
+                                                                                          return true;
+                                                                                        else
+                                                                                          return false;
+                                                                                      }
+                                                                                      else if (blackboard_ptr_->GetEnemyDetected())
+                                                                                      {
                                                                                         return true;
-                                                                                      } else {
+                                                                                      }
+                                                                                      else
+                                                                                      {
                                                                                         return false;
                                                                                       }
                                                                                     },
@@ -124,20 +151,27 @@ int main(int argc, char **argv){
 
   //plan_buff_selector
 
-
   auto under_attack_condition_ = std::make_shared<rrts::decision::PreconditionNode>("plan buff under attack condition",
                                                                                     blackboard_ptr_,
                                                                                     turn_to_hurt_action_,
-                                                                                    [&](){
-                                                                                      if (blackboard_ptr_->GetArmorAttacked()
-                                                                                          != rrts::decision::ArmorAttacked::NONE
-                                                                                          && blackboard_ptr_->GetArmorAttacked()
-                                                                                              != rrts::decision::ArmorAttacked::FRONT) {
+                                                                                    [&]() {
+                                                                                      if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                      {
+                                                                                        if (blackboard_ptr_->GetConditionOverride().under_attack_condition_)
+                                                                                          return true;
+                                                                                        else
+                                                                                          return false;
+                                                                                      }
+                                                                                      else if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::NONE && blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::FRONT)
+                                                                                      {
                                                                                         return true;
-                                                                                      } else {
+                                                                                      }
+                                                                                      else
+                                                                                      {
                                                                                         return false;
                                                                                       }
-                                                                                    }, rrts::decision::AbortType::LOW_PRIORITY);
+                                                                                    },
+                                                                                    rrts::decision::AbortType::LOW_PRIORITY);
 
   auto plan_buff_selector_ = std::make_shared<rrts::decision::SelectorNode>("plan buff selector", blackboard_ptr_);
   plan_buff_selector_->AddChildren(detect_enemy_condition_);
@@ -147,10 +181,20 @@ int main(int argc, char **argv){
   // search_buff_selector
   auto rfid_condition_ = std::make_shared<rrts::decision::PreconditionNode>("rfid condition_", blackboard_ptr_,
                                                                             plan_buff_selector_,
-                                                                            [&](){
-                                                                              if (blackboard_ptr_->GetRfidActive()) {
+                                                                            [&]() {
+                                                                              if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                              {
+                                                                                if (blackboard_ptr_->GetConditionOverride().rfid_condition_)
+                                                                                  return true;
+                                                                                else
+                                                                                  return false;
+                                                                              }
+                                                                              else if (blackboard_ptr_->GetRfidActive())
+                                                                              {
                                                                                 return false;
-                                                                              } else {
+                                                                              }
+                                                                              else
+                                                                              {
                                                                                 return true;
                                                                               }
                                                                             },
@@ -163,15 +207,23 @@ int main(int argc, char **argv){
 
   //enemy_buff_selector
 
-
   auto emy_buff_dmp_condition_ = std::make_shared<rrts::decision::PreconditionNode>("enemy dmp condition",
                                                                                     blackboard_ptr_,
                                                                                     escape_action_,
-                                                                                    [&](){
-                                                                                      if (blackboard_ptr_->HurtedPerSecond() > 600 
-                                                                                      || blackboard_ptr_->GetSentBulletStatus()) {
+                                                                                    [&]() {
+                                                                                      if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                      {
+                                                                                        if (blackboard_ptr_->GetConditionOverride().emy_buff_dmp_condition_)
+                                                                                          return true;
+                                                                                        else
+                                                                                          return false;
+                                                                                      }
+                                                                                      else if (blackboard_ptr_->HurtedPerSecond() > 600 || blackboard_ptr_->GetSentBulletStatus())
+                                                                                      {
                                                                                         return true;
-                                                                                      } else {
+                                                                                      }
+                                                                                      else
+                                                                                      {
                                                                                         return false;
                                                                                       }
                                                                                     },
@@ -181,38 +233,63 @@ int main(int argc, char **argv){
                                                                                              blackboard_ptr_,
                                                                                              shoot_action_,
                                                                                              [&]() {
-                                                                                               if (blackboard_ptr_->GetEnemyDetected()) {
+                                                                                               if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                               {
+                                                                                                 if (blackboard_ptr_->GetConditionOverride().inferior_detect_enemy_condition_)
+                                                                                                   return true;
+                                                                                                 else
+                                                                                                   return false;
+                                                                                               }
+                                                                                               else if (blackboard_ptr_->GetEnemyDetected())
+                                                                                               {
                                                                                                  return true;
-                                                                                               } else {
+                                                                                               }
+                                                                                               else
+                                                                                               {
                                                                                                  return false;
                                                                                                }
-                                                                                             }, rrts::decision::AbortType::BOTH);
-
+                                                                                             },
+                                                                                             rrts::decision::AbortType::BOTH);
 
   auto inferior_detected_condition_ = std::make_shared<rrts::decision::PreconditionNode>("inferior detected condition",
                                                                                          blackboard_ptr_,
                                                                                          color_detected_action_,
                                                                                          [&]() {
-                                                                                           if (blackboard_ptr_->GetColordetected()
-                                                                                               != rrts::decision::ColorDetected ::NONE
-                                                                                               && blackboard_ptr_->GetColordetected()
-                                                                                                   != rrts::decision::ColorDetected ::FRONT) {
+                                                                                           if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                           {
+                                                                                             if (blackboard_ptr_->GetConditionOverride().inferior_detected_condition_)
+                                                                                               return true;
+                                                                                             else
+                                                                                               return false;
+                                                                                           }
+                                                                                           else if (blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::NONE && blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::FRONT)
+                                                                                           {
                                                                                              return true;
-                                                                                           } else {
+                                                                                           }
+                                                                                           else
+                                                                                           {
                                                                                              return false;
                                                                                            }
-                                                                                         }, rrts::decision::AbortType::LOW_PRIORITY);
+                                                                                         },
+                                                                                         rrts::decision::AbortType::LOW_PRIORITY);
 
   auto emy_buff_attack_condition_ = std::make_shared<rrts::decision::PreconditionNode>("under enemy buff attack condition",
                                                                                        blackboard_ptr_,
                                                                                        turn_to_hurt_action_,
-                                                                                       [&](){
-                                                                                         if (blackboard_ptr_->GetArmorAttacked()
-                                                                                             != rrts::decision::ArmorAttacked::NONE
-                                                                                             && blackboard_ptr_->GetArmorAttacked()
-                                                                                                 != rrts::decision::ArmorAttacked::FRONT) {
+                                                                                       [&]() {
+                                                                                         if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                         {
+                                                                                           if (blackboard_ptr_->GetConditionOverride().emy_buff_attack_condition_)
+                                                                                             return true;
+                                                                                           else
+                                                                                             return false;
+                                                                                         }
+                                                                                         else if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::NONE && blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::FRONT)
+                                                                                         {
                                                                                            return true;
-                                                                                         } else {
+                                                                                         }
+                                                                                         else
+                                                                                         {
                                                                                            return false;
                                                                                          }
                                                                                        },
@@ -222,14 +299,23 @@ int main(int argc, char **argv){
                                                                                               blackboard_ptr_,
                                                                                               auxiliary_action,
                                                                                               [&]() {
-                                                                                                if (blackboard_ptr_->GetAuxiliaryState()) {
+                                                                                                if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                                {
+                                                                                                  if (blackboard_ptr_->GetConditionOverride().master_inferior_receive_condition)
+                                                                                                    return true;
+                                                                                                  else
+                                                                                                    return false;
+                                                                                                }
+                                                                                                else if (blackboard_ptr_->GetAuxiliaryState())
+                                                                                                {
                                                                                                   return true;
-                                                                                                } else {
+                                                                                                }
+                                                                                                else
+                                                                                                {
                                                                                                   return false;
                                                                                                 }
-                                                                                              }, rrts::decision::AbortType::LOW_PRIORITY);
-
-
+                                                                                              },
+                                                                                              rrts::decision::AbortType::LOW_PRIORITY);
 
   auto enemy_obtain_buff_selector_ = std::make_shared<rrts::decision::SelectorNode>("enemy obtain buff selector", blackboard_ptr_);
   enemy_obtain_buff_selector_->AddChildren(emy_buff_dmp_condition_);
@@ -241,11 +327,20 @@ int main(int argc, char **argv){
   //without_buff_selector
   auto enemy_obtain_buff_condition_ = std::make_shared<rrts::decision::PreconditionNode>("enemy obtain buff", blackboard_ptr_,
                                                                                          enemy_obtain_buff_selector_,
-                                                                                         [&](){
-                                                                                           if (blackboard_ptr_->GetBuffStatus()
-                                                                                               == rrts::decision::BuffStatus::ENEMY) {
+                                                                                         [&]() {
+                                                                                           if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                           {
+                                                                                             if (blackboard_ptr_->GetConditionOverride().enemy_obtain_buff_condition_)
+                                                                                               return true;
+                                                                                             else
+                                                                                               return false;
+                                                                                           }
+                                                                                           else if (blackboard_ptr_->GetBuffStatus() == rrts::decision::BuffStatus::ENEMY)
+                                                                                           {
                                                                                              return true;
-                                                                                           } else {
+                                                                                           }
+                                                                                           else
+                                                                                           {
                                                                                              return false;
                                                                                            }
                                                                                          },
@@ -254,16 +349,24 @@ int main(int argc, char **argv){
   without_buff_selector_->AddChildren(enemy_obtain_buff_condition_);
   without_buff_selector_->AddChildren(search_buff_selector_);
 
-
   //offensive_selector
   auto offensive_dmp_condition_ = std::make_shared<rrts::decision::PreconditionNode>("offensive dmp condition",
                                                                                      blackboard_ptr_,
                                                                                      escape_action_,
-                                                                                     [&](){
-                                                                                       if (blackboard_ptr_->HurtedPerSecond() > 400 
-                                                                                       || blackboard_ptr_->GetSentBulletStatus()) {
+                                                                                     [&]() {
+                                                                                       if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                       {
+                                                                                         if (blackboard_ptr_->GetConditionOverride().offensive_dmp_condition_)
+                                                                                           return true;
+                                                                                         else
+                                                                                           return false;
+                                                                                       }
+                                                                                       else if (blackboard_ptr_->HurtedPerSecond() > 400 || blackboard_ptr_->GetSentBulletStatus())
+                                                                                       {
                                                                                          return true;
-                                                                                       } else {
+                                                                                       }
+                                                                                       else
+                                                                                       {
                                                                                          return false;
                                                                                        }
                                                                                      },
@@ -273,9 +376,19 @@ int main(int argc, char **argv){
                                                                                               blackboard_ptr_,
                                                                                               chase_action_,
                                                                                               [&]() {
-                                                                                                if (blackboard_ptr_->GetEnemyDetected()) {
+                                                                                                if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                                {
+                                                                                                  if (blackboard_ptr_->GetConditionOverride().offensive_detect_enemy_condition_)
+                                                                                                    return true;
+                                                                                                  else
+                                                                                                    return false;
+                                                                                                }
+                                                                                                else if (blackboard_ptr_->GetEnemyDetected())
+                                                                                                {
                                                                                                   return true;
-                                                                                                } else {
+                                                                                                }
+                                                                                                else
+                                                                                                {
                                                                                                   return false;
                                                                                                 }
                                                                                               },
@@ -284,13 +397,20 @@ int main(int argc, char **argv){
   auto offensive_under_attack_condition_ = std::make_shared<rrts::decision::PreconditionNode>("offensive_under_attack_condition",
                                                                                               blackboard_ptr_,
                                                                                               turn_to_hurt_action_,
-                                                                                              [&](){
-                                                                                                if (blackboard_ptr_->GetArmorAttacked()
-                                                                                                    != rrts::decision::ArmorAttacked::NONE
-                                                                                                    && blackboard_ptr_->GetArmorAttacked()
-                                                                                                        != rrts::decision::ArmorAttacked::FRONT) {
+                                                                                              [&]() {
+                                                                                                if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                                {
+                                                                                                  if (blackboard_ptr_->GetConditionOverride().offensive_under_attack_condition_)
+                                                                                                    return true;
+                                                                                                  else
+                                                                                                    return false;
+                                                                                                }
+                                                                                                else if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::NONE && blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::FRONT)
+                                                                                                {
                                                                                                   return true;
-                                                                                                } else {
+                                                                                                }
+                                                                                                else
+                                                                                                {
                                                                                                   return false;
                                                                                                 }
                                                                                               },
@@ -300,12 +420,19 @@ int main(int argc, char **argv){
                                                                                           blackboard_ptr_,
                                                                                           color_detected_action_,
                                                                                           [&]() {
-                                                                                            if (blackboard_ptr_->GetColordetected()
-                                                                                                != rrts::decision::ColorDetected ::NONE
-                                                                                                && blackboard_ptr_->GetColordetected()
-                                                                                                    != rrts::decision::ColorDetected ::FRONT) {
+                                                                                            if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                            {
+                                                                                              if (blackboard_ptr_->GetConditionOverride().offensive_detected_condition_)
+                                                                                                return true;
+                                                                                              else
+                                                                                                return false;
+                                                                                            }
+                                                                                            else if (blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::NONE && blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::FRONT)
+                                                                                            {
                                                                                               return true;
-                                                                                            } else {
+                                                                                            }
+                                                                                            else
+                                                                                            {
                                                                                               return false;
                                                                                             }
                                                                                           },
@@ -313,16 +440,24 @@ int main(int argc, char **argv){
 
   auto master_receive_condition = std::make_shared<rrts::decision::PreconditionNode>("master receive condition", blackboard_ptr_,
                                                                                      auxiliary_action,
-                                                                                     [&](){
-                                                                                       if (blackboard_ptr_->GetAuxiliaryState()) {
+                                                                                     [&]() {
+                                                                                       if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                       {
+                                                                                         if (blackboard_ptr_->GetConditionOverride().master_receive_condition)
+                                                                                           return true;
+                                                                                         else
+                                                                                           return false;
+                                                                                       }
+                                                                                       else if (blackboard_ptr_->GetAuxiliaryState())
+                                                                                       {
                                                                                          return true;
-                                                                                       } else {
+                                                                                       }
+                                                                                       else
+                                                                                       {
                                                                                          return false;
                                                                                        }
                                                                                      },
                                                                                      rrts::decision::AbortType::LOW_PRIORITY);
-
-
 
   auto offensive_selector_ = std::make_shared<rrts::decision::SelectorNode>("offensive_selector", blackboard_ptr_);
 
@@ -337,11 +472,20 @@ int main(int argc, char **argv){
   //game_start_selctor
   auto obtain_buff_condition_ = std::make_shared<rrts::decision::PreconditionNode>("obtain buff condition", blackboard_ptr_,
                                                                                    offensive_selector_,
-                                                                                   [&](){
-                                                                                     if (blackboard_ptr_->GetBuffStatus()
-                                                                                         == rrts::decision::BuffStatus::SELF) {
+                                                                                   [&]() {
+                                                                                     if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                     {
+                                                                                       if (blackboard_ptr_->GetConditionOverride().obtain_buff_condition_)
+                                                                                         return true;
+                                                                                       else
+                                                                                         return false;
+                                                                                     }
+                                                                                     else if (blackboard_ptr_->GetBuffStatus() == rrts::decision::BuffStatus::SELF)
+                                                                                     {
                                                                                        return true;
-                                                                                     } else {
+                                                                                     }
+                                                                                     else
+                                                                                     {
                                                                                        return false;
                                                                                      }
                                                                                    },
@@ -354,10 +498,19 @@ int main(int argc, char **argv){
   auto game_stop_condition_ = std::make_shared<rrts::decision::PreconditionNode>("game_stop_condition", blackboard_ptr_,
                                                                                  wait_action_,
                                                                                  [&]() {
-                                                                                   if (blackboard_ptr_->GetGameProcess()
-                                                                                       != rrts::decision::GameProcess::FIGHT) {
+                                                                                   if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                   {
+                                                                                     if (blackboard_ptr_->GetConditionOverride().game_stop_condition_)
+                                                                                       return true;
+                                                                                     else
+                                                                                       return false;
+                                                                                   }
+                                                                                   else if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT)
+                                                                                   {
                                                                                      return true;
-                                                                                   } else {
+                                                                                   }
+                                                                                   else
+                                                                                   {
                                                                                      return false;
                                                                                    }
                                                                                  },
@@ -370,44 +523,83 @@ int main(int argc, char **argv){
   auto wing_stop_condition = std::make_shared<rrts::decision::PreconditionNode>("wing bot stop condition", blackboard_ptr_,
                                                                                 wing_auxiliary_action,
                                                                                 [&]() {
-                                                                                  if (blackboard_ptr_->GetGameProcess()
-                                                                                      != rrts::decision::GameProcess::FIGHT) {
+                                                                                  if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                  {
+                                                                                    if (blackboard_ptr_->GetConditionOverride().wing_stop_condition)
+                                                                                      return true;
+                                                                                    else
+                                                                                      return false;
+                                                                                  }
+                                                                                  else if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT)
+                                                                                  {
                                                                                     return true;
-                                                                                  } else {
+                                                                                  }
+                                                                                  else
+                                                                                  {
                                                                                     return false;
                                                                                   }
-                                                                                }, rrts::decision::AbortType::BOTH);
+                                                                                },
+                                                                                rrts::decision::AbortType::BOTH);
 
   auto wing_dmp_condition_ = std::make_shared<rrts::decision::PreconditionNode>("wing dmp condition",
-                                                                                    blackboard_ptr_,
-                                                                                    escape_action_,
-                                                                                    [&](){
-                                                                                      if (blackboard_ptr_->HurtedPerSecond() > 400
-                                                                                          || blackboard_ptr_->GetSentBulletStatus()) {
-                                                                                        return true;
-                                                                                      } else {
-                                                                                        return false;
-                                                                                      }
-                                                                                    },
-                                                                                    rrts::decision::AbortType::LOW_PRIORITY);
+                                                                                blackboard_ptr_,
+                                                                                escape_action_,
+                                                                                [&]() {
+                                                                                  if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                  {
+                                                                                    if (blackboard_ptr_->GetConditionOverride().wing_dmp_condition_)
+                                                                                      return true;
+                                                                                    else
+                                                                                      return false;
+                                                                                  }
+                                                                                  else if (blackboard_ptr_->HurtedPerSecond() > 400 || blackboard_ptr_->GetSentBulletStatus())
+                                                                                  {
+                                                                                    return true;
+                                                                                  }
+                                                                                  else
+                                                                                  {
+                                                                                    return false;
+                                                                                  }
+                                                                                },
+                                                                                rrts::decision::AbortType::LOW_PRIORITY);
 
   auto wing_receive_condition = std::make_shared<rrts::decision::PreconditionNode>("wing receive condition", blackboard_ptr_,
-                                                                              auxiliary_action,
-                                                                              [&]() {
-                                                                                if (blackboard_ptr_->GetAuxiliaryState()) {
-                                                                                  return true;
-                                                                                } else {
-                                                                                  return false;
-                                                                                }
-                                                                              },
-                                                                              rrts::decision::AbortType::LOW_PRIORITY);
+                                                                                   auxiliary_action,
+                                                                                   [&]() {
+                                                                                     if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                     {
+                                                                                       if (blackboard_ptr_->GetConditionOverride().wing_receive_condition)
+                                                                                         return true;
+                                                                                       else
+                                                                                         return false;
+                                                                                     }
+                                                                                     else if (blackboard_ptr_->GetAuxiliaryState())
+                                                                                     {
+                                                                                       return true;
+                                                                                     }
+                                                                                     else
+                                                                                     {
+                                                                                       return false;
+                                                                                     }
+                                                                                   },
+                                                                                   rrts::decision::AbortType::LOW_PRIORITY);
 
   auto wing_detect_condition = std::make_shared<rrts::decision::PreconditionNode>("wing detect condition", blackboard_ptr_,
                                                                                   shoot_action_,
                                                                                   [&]() {
-                                                                                    if (blackboard_ptr_->GetEnemyDetected()) {
+                                                                                    if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                    {
+                                                                                      if (blackboard_ptr_->GetConditionOverride().wing_receive_condition)
+                                                                                        return true;
+                                                                                      else
+                                                                                        return false;
+                                                                                    }
+                                                                                    else if (blackboard_ptr_->GetEnemyDetected())
+                                                                                    {
                                                                                       return true;
-                                                                                    } else {
+                                                                                    }
+                                                                                    else
+                                                                                    {
                                                                                       return false;
                                                                                     }
                                                                                   },
@@ -416,13 +608,20 @@ int main(int argc, char **argv){
   auto wing_color_detect_condition = std::make_shared<rrts::decision::PreconditionNode>("wing color detect condition",
                                                                                         blackboard_ptr_,
                                                                                         color_detected_action_,
-                                                                                        [&](){
-                                                                                          if (blackboard_ptr_->GetColordetected()
-                                                                                              != rrts::decision::ColorDetected ::NONE
-                                                                                              && blackboard_ptr_->GetColordetected()
-                                                                                                  != rrts::decision::ColorDetected ::FRONT) {
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                          {
+                                                                                            if (blackboard_ptr_->GetConditionOverride().wing_color_detect_condition)
+                                                                                              return true;
+                                                                                            else
+                                                                                              return false;
+                                                                                          }
+                                                                                          else if (blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::NONE && blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::FRONT)
+                                                                                          {
                                                                                             return true;
-                                                                                          } else {
+                                                                                          }
+                                                                                          else
+                                                                                          {
                                                                                             return false;
                                                                                           }
                                                                                         },
@@ -430,13 +629,22 @@ int main(int argc, char **argv){
 
   auto wing_under_attack_condition = std::make_shared<rrts::decision::PreconditionNode>("wing under attack condition",
                                                                                         blackboard_ptr_, turn_to_hurt_action_,
-                                                                                        [&](){
-                                                                                          if (blackboard_ptr_->GetArmorAttacked()!=
-                                                                                              rrts::decision::ArmorAttacked ::NONE
-                                                                                              && blackboard_ptr_->GetArmorAttacked()
-                                                                                                  != rrts::decision::ArmorAttacked ::FRONT) {
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                          {
+                                                                                            if (blackboard_ptr_->GetConditionOverride().wing_under_attack_condition)
+                                                                                              return true;
+                                                                                            else
+                                                                                              return false;
+                                                                                          }
+                                                                                          else if (blackboard_ptr_->GetArmorAttacked() !=
+                                                                                                       rrts::decision::ArmorAttacked ::NONE &&
+                                                                                                   blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::FRONT)
+                                                                                          {
                                                                                             return true;
-                                                                                          } else {
+                                                                                          }
+                                                                                          else
+                                                                                          {
                                                                                             return false;
                                                                                           }
                                                                                         },
@@ -453,13 +661,23 @@ int main(int argc, char **argv){
   auto wing_bot_condition = std::make_shared<rrts::decision::PreconditionNode>("wing bot condition", blackboard_ptr_,
                                                                                wing_bot_selector_,
                                                                                [&]() {
-                                                                                 if (robot_config.master()) {
+                                                                                 if (blackboard_ptr_->GetConditionOverrideEnable())
+                                                                                 {
+                                                                                   if (blackboard_ptr_->GetConditionOverride().wing_bot_condition)
+                                                                                     return true;
+                                                                                   else
+                                                                                     return false;
+                                                                                 }
+                                                                                 else if (robot_config.master())
+                                                                                 {
                                                                                    return false;
-                                                                                 } else {
+                                                                                 }
+                                                                                 else
+                                                                                 {
                                                                                    return true;
                                                                                  }
-                                                                               }, rrts::decision::AbortType::NONE);
-
+                                                                               },
+                                                                               rrts::decision::AbortType::BOTH);
 
   auto bot_selector_ = std::make_shared<rrts::decision::SelectorNode>("bot selector", blackboard_ptr_);
   bot_selector_->AddChildren(wing_bot_condition);
@@ -467,7 +685,4 @@ int main(int argc, char **argv){
 
   rrts::decision::BehaviorTree root(bot_selector_, 25);
   root.Execute();
-
 }
-
-

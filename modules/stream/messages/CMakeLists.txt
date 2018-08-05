@@ -30,6 +30,7 @@ add_message_files(
   GoalTask.msg
   GripperCmd.msg
   GripperInfo.msg
+  ConditionOverride.msg
 )
 
 add_service_files(
