@@ -30,6 +30,8 @@
 #include "messages/LocalPlannerAction.h"
 #include "messages/BotGoalAction.h"
 #include "messages/GoalTask.h"
+#include "messages/GetAmmoAction.h"
+#include "messages/GetAmmoActionGoal.h"
 
 #include "common/io.h"
 
@@ -58,10 +60,14 @@ class GoalFactory {
   typedef rrts::perception::map::Costmap2D CostMap2D;
   typedef std::shared_ptr<GoalFactory> GoalFactoryPtr;
 
+  typedef messages::GetAmmoGoal GetAmmoGoal;
+  typedef messages::GetAmmoActionResultConstPtr GetAmmoResult;
+
   GoalFactory(const Blackboard::Ptr &blackboard_ptr, const std::string & proto_file_path) :
       blackboard_ptr_(blackboard_ptr),
       global_planner_actionlib_client_("global_planner_node_action", true),
-      local_planner_actionlib_client_("local_planner_node_action", true) {
+      local_planner_actionlib_client_("local_planner_node_action", true),
+      get_ammo_actionlib_client_("get_ammo_node_action",true){
     self_check_done_ = false;
     lost_enemy_ = true;
     master_ = false;
@@ -117,6 +123,8 @@ class GoalFactory {
     LOG_INFO<<"Global planer server start!";
     local_planner_actionlib_client_.waitForServer();
     LOG_INFO<<"Local planer server start!";
+    get_ammo_actionlib_client_.waitForServer();
+    LOG_INFO<<"Get ammo server start!";
   }
 
   ~GoalFactory() = default;
@@ -246,6 +254,7 @@ class GoalFactory {
     zero_angle_vel.linear.y = 0;
     zero_angle_vel.angular.z = 0;
     angle_vel_pub_.publish(zero_angle_vel);
+    LOG_WARNING << "CANCEL WHIRL";
 
   }
 
@@ -793,8 +802,48 @@ class GoalFactory {
     return action_state_;
   }
 
+  void SendAmmoGoal(int index) {
+
+    get_ammo_goal_.ammobox_index = index;
+
+    get_ammo_actionlib_client_.sendGoal(get_ammo_goal_);
+  }
+
+  void UpdateGetAmmoActionState(){
+    auto state = get_ammo_actionlib_client_.getState();
+    if (state == actionlib::SimpleClientGoalState::ACTIVE){
+      LOG_INFO << " "<<__FUNCTION__<< ": ACTIVE";
+      get_ammo_action_state_ = BehaviorState::RUNNING;
+
+    } else if (state == actionlib::SimpleClientGoalState::PENDING) {
+      LOG_INFO << " "<<__FUNCTION__<< ": PENDING";
+      get_ammo_action_state_ = BehaviorState::RUNNING;
+
+    } else if (state == actionlib::SimpleClientGoalState::SUCCEEDED) {
+      get_ammo_action_state_ = BehaviorState::SUCCESS;
+
+    } else if (state == actionlib::SimpleClientGoalState::ABORTED) {
+      get_ammo_action_state_ = BehaviorState::FAILURE;
+
+    } else {
+      LOG_INFO<<"Error: "<<state.toString();
+      get_ammo_action_state_ = BehaviorState::FAILURE;
+    }
+  }
+
+  BehaviorState GetGetAmmoActionState() {
+    return get_ammo_action_state_;
+  }
+
+  void CancelAmmoGoal() {
+    LOG_INFO<<"Cancel Ammo Goal!";
+    get_ammo_action_state_ = BehaviorState::IDLE;
+    get_ammo_actionlib_client_.cancelAllGoals();
+
+  }
+
   void CancelGoal() {
-    LOG_INFO<<"Cancel Goal!";
+    LOG_WARNING<<"Cancel Goal!";
     switch_mode_ = false;
     global_planner_actionlib_client_.cancelGoal();
     local_planner_actionlib_client_.cancelGoal();
@@ -1046,9 +1095,11 @@ class GoalFactory {
   unsigned char * charmap_;
   LocalActionClient local_planner_actionlib_client_;
   GlobalActionClient global_planner_actionlib_client_;
+  actionlib::SimpleActionClient<messages::GetAmmoAction> get_ammo_actionlib_client_;
 
   GlobalGoal global_planner_goal_;
   LocalGoal local_planner_goal_;
+  GetAmmoGoal get_ammo_goal_;
 
   geometry_msgs::PoseStamped robot_map_pose_;
   std::vector<geometry_msgs::PoseStamped> patrol_goals_;
@@ -1080,6 +1131,7 @@ class GoalFactory {
   geometry_msgs::PoseStamped last_goal_;
 
   BehaviorState action_state_;
+  BehaviorState get_ammo_action_state_;
 
 
   float search_x_limit_;

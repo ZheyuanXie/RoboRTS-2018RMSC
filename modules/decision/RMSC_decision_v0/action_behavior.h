@@ -32,7 +32,7 @@
 #include "modules/decision/behavior_tree/behavior_tree.h"
 #include "modules/decision/behavior_tree/blackboard.h"
 
-#include "modules/decision/ICRA_decision/goal_factory.h"
+#include "modules/decision/RMSC_decision_v0/goal_factory.h"
 
 namespace rrts {
 namespace decision {
@@ -97,7 +97,7 @@ class WhirlAction : public ActionNode {
   };
 
   virtual BehaviorState Update() {
-    
+
     return goal_factory_ptr_->Whirl();
   }
 
@@ -381,6 +381,8 @@ class TurnToWoundedArmorAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
+    if (goal_factory_ptr_->GetActionState() != BehaviorState::RUNNING) 
+      blackboard_ptr_->PlaySound("/sound/turn_to_hurt.wav");
     LOG_INFO<<name_<<" "<<__FUNCTION__;
   };
 
@@ -428,6 +430,8 @@ class TurnToDetectedDirection : public ActionNode {
 
  private:
   virtual void OnInitialize() {
+    if (goal_factory_ptr_->GetActionState() != BehaviorState::RUNNING) 
+      blackboard_ptr_->PlaySound("/sound/turn_to_color.wav");
     LOG_INFO<<name_<<" "<<__FUNCTION__;
   };
 
@@ -579,6 +583,57 @@ class AuxiliaryAction : public ActionNode {
 
 }; // AuxiliaryAction
 
+class GetAmmoAction : public ActionNode {
+ public:
+
+  GetAmmoAction(const Blackboard::Ptr &blackboard_ptr, GoalFactory::GoalFactoryPtr &goal_factory_ptr) :
+      ActionNode::ActionNode("get_ammo_action", blackboard_ptr), goal_factory_ptr_(goal_factory_ptr) {
+
+  }
+
+  virtual ~GetAmmoAction() = default;
+ private:
+  virtual void OnInitialize() {
+    if (goal_factory_ptr_->GetActionState() != BehaviorState::RUNNING) 
+      blackboard_ptr_->PlaySound("/sound/head_ammo.wav");
+    LOG_INFO<<name_<<" "<<__FUNCTION__;
+  };
+
+  virtual BehaviorState Update() {
+
+    if (goal_factory_ptr_->GetGetAmmoActionState()!=BehaviorState::RUNNING){
+      LOG_WARNING << "SEND AMMO GOAL!";
+      goal_factory_ptr_->CancelGoal();
+      goal_factory_ptr_->SendAmmoGoal(12);
+    }
+
+    goal_factory_ptr_->UpdateGetAmmoActionState();
+
+    return goal_factory_ptr_->GetGetAmmoActionState();
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+        goal_factory_ptr_->CancelAmmoGoal();
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" IDLE!";
+        break;
+      case BehaviorState::SUCCESS:
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" SUCCESS!";
+        blackboard_ptr_->SetAmmoCollected(11);
+        break;
+      case BehaviorState::FAILURE:
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" FAILURE!";
+        break;
+      default:
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" ERROR!";
+        return;
+    }
+  }
+
+  GoalFactory::GoalFactoryPtr goal_factory_ptr_;
+
+}; // AuxiliaryAction
 }
 }
 

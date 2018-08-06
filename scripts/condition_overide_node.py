@@ -8,6 +8,7 @@ if __name__ == "__main__":
     rate = rospy.Rate(10)
     condition = ConditionOverride()
     condition.condition_override_enable = True
+    condition.game_stop_condition_ = False
     while not rospy.is_shutdown():
         pub_condition_.publish(condition)
         rate.sleep()

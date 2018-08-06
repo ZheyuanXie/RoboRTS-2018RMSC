@@ -39,12 +39,13 @@ int main(int argc, char **argv)
 
   blackboard_ptr_ -> PlaySound("/home/zxie/roborts_ws/src/rmsc4/sound/createtree.wav");
 
-  blackboard_ptr_ -> SetAmmoCollected(1);
+  //blackboard_ptr_ -> SetAmmoCollected(1);
 
   //leaves
   auto wait_action_ = std::make_shared<rrts::decision::WaitAction>(blackboard_ptr_, goal_factory_);
   auto whirl_action_ = std::make_shared<rrts::decision::WhirlAction>(blackboard_ptr_, goal_factory_);
   auto gain_buff_action_ = std::make_shared<rrts::decision::GainBuffAction>(blackboard_ptr_, goal_factory_);
+  auto get_ammo_action_ = std::make_shared<rrts::decision::GetAmmoAction>(blackboard_ptr_, goal_factory_);
 
   //tree
   auto gain_buff_sequence_ = std::make_shared<rrts::decision::SequenceNode>("gain_buff_sequence", blackboard_ptr_);
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
 
 
   auto fetch_ammo_sequence_ = std::make_shared<rrts::decision::SequenceNode>("fetch_ammo_sequence", blackboard_ptr_);
-  fetch_ammo_sequence_ ->AddChildren(whirl_action_);
+  fetch_ammo_sequence_ ->AddChildren(get_ammo_action_);
   //fetch_ammo_sequence_ ->AddChildren(ammo_goto_acion_); //TODO
   //fetch_ammo_sequence_ ->AddChildren(ammo_servo_action_); //TODO
   //fetch_ammo_sequence_ ->AddChildren(ammo_gripper_action_); // TODO
@@ -75,6 +76,7 @@ int main(int argc, char **argv)
   auto game_stop_condition_ = std::make_shared<rrts::decision::PreconditionNode>("game_stop_condition", blackboard_ptr_,
                                                                                  wait_action_,
                                                                                  [&]() {
+                                                                                   return false;
                                                                                    if (blackboard_ptr_->GetConditionOverride().game_stop_condition_)
                                                                                      return true;
                                                                                    else
