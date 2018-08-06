@@ -590,8 +590,27 @@ class Blackboard {
 
 
   void SetAmmoCollected(unsigned int index) {
-    LOG_INFO << "Ammobox Collected:" << index;
+    LOG_WARNING << "Ammobox Collected:" << index;
     ammobox_collected_cnt++;
+    ammobox_list_[index-1] = -1;
+  }
+
+  void SetAmmoNotCollected(unsigned int index) {
+    LOG_WARNING << "Ammobox Failed to Collected:" << index;
+    ammobox_list_[index-1]++;
+  }
+
+  int GetAmmoIndex() {
+    LOG_WARNING << ammobox_list_[9] << ammobox_list_[10] << ammobox_list_[11];
+    int min_cnt = 4;
+    int min_index = -1;
+    for (int i = 0; i < 15; i++){
+      if (ammobox_list_[i] < min_cnt && ammobox_list_[i] > 0){
+        min_cnt = ammobox_list_[i];
+        min_index = i + 1;
+      }
+    }
+    return min_index;
   }
 
   unsigned int GetAmmoCount() {
@@ -688,6 +707,13 @@ class Blackboard {
 
   // Ammobox 
   unsigned int ammobox_collected_cnt;
+  int ammobox_list_[16] = 
+  {
+    0,0,0,0,
+    0,0,0,0,
+    0,1,1,1,
+    0,0,0,0,
+  };
 
 };
 } //namespace decision

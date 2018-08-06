@@ -29,7 +29,7 @@
 #include "common/error_code.h"
 #include "common/log.h"
 
-#include "modules/decision/behavior_tree/behavior_tree.h"
+#include "modules/decision/RMSC_decision_v0/behavior_tree.h"
 #include "modules/decision/RMSC_decision_v0/blackboard.h"
 
 #include "modules/decision/RMSC_decision_v0/goal_factory.h"
@@ -594,8 +594,6 @@ class GetAmmoAction : public ActionNode {
   virtual ~GetAmmoAction() = default;
  private:
   virtual void OnInitialize() {
-    if (goal_factory_ptr_->GetActionState() != BehaviorState::RUNNING) 
-      blackboard_ptr_->PlaySound("/sound/head_ammo.wav");
     LOG_INFO<<name_<<" "<<__FUNCTION__;
   };
 
@@ -604,7 +602,12 @@ class GetAmmoAction : public ActionNode {
     if (goal_factory_ptr_->GetGetAmmoActionState()!=BehaviorState::RUNNING){
       LOG_WARNING << "SEND AMMO GOAL!";
       goal_factory_ptr_->CancelGoal();
-      goal_factory_ptr_->SendAmmoGoal(12);
+      ammobox_index_ = blackboard_ptr_->GetAmmoIndex();
+      if (ammobox_index_ == -1){
+        return BehaviorState::FAILURE;
+      }
+      blackboard_ptr_->PlaySound("/sound/head_ammo.wav");
+      goal_factory_ptr_->SendAmmoGoal(ammobox_index_);
     }
 
     goal_factory_ptr_->UpdateGetAmmoActionState();
@@ -620,7 +623,7 @@ class GetAmmoAction : public ActionNode {
         break;
       case BehaviorState::SUCCESS:
         LOG_INFO<<name_<<" "<<__FUNCTION__<<" SUCCESS!";
-        blackboard_ptr_->SetAmmoCollected(11);
+        blackboard_ptr_->SetAmmoCollected(ammobox_index_);
         break;
       case BehaviorState::FAILURE:
         LOG_INFO<<name_<<" "<<__FUNCTION__<<" FAILURE!";
@@ -631,6 +634,7 @@ class GetAmmoAction : public ActionNode {
     }
   }
 
+  unsigned int ammobox_index_;
   GoalFactory::GoalFactoryPtr goal_factory_ptr_;
 
 }; // AuxiliaryAction

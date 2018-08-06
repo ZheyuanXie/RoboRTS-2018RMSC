@@ -15,7 +15,7 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  ***************************************************************************/
 
-#include "modules/decision/behavior_tree/behavior_tree.h"
+#include "modules/decision/RMSC_decision_v0/behavior_tree.h"
 #include "modules/decision/RMSC_decision_v0/action_behavior.h"
 
 #include "common/log.h"
@@ -23,7 +23,7 @@
 int main(int argc, char **argv)
 {
   google::InitGoogleLogging(argv[0]);
-  FLAGS_stderrthreshold = google::INFO;
+  FLAGS_stderrthreshold = google::WARNING;
   FLAGS_colorlogtostderr = true;
   FLAGS_v = 3;
   google::InstallFailureSignalHandler();
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
   rrts::decision::DecisionConfig robot_config;
   rrts::common::ReadProtoFromTextFile("/modules/decision/RMSC_decision_v0/config/decision.prototxt", &robot_config);
 
-  blackboard_ptr_ -> PlaySound("/home/zxie/roborts_ws/src/rmsc4/sound/createtree.wav");
+  blackboard_ptr_ -> PlaySound("/sound/createtree.wav");
 
   //blackboard_ptr_ -> SetAmmoCollected(1);
 
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
   auto first_ammo_condition_ = std::make_shared<rrts::decision::PreconditionNode>("first_ammo_condition", blackboard_ptr_,
                                                                                  gain_buff_sequence_,
                                                                                  [&]() {
-                                                                                   if (blackboard_ptr_->GetAmmoCount() >= 1)
+                                                                                   if (blackboard_ptr_->GetAmmoCount() >= 3)
                                                                                      return true;
                                                                                    else
                                                                                      return false;

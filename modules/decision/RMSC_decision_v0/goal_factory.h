@@ -38,7 +38,7 @@
 #include "modules/planning/local_planner/line_iterator.h"
 
 #include "modules/decision/RMSC_decision_v0/blackboard.h"
-#include "modules/decision/behavior_tree/behavior_node.h"
+#include "modules/decision/RMSC_decision_v0/behavior_node.h"
 #include "modules/perception/map/costmap/costmap_interface.h"
 
 namespace rrts {
@@ -805,7 +805,6 @@ class GoalFactory {
   void SendAmmoGoal(int index) {
 
     get_ammo_goal_.ammobox_index = index;
-
     get_ammo_actionlib_client_.sendGoal(get_ammo_goal_);
   }
 
@@ -836,17 +835,20 @@ class GoalFactory {
   }
 
   void CancelAmmoGoal() {
-    LOG_INFO<<"Cancel Ammo Goal!";
     get_ammo_action_state_ = BehaviorState::IDLE;
-    get_ammo_actionlib_client_.cancelAllGoals();
-
+    auto state = get_ammo_actionlib_client_.getState();
+    if (state == actionlib::SimpleClientGoalState::ACTIVE || state == actionlib::SimpleClientGoalState::PENDING)
+    {
+      LOG_WARNING<<"Cancel Ammo Goal!";
+      get_ammo_actionlib_client_.cancelAllGoals();
+    }
   }
 
   void CancelGoal() {
     LOG_WARNING<<"Cancel Goal!";
     switch_mode_ = false;
-    global_planner_actionlib_client_.cancelGoal();
-    local_planner_actionlib_client_.cancelGoal();
+    global_planner_actionlib_client_.cancelAllGoals();
+    local_planner_actionlib_client_.cancelAllGoals();
     action_state_ = BehaviorState::IDLE;
     blackboard_ptr_->SetChassisMode(ChassisMode::AUTO_SEPARATE_GIMBAL);
 
