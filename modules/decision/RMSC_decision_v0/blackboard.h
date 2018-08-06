@@ -597,7 +597,7 @@ class Blackboard {
 
   void SetAmmoNotCollected(unsigned int index) {
     LOG_WARNING << "Ammobox Failed to Collected:" << index;
-    ammobox_list_[index-1]++;
+    ammobox_list_[index-1] = ammobox_list_[index-1] + 1;
   }
 
   int GetAmmoIndex() {
@@ -712,7 +712,7 @@ class Blackboard {
     0,0,0,0,
     0,0,0,0,
     0,1,1,1,
-    0,0,0,0,
+    1,0,0,0,
   };
 
 };

@@ -604,15 +604,15 @@ class GetAmmoAction : public ActionNode {
       goal_factory_ptr_->CancelGoal();
       ammobox_index_ = blackboard_ptr_->GetAmmoIndex();
       if (ammobox_index_ == -1){
-        return BehaviorState::FAILURE;
+        return BehaviorState::SUCCESS;
       }
       blackboard_ptr_->PlaySound("/sound/head_ammo.wav");
       goal_factory_ptr_->SendAmmoGoal(ammobox_index_);
     }
 
     goal_factory_ptr_->UpdateGetAmmoActionState();
-
-    return goal_factory_ptr_->GetGetAmmoActionState();
+    BehaviorState state = goal_factory_ptr_->GetGetAmmoActionState();
+    return state;
   }
 
   virtual void OnTerminate(BehaviorState state) {
@@ -623,10 +623,11 @@ class GetAmmoAction : public ActionNode {
         break;
       case BehaviorState::SUCCESS:
         LOG_INFO<<name_<<" "<<__FUNCTION__<<" SUCCESS!";
-        blackboard_ptr_->SetAmmoCollected(ammobox_index_);
+        if (ammobox_index_ > 0) blackboard_ptr_->SetAmmoCollected(ammobox_index_);
         break;
       case BehaviorState::FAILURE:
-        LOG_INFO<<name_<<" "<<__FUNCTION__<<" FAILURE!";
+        LOG_WARNING<<name_<<" "<<__FUNCTION__<<" FAILURE!";
+        if (ammobox_index_ > 0) blackboard_ptr_->SetAmmoNotCollected(ammobox_index_);
         break;
       default:
         LOG_INFO<<name_<<" "<<__FUNCTION__<<" ERROR!";
@@ -634,7 +635,7 @@ class GetAmmoAction : public ActionNode {
     }
   }
 
-  unsigned int ammobox_index_;
+  int ammobox_index_ = 0;
   GoalFactory::GoalFactoryPtr goal_factory_ptr_;
 
 }; // AuxiliaryAction

@@ -31,22 +31,26 @@ TARGET_OFFSET_X  = 0.5
 TARGET_OFFSET_Y = 0.05
 KP_VX = 3.5
 KP_VY = 4
-KP_VYAW = 1
+KP_VYAW = 0.7
 MAX_LINEAR_VEL  = 0.2
 MAX_ANGULAR_VEL = 0.8
 # blind
 BLIND_APPROACH_VX = -0.1
 WITHDRAW_VX = 0.2
+# error tolerance
+X_ERROR = 0.05
+Y_ERROR = 0.05
+YAW_ERROR = 0.15
 
 AmmoBoxes = [
     {'id':7,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(1.70,3.30,-1.57)},
     {'id':8,  'center':(0.25,2.35,AB_HEIGHT),'checkpoint':(0.84,3.06,1.57)},
     {'id':9,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.40,3.00,0.00)},
-    {'id':10, 'center':(1.95,2.60,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00)},
-    {'id':11, 'center':(1.95,2.10,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00)},
-    {'id':12, 'center':(1.95,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,0.00)},
-    {'id':13, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,3.14)},
-    {'id':14, 'center':(3.25,0.90,AB_HEIGHT),'checkpoint':(2.80,1.20,3.14)},
+    {'id':14, 'center':(1.95,2.60,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00)},
+    {'id':13, 'center':(1.95,2.10,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00)},
+    {'id':11, 'center':(1.95,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,0.00)},
+    {'id':10, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,3.14)},
+    {'id':12, 'center':(3.25,0.90,AB_HEIGHT),'checkpoint':(2.80,1.20,3.14)},
     {'id':15, 'center':(3.25,0.20,AB_HEIGHT),'checkpoint':(2.80,0.50,3.14)}
 ]
 
@@ -207,8 +211,7 @@ class GetAmmoNode(object):
             y = dist_cut * np.sin(theta_cut)
             mean_y = np.average(y)
             self.cmd_vel.linear.y = (TARGET_OFFSET_Y - mean_y) * KP_VY if self.cmd_vel.angular.z < 0.3 else 0
-            self.servo_top_reached = np.abs(TARGET_OFFSET_Y - mean_y) < 0.025
-
+            self.servo_top_reached = np.abs(TARGET_OFFSET_Y - mean_y) < X_ERROR
     def BaseLidarCB(self,data):
         if self.state == GetAmmoStatus.SERVO:
             theta = np.deg2rad(np.linspace(-SERVO_AOV/2,SERVO_AOV/2,num=SERVO_AOV+1))
@@ -225,7 +228,7 @@ class GetAmmoNode(object):
             mean_angle = np.arctan(1/np.polyfit(x, y, 1)[0])
             self.cmd_vel.linear.x = (TARGET_OFFSET_X - mean_x) * KP_VX
             self.cmd_vel.angular.z = (0 - mean_angle) * KP_VYAW
-            self.servo_base_reached = np.abs(TARGET_OFFSET_X - mean_x) < 0.025 and np.abs(0-mean_angle) < 0.1
+            self.servo_base_reached = np.abs(TARGET_OFFSET_X - mean_x) < Y_ERROR and np.abs(0-mean_angle) < YAW_ERROR
             #print mean_x,mean_angle
 
     def SendCmdVel(self, vx, vy, vyaw):

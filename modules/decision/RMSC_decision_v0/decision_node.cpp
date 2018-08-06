@@ -65,6 +65,7 @@ int main(int argc, char **argv)
 
   auto fetch_ammo_sequence_ = std::make_shared<rrts::decision::SequenceNode>("fetch_ammo_sequence", blackboard_ptr_);
   fetch_ammo_sequence_ ->AddChildren(get_ammo_action_);
+  //fetch_ammo_sequence_ ->AddChildren(whirl_action_);
   //fetch_ammo_sequence_ ->AddChildren(ammo_goto_acion_); //TODO
   //fetch_ammo_sequence_ ->AddChildren(ammo_servo_action_); //TODO
   //fetch_ammo_sequence_ ->AddChildren(ammo_gripper_action_); // TODO
