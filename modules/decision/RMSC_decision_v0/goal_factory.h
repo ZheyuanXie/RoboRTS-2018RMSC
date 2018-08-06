@@ -37,7 +37,7 @@
 
 #include "modules/planning/local_planner/line_iterator.h"
 
-#include "modules/decision/behavior_tree/blackboard.h"
+#include "modules/decision/RMSC_decision_v0/blackboard.h"
 #include "modules/decision/behavior_tree/behavior_node.h"
 #include "modules/perception/map/costmap/costmap_interface.h"
 

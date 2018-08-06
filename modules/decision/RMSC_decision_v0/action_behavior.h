@@ -30,7 +30,7 @@
 #include "common/log.h"
 
 #include "modules/decision/behavior_tree/behavior_tree.h"
-#include "modules/decision/behavior_tree/blackboard.h"
+#include "modules/decision/RMSC_decision_v0/blackboard.h"
 
 #include "modules/decision/RMSC_decision_v0/goal_factory.h"
 
