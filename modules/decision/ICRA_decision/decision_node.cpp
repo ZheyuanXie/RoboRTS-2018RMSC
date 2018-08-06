@@ -23,10 +23,12 @@
 int main(int argc, char **argv)
 {
   google::InitGoogleLogging(argv[0]);
-  FLAGS_stderrthreshold = google::WARNING;
+  FLAGS_stderrthreshold = google::INFO;
   FLAGS_colorlogtostderr = true;
   FLAGS_v = 3;
   google::InstallFailureSignalHandler();
+
+  LOG_INFO << "ICRA Decision Node Starting...";
 
   ros::init(argc, argv, "decision_node");
   /*

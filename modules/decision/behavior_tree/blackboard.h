@@ -228,7 +228,7 @@ class Blackboard {
   }
 
   void ConditionOverrideCallback(const messages::ConditionOverride::ConstPtr & condition_override){
-    LOG_ERROR<<"condition override received!";
+    //LOG_ERROR<<"condition override received!";
     condition_override_ = *condition_override;
     //LOG_ERROR<<condition_override_;
   }

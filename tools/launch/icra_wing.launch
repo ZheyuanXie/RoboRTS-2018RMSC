@@ -1,0 +1,12 @@
+<launch>
+
+  <group ns="wing">
+
+  <!-- Run the Decision Node -->
+  <node pkg="roborts" type="ICRA_decision_node" name="ICRA_decision_node" respawn="false" />
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts)/tools/rviz/rm_wing.rviz" />
+
+  </group>
+</launch>
+
