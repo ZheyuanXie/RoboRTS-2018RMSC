@@ -80,14 +80,15 @@ class GetAmmoNode(object):
         self.state = GetAmmoStatus.IDLE
         self.navto_reached = False
         self.navto_failed = False
+        self.no_target = 0
         self.servo_base_reached = False
         self.servo_top_reached = False
         self.withdraw_cnt = 0
 
         # process laserscan data
-        self.sub_top_lidar = rospy.Subscriber("/scan2", LaserScan, self.TopLidarCB)
-        self.sub_base_lidar = rospy.Subscriber("/scan", LaserScan, self.BaseLidarCB)
-        self.pub_cmd_vel = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
+        self.sub_top_lidar = rospy.Subscriber("scan2", LaserScan, self.TopLidarCB)
+        self.sub_base_lidar = rospy.Subscriber("scan", LaserScan, self.BaseLidarCB)
+        self.pub_cmd_vel = rospy.Publisher("cmd_vel", Twist, queue_size=1)
         self.cmd_vel = Twist()
     
     def ExecuteCB(self, goal):
@@ -137,6 +138,7 @@ class GetAmmoNode(object):
                 if self.navto_reached:
                     self.servo_top_reached = False
                     self.servo_bases_reached = False
+                    self.no_target = 0
                     self.state = GetAmmoStatus.SERVO
                 elif self.navto_failed:
                     self._as.set_aborted()
@@ -145,6 +147,10 @@ class GetAmmoNode(object):
 
             elif self.state == GetAmmoStatus.SERVO:
                 self.pub_cmd_vel.publish(self.cmd_vel)
+                if self.no_target > 10:
+                    self._as.set_aborted()
+                    self.state = GetAmmoStatus.IDLE
+                    break
                 if self.servo_base_reached and self.servo_top_reached:
                     if NO_GRASP:
                         self._as.set_succeeded()
@@ -195,6 +201,7 @@ class GetAmmoNode(object):
             theta_cut = np.delete(theta, range_cut_index)
             dist_cut = np.delete(dist, range_cut_index)
             if theta_cut.size == 0:
+                self.no_target += 1
                 print 'TOP LIDAR: NO TARTGET'
                 return
             y = dist_cut * np.sin(theta_cut)

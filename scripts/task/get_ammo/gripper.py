@@ -4,7 +4,7 @@ from messages.msg import GripperCmd, GripperInfo
 CMD_REPEAT = 3
 
 class GripperController:
-    def __init__(self, cmd_topic_name='/cmd_grip', fb_topic_name='/gripper'):
+    def __init__(self, cmd_topic_name='cmd_grip', fb_topic_name='gripper'):
         self.pub_cmd = rospy.Publisher(cmd_topic_name, GripperCmd, queue_size=1)
         self.sub_fb = rospy.Subscriber(fb_topic_name, GripperInfo, callback=self.FeedbackCB)
         self.feedback = False
