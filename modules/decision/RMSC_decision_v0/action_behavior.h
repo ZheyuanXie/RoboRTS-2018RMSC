@@ -91,11 +91,13 @@ class WhirlAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
+    if (goal_factory_ptr_->GetActionState() != BehaviorState::RUNNING) 
+      blackboard_ptr_->PlaySound("/sound/no_enemy.wav");
     LOG_INFO<<name_<<" "<<__FUNCTION__;
   };
 
   virtual BehaviorState Update() {
-
+    
     return goal_factory_ptr_->Whirl();
   }
 
@@ -286,6 +288,8 @@ class GainBuffAction : public ActionNode {
  private:
   virtual void OnInitialize() {
     LOG_INFO<<name_<<" "<<__FUNCTION__;
+    if (goal_factory_ptr_->GetActionState() != BehaviorState::RUNNING) 
+      blackboard_ptr_->PlaySound("/sound/go_to_buff.wav");
   };
 
   virtual BehaviorState Update() {

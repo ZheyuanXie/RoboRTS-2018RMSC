@@ -42,6 +42,7 @@
 #include "common/io.h"
 #include "modules/decision/behavior_tree/proto/decision.pb.h"
 #include "modules/perception/map/costmap/costmap_interface.h"
+#include "sound_play/sound_play.h"
 
 namespace rrts{
 namespace decision {
@@ -123,7 +124,8 @@ class Blackboard {
       arrive_(false),
       localization_actionlib_client_("localization_node_action", true),
       armor_detection_actionlib_client_("armor_detection_node_action", true),
-      enemy_direction_actionlib_client_("color_detection_node_action", true){
+      enemy_direction_actionlib_client_("color_detection_node_action", true),
+      ammobox_collected_cnt(0){
 
     last_get_hp_time_ = ros::Time::now();
 
@@ -587,6 +589,22 @@ class Blackboard {
   }
 
 
+  void SetAmmoCollected(unsigned int index) {
+    LOG_INFO << "Ammobox Collected:" << index;
+    ammobox_collected_cnt++;
+  }
+
+  unsigned int GetAmmoCount() {
+    LOG_INFO << "Get Ammobox Collected Count:" << ammobox_collected_cnt;
+    return ammobox_collected_cnt;
+  }
+
+  void PlaySound(const std::string &filename){
+    std::string path = ros::package::getPath("roborts");
+    LOG_INFO << "PLAY:" << path+filename;
+    sound_client_.playWave(path+filename);
+  }
+
  private:
   //! tf
   std::shared_ptr<tf::TransformListener> tf_ptr_;
@@ -666,6 +684,10 @@ class Blackboard {
 
   // Debug Info
   messages::ConditionOverride condition_override_;
+  sound_play::SoundClient sound_client_;
+
+  // Ammobox 
+  unsigned int ammobox_collected_cnt;
 
 };
 } //namespace decision
