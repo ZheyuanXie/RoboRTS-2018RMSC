@@ -2,5 +2,6 @@
   <node name="delta_2b_lidar"    pkg="delta_2b_lidar"  type="delta_2b_lidar_node" output="screen">
   <param name="serial_port"         type="string" value="/dev/3ilidar"/>
   <param name="frame_id"            type="string" value="top_laser_link"/>
+  <param name="lidar_scan"          type="string" value="scan2">
   </node>
 </launch>
