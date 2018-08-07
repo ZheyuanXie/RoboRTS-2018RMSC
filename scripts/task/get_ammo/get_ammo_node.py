@@ -227,6 +227,7 @@ class GetAmmoNode(object):
             mean_y = np.average(y)
             self.cmd_vel.linear.y = (TARGET_OFFSET_Y - mean_y) * KP_VY if self.cmd_vel.angular.z < 0.3 else 0
             self.servo_top_reached = np.abs(TARGET_OFFSET_Y - mean_y) < X_ERROR
+            
     def BaseLidarCB(self,data):
         if self.state == GetAmmoStatus.SERVO:
             theta = np.deg2rad(np.linspace(-SERVO_AOV/2,SERVO_AOV/2,num=SERVO_AOV+1))

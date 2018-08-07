@@ -640,8 +640,6 @@ class Blackboard {
 
   ros::Subscriber shoot_info_sub_;
 
-  ros::Subscriber condition_override_sub_;
-
   ros::Publisher track_pub_;
 
   ros::ServiceServer game_buff_status_server_;
@@ -655,6 +653,10 @@ class Blackboard {
   ros::ServiceClient gimbal_mode_client_;
 
   ros::ServiceClient shoot_control_client_;
+
+  // Subscriber
+  ros::Subscriber condition_override_sub_;
+  ros::Subscriber ammo_detection_sub_;
 
   //! Action client
   actionlib::SimpleActionClient<messages::LocalizationAction> localization_actionlib_client_;

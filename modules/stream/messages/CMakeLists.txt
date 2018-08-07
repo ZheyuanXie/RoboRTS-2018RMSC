@@ -31,6 +31,7 @@ add_message_files(
   GripperCmd.msg
   GripperInfo.msg
   ConditionOverride.msg
+  AmmoDetect.msg
 )
 
 add_service_files(

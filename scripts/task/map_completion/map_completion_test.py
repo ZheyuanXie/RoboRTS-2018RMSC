@@ -9,6 +9,7 @@ import sensor_msgs.point_cloud2 as pc2
 from geometry_msgs.msg import Point32, Vector3, PointStamped
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import MarkerArray, Marker
+from messages.msg import AmmoDetect
 
 from actionlib import ActionClient
 
@@ -36,6 +37,7 @@ AmmoBoxPossiblePos = [
 
 class AmmoBoxLocation:
     def __init__(self,abp):
+        self.id = abp['id']
         self.x = abp['center'][0] + MAP_ORIGIN_OFFSET_X
         self.y = abp['center'][1] + MAP_ORIGIN_OFFSET_Y
         self.z = abp['center'][2]
@@ -65,6 +67,7 @@ class MapCompletionTest(object):
         self.pub_pc = rospy.Publisher("/converted_pc", PointCloud, queue_size=1)
 
         # publish the marker array to visualize in rviz
+        self.pub_ammo_detect = rospy.Publisher("ammo_detect", AmmoDetect, queue_size=1)
         self.pub_markers = rospy.Publisher("/ammobox_markers", MarkerArray, queue_size=1)
         self.marker_timer = rospy.Timer(rospy.Duration(0.1), self.MarkerTimerCB)
 
@@ -91,8 +94,10 @@ class MapCompletionTest(object):
     
     def MarkerTimerCB(self,event):
         markerArray = MarkerArray()
+        ad_msg = AmmoDetect()
         ammobox_detected = 0
         for ab in self.ammobox_list:
+            ad_msg.ammo_detect.append(ab.id)
             marker = Marker()
             marker.header.frame_id = "map"
             marker.type = marker.CUBE
@@ -111,6 +116,8 @@ class MapCompletionTest(object):
             m.id = id
             id += 1
         self.pub_markers.publish(markerArray)
+        self.pub_ammo_detect.publish(ad_msg)
+
 
 if __name__ == "__main__":
     rospy.init_node("map_completion_test")
