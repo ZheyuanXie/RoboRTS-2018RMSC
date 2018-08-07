@@ -19,7 +19,7 @@ from gripper import GripperController
 
 # debug mode
 SERVO_ONLY = False
-NO_GRASP = True
+NO_GRASP = False
 
 # environment
 AB_HEIGHT = 0.55
@@ -28,17 +28,17 @@ MAP_ORIGIN_OFFSET_Y = 0.25
 # servo
 SERVO_AOV       = 40
 TARGET_OFFSET_X  = 0.5
-TARGET_OFFSET_Y = 0.05
+TARGET_OFFSET_Y = 0.0
 KP_VX = 3.5
-KP_VY = 4
+KP_VY = 3.5
 KP_VYAW = 0.7
 MAX_LINEAR_VEL  = 0.2
 MAX_ANGULAR_VEL = 0.8
 # blind
 BLIND_APPROACH_VX = -0.1
-WITHDRAW_VX = 0.2
+WITHDRAW_VX = 0.5
 # error tolerance
-X_ERROR = 0.05
+X_ERROR = 0.02
 Y_ERROR = 0.05
 YAW_ERROR = 0.15
 
@@ -46,11 +46,11 @@ AmmoBoxes = [
     {'id':7,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(1.70,3.30,-1.57)},
     {'id':8,  'center':(0.25,2.35,AB_HEIGHT),'checkpoint':(0.84,3.06,1.57)},
     {'id':9,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.40,3.00,0.00)},
-    {'id':14, 'center':(1.95,2.60,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00)},
-    {'id':13, 'center':(1.95,2.10,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00)},
-    {'id':11, 'center':(1.95,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,0.00)},
-    {'id':10, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,3.14)},
-    {'id':12, 'center':(3.25,0.90,AB_HEIGHT),'checkpoint':(2.80,1.20,3.14)},
+    {'id':10, 'center':(1.95,2.40,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00)},
+    {'id':11, 'center':(1.95,1.90,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00)},
+    {'id':12, 'center':(1.95,1.40,AB_HEIGHT),'checkpoint':(2.80,2.00,0.00)},
+    {'id':13, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,3.14)},
+    {'id':14, 'center':(3.25,0.90,AB_HEIGHT),'checkpoint':(2.80,1.20,3.14)},
     {'id':15, 'center':(3.25,0.20,AB_HEIGHT),'checkpoint':(2.80,0.50,3.14)}
 ]
 
@@ -85,8 +85,10 @@ class GetAmmoNode(object):
         self.navto_reached = False
         self.navto_failed = False
         self.no_target = 0
+        self.servo_cnt = 0
         self.servo_base_reached = False
         self.servo_top_reached = False
+        self.touch_cnt = 0
         self.withdraw_cnt = 0
 
         # process laserscan data
@@ -143,13 +145,16 @@ class GetAmmoNode(object):
                     self.servo_top_reached = False
                     self.servo_bases_reached = False
                     self.no_target = 0
+                    self.servo_cnt = 0
                     self.state = GetAmmoStatus.SERVO
+                    self._ac_navto.cancel_all_goals()
                 elif self.navto_failed:
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
 
             elif self.state == GetAmmoStatus.SERVO:
+                self.servo_cnt += 1
                 self.pub_cmd_vel.publish(self.cmd_vel)
                 if self.no_target > 10:
                     self._as.set_aborted()
@@ -162,15 +167,24 @@ class GetAmmoNode(object):
                         break
                     self.gripper.SetState(GripperCmd.GRIP_HIGH)
                     self.state = GetAmmoStatus.BLIND
+                if self.servo_cnt > 60:
+                    self._as.set_aborted()
+                    self.state = GetAmmoStatus.IDLE
+                    break
 
             elif self.state == GetAmmoStatus.BLIND:
                 self.SendCmdVel(BLIND_APPROACH_VX,0.,0.)
                 if self.gripper.feedback == GripperInfo.TOUCHED:
-                    # Gripper movement is triggered automatically by the MCU
+                    # Gripper movement is triggered automatically by the 
+                    self.touch_cnt = 0
                     self.state = GetAmmoStatus.GRASP
                     
             elif self.state == GetAmmoStatus.GRASP:
-                self.SendCmdVel(0.,0.,0.)
+                self.touch_cnt += 1
+                if self.touch_cnt > 10:
+                    self.SendCmdVel(0.,0.,0.)
+                else:
+                    self.SendCmdVel(WITHDRAW_VX,0.,0.)
                 if self.gripper.feedback == GripperInfo.DONE:
                     self.withdraw_cnt = 0
                     self.state = GetAmmoStatus.WITHDRAW
@@ -178,7 +192,7 @@ class GetAmmoNode(object):
             elif self.state == GetAmmoStatus.WITHDRAW:
                 self.SendCmdVel(WITHDRAW_VX,0.,0.)
                 self.withdraw_cnt += 1
-                if self.withdraw_cnt > 20:
+                if self.withdraw_cnt > 15:
                     self._as.set_succeeded()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -192,6 +206,7 @@ class GetAmmoNode(object):
     def NavToDoneCB(self,terminal_state,result):
         if terminal_state == GoalStatus.SUCCEEDED:
             self.navto_reached = True
+            self._ac_navto.cancel_all_goals()
             print 'Navto reached'
         else:
             self.navto_failed = True
@@ -236,6 +251,7 @@ class GetAmmoNode(object):
         self.cmd_vel.linear.y = np.clip(vy, -MAX_LINEAR_VEL, MAX_LINEAR_VEL)
         self.cmd_vel.angular.z = np.clip(vyaw, -MAX_ANGULAR_VEL, MAX_ANGULAR_VEL)
         self.pub_cmd_vel.publish(self.cmd_vel)
+        print self.cmd_vel
     
 
 

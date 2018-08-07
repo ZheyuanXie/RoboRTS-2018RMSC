@@ -50,7 +50,7 @@ class NavToNode(object):
                 self._ac_gp.cancel_all_goals()
                 self._ac_lp.cancel_all_goals()
                 return
-            if self.global_planner_done:
+            if self.global_planner_done and self.local_planner_done:
                 self._as.set_succeeded()
                 print 'SUCCESS'
                 break
