@@ -38,6 +38,7 @@
 #include "messages/GoalTask.h"
 #include "messages/SelfCheck.h"
 #include "messages/ConditionOverride.h"
+#include "messages/AmmoDetect.h"
 
 #include "common/io.h"
 #include "modules/decision/behavior_tree/proto/decision.pb.h"
@@ -177,6 +178,8 @@ class Blackboard {
     gimbal_mode_client_ = nh.serviceClient<messages::GimbalMode>("set_gimbal_mode");
     shoot_control_client_ = nh.serviceClient<messages::ShootModeControl>("shoot_mode_control");
     track_pub_=nh.advertise<geometry_msgs::PoseStamped>("track_pose",100);
+
+    ammo_detection_sub_ = nh.subscribe("ammo_detect", 30, &Blackboard::AmmoDetectionCallback, this);
 
     rrts::decision::DecisionConfig decision_config;
     rrts::common::ReadProtoFromTextFile(proto_file_path, &decision_config);
@@ -601,7 +604,10 @@ class Blackboard {
   }
 
   int GetAmmoIndex() {
-    LOG_WARNING << ammobox_list_[9] << ammobox_list_[10] << ammobox_list_[11];
+    LOG_WARNING << ammobox_list_[0] << ammobox_list_[1] << ammobox_list_[2] << ammobox_list_[3] << "|"
+            << ammobox_list_[4] << ammobox_list_[5] << ammobox_list_[6] << ammobox_list_[7] << "|"
+            << ammobox_list_[8] << ammobox_list_[9] << ammobox_list_[10] << ammobox_list_[11] << "|"
+            << ammobox_list_[12] << ammobox_list_[13] << ammobox_list_[14];
     int min_cnt = 4;
     int min_index = -1;
     for (int i = 0; i < 15; i++){
@@ -622,6 +628,18 @@ class Blackboard {
     std::string path = ros::package::getPath("roborts");
     LOG_INFO << "PLAY:" << path+filename;
     sound_client_.playWave(path+filename);
+  }
+
+  void AmmoDetectionCallback(const messages::AmmoDetectConstPtr &msg) {
+    if (ammo_detect_init) {
+      return;
+    }
+    LOG_WARNING << "AMMO DETECT CB!";
+    for (std::vector<int32_t>::const_iterator it = msg->ammo_detect.begin(); it != msg->ammo_detect.end(); ++it)
+    {
+      ammobox_list_[*it - 1] = 1;
+    }
+    ammo_detect_init = true;
   }
 
  private:
@@ -709,12 +727,13 @@ class Blackboard {
 
   // Ammobox 
   unsigned int ammobox_collected_cnt;
-  int ammobox_list_[16] = 
+  bool ammo_detect_init = false;
+  int ammobox_list_[15] = 
   {
     0,0,0,0,
     0,0,0,0,
-    0,1,1,1,
-    1,0,0,0,
+    0,0,0,0,
+    0,0,0
   };
 
 };

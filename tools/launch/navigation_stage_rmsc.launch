@@ -30,6 +30,9 @@
   <node pkg="roborts" type="local_planner_node" name="local_planner_node" respawn="false" />
 
   <!-- Run the Navto Node -->
-  <node pkg="roborts" type="NavToActionServer.py" name="navto_node" respawn="false" />
+  <node pkg="roborts" type="nav_to_node.py" name="nav_to_node" respawn="false" />
+
+  <!-- Run the GetAmmo Node -->
+  <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" />
 
 </launch>
