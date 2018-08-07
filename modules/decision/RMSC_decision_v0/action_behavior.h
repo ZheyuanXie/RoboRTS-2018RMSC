@@ -606,7 +606,15 @@ class GetAmmoAction : public ActionNode {
       if (ammobox_index_ == -1){
         return BehaviorState::SUCCESS;
       }
-      blackboard_ptr_->PlaySound("/sound/head_ammo.wav");
+      switch (blackboard_ptr_->GetAmmoCount()) {
+        case 0: blackboard_ptr_->PlaySound("/sound/getammo1.wav"); break;
+        case 1: blackboard_ptr_->PlaySound("/sound/getammo2.wav"); break;
+        case 2: blackboard_ptr_->PlaySound("/sound/getammo3.wav"); break;
+        case 3: blackboard_ptr_->PlaySound("/sound/getammo4.wav"); break;
+        case 4: blackboard_ptr_->PlaySound("/sound/getammo5.wav"); break;
+        case 5: blackboard_ptr_->PlaySound("/sound/getammolast.wav"); break;
+      }
+      
       goal_factory_ptr_->SendAmmoGoal(ammobox_index_);
     }
 
