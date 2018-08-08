@@ -3,6 +3,7 @@ import rospy
 from actionlib import SimpleActionClient
 from messages.msg import NavToAction, NavToActionGoal
 from actionlib_msgs.msg import GoalStatus
+import tf
 
 def help():
     print '''
@@ -28,12 +29,15 @@ if __name__ == "__main__":
         if cmd == '1':
             x = input('target_x:')
             y = input('target_y:')
+            yaw = input('yaw:')
             g = NavToActionGoal()
+            q = tf.transformations.quaternion_from_euler(0,0,yaw)
             g.goal.navgoal.pose.position.x = x
             g.goal.navgoal.pose.position.y = y
-            g.goal.navgoal.pose.orientation.w = 1
+            g.goal.navgoal.pose.orientation.z = q[2]
+            g.goal.navgoal.pose.orientation.w = q[3]
             ac_.send_goal(g.goal, done_cb=done_cb, active_cb=active_cb, feedback_cb=None)
-            ac_.wait_for_result()
+            # ac_.wait_for_result()
         elif cmd == '2':
             ac_.cancel_all_goals()
         elif cmd == '3':

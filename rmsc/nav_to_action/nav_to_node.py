@@ -62,7 +62,7 @@ class NavToNode(object):
                 self._ac_gp.send_goal(self.global_planner_goal_,self.GlobalPlannerDoneCB,None,self.GlobalPlannerFeedbackCallback)
                 self.new_goal_ = False
             if self.new_path_:
-                self._ac_lp.send_goal(self.local_planner_goal_,self.LocalPlannerDoneCallback)
+                self._ac_lp.send_goal(self.local_planner_goal_,self.LocalPlannerDoneCallback,None,self.LocalPlanerFeedbackCallback)
                 self.new_path_ = False
             try:
                 rate.sleep()
@@ -81,6 +81,9 @@ class NavToNode(object):
     def LocalPlannerDoneCallback(self,data1,data2):
         #print "LP:",data1,data2,rospy.get_time()
         self.local_planner_done = True
+    
+    def LocalPlanerFeedbackCallback(self,data):
+        pass
 
 if __name__ == "__main__":
     rospy.init_node("nav_to_node")

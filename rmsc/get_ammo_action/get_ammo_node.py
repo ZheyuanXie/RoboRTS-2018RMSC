@@ -20,8 +20,8 @@ from gripper import GripperController
 
 # debug mode
 SERVO_ONLY = False
-VISUAL_ONLY = True
-NO_GRASP = False
+VISUAL_ONLY = False
+NO_GRASP = True
 
 # environment
 AB_HEIGHT = 0.55
@@ -46,15 +46,15 @@ YAW_ERROR = 0.2
 
 AmmoBoxes = [
     # ground
-    {'id':1,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
-    {'id':2,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
-    {'id':3,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
-    {'id':4,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
-    {'id':5,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
-    {'id':6,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    # {'id':1,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    {'id':2,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(1.20,4.30,-1.57),'type':False},
+    {'id':3,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(3.00,3.80,-1.57),'type':False},
+    {'id':4,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(0.50,4.65,1.57),'type':False},
+    {'id':5,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(1.05,4.30,1.57),'type':False},
+    # {'id':6,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
     # elevated
-    {'id':7,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0.00),'type':True},
-    {'id':8,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
+    {'id':7,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,-1.57),'type':True},
+    # {'id':8,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
     {'id':9,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
     {'id':10, 'center':(2.10,2.40,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00),'type':True},
     {'id':11, 'center':(2.05,1.90,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00),'type':True},
@@ -113,6 +113,7 @@ class GetAmmoNode(object):
         self.servo_base_reached = False
         self.servo_top_reached = False
         #---
+        self.looknmove_start_time = 0
         self.looknmove_cnt = 0
         self.looknmove_no_target = 0
         self.looknmove_issued = False
@@ -170,6 +171,7 @@ class GetAmmoNode(object):
             # Check Preempt Request
             if self._as.is_preempt_requested():
                 rospy.loginfo('preempt requested')
+                self._ac_navto.cancel_all_goals()
                 self._as.set_preempted()
                 self.state = GetAmmoStatus.IDLE
                 break
@@ -209,9 +211,14 @@ class GetAmmoNode(object):
                     break
             
             elif self.state == GetAmmoStatus.LOOKMOVE:
-                #self.gripper.SetPosition(100,200)
+                if rospy.get_time() - self.looknmove_start_time > 3 and not self.looknmove_issued:
+                    self._as.set_aborted()
+                    self.state = GetAmmoStatus.IDLE
+                    break
+                if self.looknmove_cnt == 1:
+                    self.gripper.SetPosition(100,200)
                 self.looknmove_cnt += 1
-                if self.looknmove_no_target > 10:
+                if self.looknmove_no_target > 15:
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -235,11 +242,11 @@ class GetAmmoNode(object):
                     self.touch_cnt = 0
                     self.state = GetAmmoStatus.GRASP
                 # BLIND APPROACH TIME-OUT
-                if self.blind_cnt > 60:
+                if self.blind_cnt > 80:
                     self.SendCmdVel(WITHDRAW_VX,0.,0.)
                 else:
                     self.SendCmdVel(BLIND_APPROACH_VX,0.,0.)
-                if self.blind_cnt > 80:
+                if self.blind_cnt > 100:
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -313,12 +320,12 @@ class GetAmmoNode(object):
             #print mean_x,mean_angle
     
     def VisualPoseCB(self,data):
-        if self.state == GetAmmoStatus.LOOKMOVE and self.looknmove_issued == False:
+        if self.state == GetAmmoStatus.LOOKMOVE and self.looknmove_issued == False and self.looknmove_cnt > 20:
             if data.pose.position.x == 0:
                 self.looknmove_no_target += 1
                 rospy.loginfo('CAMERA: NO TARGET')
             else:
-                err_y = (data.pose.position.z - 450) / 1000
+                err_y = (data.pose.position.z - 300) / 1000
                 err_x = data.pose.position.x / 1000
                 goal = LookAndMoveGoal()
                 goal.relative_pose.header.frame_id = "base_link"
@@ -347,6 +354,7 @@ class GetAmmoNode(object):
         # print self.cmd_vel
     
     def SetStateLookMove(self):
+        self.looknmove_start_time = rospy.get_time()
         self.looknmove_cnt = 0
         self.looknmove_no_target = 0
         self.looknmove_issued = False
