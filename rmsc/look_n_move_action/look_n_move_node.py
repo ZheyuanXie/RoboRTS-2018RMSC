@@ -6,6 +6,7 @@ import numpy as np
 from actionlib import SimpleActionServer
 from messages.msg import LookAndMoveAction
 from geometry_msgs.msg import PoseStamped, Twist
+from nav_msgs.msg import Odometry
 
 MAX_LINEAR_VEL  = 0.5
 MAX_ANGULAR_VEL = 1
@@ -22,7 +23,10 @@ class LookAndMoveNode(object):
     def __init__(self):
         self.tf_listener = tf.TransformListener()
         self.pub_cmd_vel = rospy.Publisher('cmd_vel',Twist,queue_size=1)
+        self.sub_odom = rospy.Subscriber('odom',Odometry,callback=self.OdomCB)
         
+        self.is_stop = False
+
         self.target_pose = PoseStamped()
         self.observe_frame = ''
         self.state = LookAndMoveStatus.IDLE
@@ -49,7 +53,7 @@ class LookAndMoveNode(object):
             pose = pose_base.pose.position
             q = pose_base.pose.orientation
             yaw = tf.transformations.euler_from_quaternion([q.x,q.y,q.z,q.w])[2]
-            if np.abs(pose.x) < 0.02 and np.abs(pose.y) <0.02 and np.abs(yaw)<0.01:
+            if (np.abs(pose.x) < 0.02 and np.abs(pose.y) <0.02 and np.abs(yaw)<0.01) or ((np.abs(pose.x) < 0.05 and np.abs(pose.y) <0.05 and np.abs(yaw)<0.04) and self.is_stop):
                 print 'SUCCESS'
                 rospy.sleep(0.1)
                 self.SendCmdVel(0.,0.,0.)
@@ -59,6 +63,9 @@ class LookAndMoveNode(object):
             vy = pose.y * KP_Y
             yaw = yaw * KP_YAW
             self.SendCmdVel(vx,vy,yaw)
+    
+    def OdomCB(self,data):
+        self.is_stop = data.twist.twist.linear.x < 0.001 and data.twist.twist.linear.y < 0.001
 
     def SendCmdVel(self, vx, vy, vyaw):
         self.cmd_vel.linear.x = np.clip(vx, -MAX_LINEAR_VEL, MAX_LINEAR_VEL)

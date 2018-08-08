@@ -6,11 +6,12 @@ import tf
 
 from sensor_msgs.msg import LaserScan, PointCloud2, PointCloud, ChannelFloat32
 import sensor_msgs.point_cloud2 as pc2
-from geometry_msgs.msg import Point32, Vector3, Twist, PointStamped
+from geometry_msgs.msg import Point32, Vector3, Twist, PointStamped, PoseStamped
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import MarkerArray, Marker
 from messages.msg import LocalPlannerAction, GlobalPlannerAction
-from messages.msg import NavToAction, NavToActionGoal
+from messages.msg import NavToAction, NavToGoal
+from messages.msg import LookAndMoveAction, LookAndMoveGoal
 from messages.msg import GetAmmoAction, GetAmmoActionResult, GetAmmoActionFeedback
 from messages.msg import GripperCmd, GripperInfo
 from actionlib_msgs.msg import GoalStatus
@@ -19,6 +20,7 @@ from gripper import GripperController
 
 # debug mode
 SERVO_ONLY = False
+VISUAL_ONLY = True
 NO_GRASP = False
 
 # environment
@@ -43,16 +45,28 @@ Y_ERROR = 0.03
 YAW_ERROR = 0.2
 
 AmmoBoxes = [
-    {'id':7,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,-1.57)},
-    {'id':8,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57)},
-    {'id':9,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57)},
-    {'id':10, 'center':(2.10,2.40,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00)},
-    {'id':11, 'center':(2.05,1.90,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00)},
-    {'id':12, 'center':(2.05,1.40,AB_HEIGHT),'checkpoint':(2.80,2.00,0.00)},
-    {'id':13, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,3.14)},
-    {'id':14, 'center':(3.25,0.90,AB_HEIGHT),'checkpoint':(2.80,1.20,3.14)},
-    {'id':15, 'center':(3.25,0.20,AB_HEIGHT),'checkpoint':(2.80,0.50,3.14)}
+    # ground
+    {'id':1,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    {'id':2,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    {'id':3,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    {'id':4,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    {'id':5,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    {'id':6,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    # elevated
+    {'id':7,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0.00),'type':True},
+    {'id':8,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
+    {'id':9,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
+    {'id':10, 'center':(2.10,2.40,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00),'type':True},
+    {'id':11, 'center':(2.05,1.90,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00),'type':True},
+    {'id':12, 'center':(2.05,1.40,AB_HEIGHT),'checkpoint':(2.80,2.00,0.00),'type':True},
+    {'id':13, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,3.14),'type':True},
+    {'id':14, 'center':(3.25,0.90,AB_HEIGHT),'checkpoint':(2.80,1.20,3.14),'type':True},
+    {'id':15, 'center':(3.25,0.20,AB_HEIGHT),'checkpoint':(2.80,0.50,3.14),'type':True}
 ]
+
+class AmmoType:
+    GROUND      = 0
+    ELEVATED    = 1 
 
 class GetAmmoStatus:
     IDLE        = 0
@@ -76,19 +90,35 @@ class GetAmmoNode(object):
         self.gripper.SetState(GripperCmd.NORMAL)
 
         # initialize navto action server
-        if not SERVO_ONLY:
+        if not SERVO_ONLY and not VISUAL_ONLY:
             self._ac_navto = SimpleActionClient("nav_to_node_action", NavToAction)
-            print 'tring to connect NavTo action server...'
+            rospy.loginfo('tring to connect NavTo action server...')
             ret = self._ac_navto.wait_for_server(timeout=rospy.Duration(5.0))
-            print 'sever connected!' if ret else 'error: server not started!'
+            rospy.loginfo('NavTo sever connected!' if ret else 'error: NavTo server not started!')
+        
+        if not SERVO_ONLY:
+            self._ac_lookmove = SimpleActionClient("look_n_move_node_action", LookAndMoveAction)
+            rospy.loginfo('tring to connect LookAndMove action server...')
+            ret = self._ac_lookmove.wait_for_server(timeout=rospy.Duration(5.0))
+            rospy.loginfo('LookAndMove sever connected!') if ret else rospy.loginfo('error: LookAndMove server not started!')
 
         self.state = GetAmmoStatus.IDLE
+        self.ammotype = AmmoType.ELEVATED
+        # navigation phase
         self.navto_reached = False
         self.navto_failed = False
-        self.no_target = 0
+        # approach phase
         self.servo_cnt = 0
+        self.servo_no_target = 0
         self.servo_base_reached = False
         self.servo_top_reached = False
+        #---
+        self.looknmove_cnt = 0
+        self.looknmove_no_target = 0
+        self.looknmove_issued = False
+        self.looknmove_reached = False
+        self.looknmove_failed = False
+        # final phase
         self.blind_cnt = 0
         self.touch_cnt = 0
         self.withdraw_cnt = 0
@@ -96,6 +126,7 @@ class GetAmmoNode(object):
         # process laserscan data
         self.sub_top_lidar = rospy.Subscriber("scan2", LaserScan, self.TopLidarCB)
         self.sub_base_lidar = rospy.Subscriber("scan", LaserScan, self.BaseLidarCB)
+        self.sub_visual_pose = rospy.Subscriber("visual_pose", PoseStamped, self.VisualPoseCB)
         self.pub_cmd_vel = rospy.Publisher("cmd_vel", Twist, queue_size=1)
         self.cmd_vel = Twist()
     
@@ -103,9 +134,9 @@ class GetAmmoNode(object):
         rate = rospy.Rate(20)
         
         if SERVO_ONLY:
-            self.servo_base_reached = False
-            self.servo_top_reached = False
-            self.state = GetAmmoStatus.SERVO
+            self.SetStateServo()
+        if VISUAL_ONLY:
+            self.SetStateLookMove()
         else:
             self.state = GetAmmoStatus.MOVETO
             id_found = False
@@ -115,41 +146,42 @@ class GetAmmoNode(object):
                     box_info = box
                     id_found = True
             if id_found == False:
-                print 'ID Not Found, Aborted'
+                rospy.loginfo('ID Not Found, Aborted')
                 self._as.set_aborted()
                 return
             checkpoint = box_info.get('checkpoint')
+            self.ammotype = box_info.get('type')
             if checkpoint is None:
-                print 'No CheckPoint Info, Aborted'
+                rospy.loginfo('No CheckPoint Info, Aborted')
                 self._as.set_aborted()
                 return
-            g = NavToActionGoal()
-            g.goal.navgoal.pose.position.x = checkpoint[0]
-            g.goal.navgoal.pose.position.y = checkpoint[1]
+            g = NavToGoal()
+            g.navgoal.pose.position.x = checkpoint[0]
+            g.navgoal.pose.position.y = checkpoint[1]
             quat = tf.transformations.quaternion_from_euler(0.,0.,checkpoint[2])
-            g.goal.navgoal.pose.orientation.z = quat[2]
-            g.goal.navgoal.pose.orientation.w = quat[3]
+            g.navgoal.pose.orientation.z = quat[2]
+            g.navgoal.pose.orientation.w = quat[3]
             self.navto_reached = False
             self.navto_failed = False
-            self._ac_navto.send_goal(g.goal,done_cb=self.NavToDoneCB)
+            self._ac_navto.send_goal(g,done_cb=self.NavToDoneCB)
         
         self.gripper.SetState(GripperCmd.NORMAL)
         while not rospy.is_shutdown():
             # Check Preempt Request
             if self._as.is_preempt_requested():
-                print 'preempt requested'
+                rospy.loginfo('preempt requested')
                 self._as.set_preempted()
                 self.state = GetAmmoStatus.IDLE
                 break
+                
             # Finite State Machine
             if self.state == GetAmmoStatus.MOVETO:
                 if self.navto_reached:
-                    self.servo_top_reached = False
-                    self.servo_bases_reached = False
-                    self.no_target = 0
-                    self.servo_cnt = 0
-                    self.state = GetAmmoStatus.SERVO
                     self._ac_navto.cancel_all_goals()
+                    if self.ammotype == AmmoType.ELEVATED:
+                        self.SetStateServo()
+                    else:
+                        self.SetStateLookMove()
                 elif self.navto_failed:
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
@@ -158,7 +190,7 @@ class GetAmmoNode(object):
             elif self.state == GetAmmoStatus.SERVO:
                 self.servo_cnt += 1
                 self.pub_cmd_vel.publish(self.cmd_vel)
-                if self.no_target > 10:
+                if self.servo_no_target > 10:
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -177,7 +209,25 @@ class GetAmmoNode(object):
                     break
             
             elif self.state == GetAmmoStatus.LOOKMOVE:
-                pass
+                #self.gripper.SetPosition(100,200)
+                self.looknmove_cnt += 1
+                if self.looknmove_no_target > 10:
+                    self._as.set_aborted()
+                    self.state = GetAmmoStatus.IDLE
+                    break
+                if self.looknmove_reached:
+                    if NO_GRASP:
+                        self._as.set_succeeded()
+                        self.state = GetAmmoStatus.IDLE
+                        break
+                    self.gripper.SetState(GripperCmd.GRIP_LOW)
+                    self.blind_cnt = 0
+                    self.state = GetAmmoStatus.BLIND
+                # TIME-OUT
+                if self.looknmove_failed:# or self.visual_cnt > 120:
+                    self._as.set_aborted()
+                    self.state = GetAmmoStatus.IDLE
+                    break
 
             elif self.state == GetAmmoStatus.BLIND:
                 self.blind_cnt += 1
@@ -222,10 +272,10 @@ class GetAmmoNode(object):
         if terminal_state == GoalStatus.SUCCEEDED:
             self.navto_reached = True
             self._ac_navto.cancel_all_goals()
-            print 'Navto reached'
+            rospy.loginfo('Navto reached')
         else:
             self.navto_failed = True
-            print 'Navto failed'
+            rospy.loginfo('Navto failed')
     
     def TopLidarCB(self,data):
         if self.state == GetAmmoStatus.SERVO:
@@ -235,8 +285,8 @@ class GetAmmoNode(object):
             theta_cut = np.delete(theta, range_cut_index)
             dist_cut = np.delete(dist, range_cut_index)
             if theta_cut.size == 0:
-                self.no_target += 1
-                print 'TOP LIDAR: NO TARTGET'
+                self.servo_no_target += 1
+                rospy.loginfo('TOP LIDAR: NO TARTGET')
                 return
             y = dist_cut * np.sin(theta_cut)
             mean_y = np.average(y)
@@ -251,7 +301,7 @@ class GetAmmoNode(object):
             theta_cut = np.delete(theta, range_cut_index)
             dist_cut = np.delete(dist, range_cut_index)
             if theta_cut.size == 0:
-                print 'BASE LIDAR: NO TARTGET'
+                rospy.loginfo('BASE LIDAR: NO TARTGET')
                 return
             x = dist_cut * np.cos(theta_cut)
             y = dist_cut * np.sin(theta_cut)
@@ -261,14 +311,56 @@ class GetAmmoNode(object):
             self.cmd_vel.angular.z = (0 - mean_angle) * KP_VYAW
             self.servo_base_reached = np.abs(TARGET_OFFSET_X - mean_x) < Y_ERROR and np.abs(0-mean_angle) < YAW_ERROR
             #print mean_x,mean_angle
+    
+    def VisualPoseCB(self,data):
+        if self.state == GetAmmoStatus.LOOKMOVE and self.looknmove_issued == False:
+            if data.pose.position.x == 0:
+                self.looknmove_no_target += 1
+                rospy.loginfo('CAMERA: NO TARGET')
+            else:
+                err_y = (data.pose.position.z - 450) / 1000
+                err_x = data.pose.position.x / 1000
+                goal = LookAndMoveGoal()
+                goal.relative_pose.header.frame_id = "base_link"
+                goal.relative_pose.pose.position.x = -err_y
+                goal.relative_pose.pose.position.y = err_x
+                self._ac_lookmove.cancel_all_goals()
+                print goal
+                self._ac_lookmove.send_goal(goal, done_cb=self.LookAndMoveDoneCB)
+                self.looknmove_issued = True
+    
+    def LookAndMoveDoneCB(self,terminal_state,result):
+        print terminal_state, result
+        if terminal_state == GoalStatus.SUCCEEDED:
+            self.looknmove_reached = True
+            self._ac_lookmove.cancel_all_goals()
+            rospy.loginfo('LooknMove reached')
+        else:
+            self.looknmove_failed = True
+            rospy.loginfo('LooknMove failed')
 
     def SendCmdVel(self, vx, vy, vyaw):
         self.cmd_vel.linear.x = np.clip(vx, -MAX_LINEAR_VEL, MAX_LINEAR_VEL)
         self.cmd_vel.linear.y = np.clip(vy, -MAX_LINEAR_VEL, MAX_LINEAR_VEL)
         self.cmd_vel.angular.z = np.clip(vyaw, -MAX_ANGULAR_VEL, MAX_ANGULAR_VEL)
         self.pub_cmd_vel.publish(self.cmd_vel)
-        print self.cmd_vel
+        # print self.cmd_vel
     
+    def SetStateLookMove(self):
+        self.looknmove_cnt = 0
+        self.looknmove_no_target = 0
+        self.looknmove_issued = False
+        self.looknmove_reached = False
+        self.looknmove_failed = False
+        self.state = GetAmmoStatus.LOOKMOVE
+
+    def SetStateServo(self):
+        self.servo_cnt = 0
+        self.servo_no_target = 0
+        self.servo_base_reached = False
+        self.servo_top_reached = False
+        self.state = GetAmmoStatus.SERVO
+
 
 
 if __name__ == "__main__":
