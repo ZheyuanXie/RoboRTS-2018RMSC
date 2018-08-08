@@ -28,10 +28,10 @@ MAP_ORIGIN_OFFSET_Y = 0.25
 # servo
 SERVO_AOV       = 40
 TARGET_OFFSET_X  = 0.5
-TARGET_OFFSET_Y = 0.0
-KP_VX = 3.5
-KP_VY = 3.5
-KP_VYAW = 0.7
+TARGET_OFFSET_Y = 0.05
+KP_VX = 3.0
+KP_VY = 3.0
+KP_VYAW = 0.35
 MAX_LINEAR_VEL  = 0.2
 MAX_ANGULAR_VEL = 0.8
 # blind
@@ -39,16 +39,16 @@ BLIND_APPROACH_VX = -0.1
 WITHDRAW_VX = 0.5
 # error tolerance
 X_ERROR = 0.02
-Y_ERROR = 0.05
-YAW_ERROR = 0.15
+Y_ERROR = 0.03
+YAW_ERROR = 0.2
 
 AmmoBoxes = [
-    {'id':7,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(1.70,3.30,-1.57)},
-    {'id':8,  'center':(0.25,2.35,AB_HEIGHT),'checkpoint':(0.84,3.06,1.57)},
-    {'id':9,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.40,3.00,0.00)},
-    {'id':10, 'center':(1.95,2.40,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00)},
-    {'id':11, 'center':(1.95,1.90,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00)},
-    {'id':12, 'center':(1.95,1.40,AB_HEIGHT),'checkpoint':(2.80,2.00,0.00)},
+    {'id':7,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,-1.57)},
+    {'id':8,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57)},
+    {'id':9,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57)},
+    {'id':10, 'center':(2.10,2.40,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00)},
+    {'id':11, 'center':(2.05,1.90,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00)},
+    {'id':12, 'center':(2.05,1.40,AB_HEIGHT),'checkpoint':(2.80,2.00,0.00)},
     {'id':13, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,3.14)},
     {'id':14, 'center':(3.25,0.90,AB_HEIGHT),'checkpoint':(2.80,1.20,3.14)},
     {'id':15, 'center':(3.25,0.20,AB_HEIGHT),'checkpoint':(2.80,0.50,3.14)}
@@ -88,6 +88,7 @@ class GetAmmoNode(object):
         self.servo_cnt = 0
         self.servo_base_reached = False
         self.servo_top_reached = False
+        self.blind_cnt = 0
         self.touch_cnt = 0
         self.withdraw_cnt = 0
 
@@ -166,18 +167,27 @@ class GetAmmoNode(object):
                         self.state = GetAmmoStatus.IDLE
                         break
                     self.gripper.SetState(GripperCmd.GRIP_HIGH)
+                    self.blind_cnt = 0
                     self.state = GetAmmoStatus.BLIND
-                if self.servo_cnt > 60:
+                if self.servo_cnt > 80:
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
 
             elif self.state == GetAmmoStatus.BLIND:
-                self.SendCmdVel(BLIND_APPROACH_VX,0.,0.)
+                self.blind_cnt += 1
                 if self.gripper.feedback == GripperInfo.TOUCHED:
                     # Gripper movement is triggered automatically by the 
                     self.touch_cnt = 0
                     self.state = GetAmmoStatus.GRASP
+                if self.blind_cnt > 60:
+                    self.SendCmdVel(WITHDRAW_VX,0.,0.)
+                else:
+                    self.SendCmdVel(BLIND_APPROACH_VX,0.,0.)
+                if self.blind_cnt > 80:
+                    self._as.set_aborted()
+                    self.state = GetAmmoStatus.IDLE
+                    break
                     
             elif self.state == GetAmmoStatus.GRASP:
                 self.touch_cnt += 1
