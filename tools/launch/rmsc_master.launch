@@ -8,11 +8,11 @@
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts)/tools/rviz/rm_master.rviz" />
 
-  <node pkg="roborts" type="nav_to_node.py" name="nav_to_node" respawn="false" />
+  <!-- <node pkg="roborts" type="nav_to_node.py" name="nav_to_node" respawn="false" /> -->
 
-  <node pkg="roborts" type="look_n_move_node.py" name="look_n_move_node" respawn="false" />
+  <!-- <node pkg="roborts" type="look_n_move_node.py" name="look_n_move_node" respawn="false" /> -->
 
-  <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" />
+  <!-- <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" /> -->
   </group>
 </launch>
 

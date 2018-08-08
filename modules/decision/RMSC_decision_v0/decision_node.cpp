@@ -46,16 +46,55 @@ int main(int argc, char **argv)
   auto whirl_action_ = std::make_shared<rrts::decision::WhirlAction>(blackboard_ptr_, goal_factory_);
   auto gain_buff_action_ = std::make_shared<rrts::decision::GainBuffAction>(blackboard_ptr_, goal_factory_);
   auto get_ammo_action_ = std::make_shared<rrts::decision::GetAmmoAction>(blackboard_ptr_, goal_factory_);
+  auto turn_to_hurt_action_ = std::make_shared<rrts::decision::TurnToWoundedArmorAction>(blackboard_ptr_,
+                                                                                         goal_factory_);
+  auto color_detected_action_ = std::make_shared<rrts::decision::TurnToDetectedDirection>(blackboard_ptr_, goal_factory_);
+
 
   //tree
+  auto color_detected_condition_ = std::make_shared<rrts::decision::PreconditionNode>("color detected condition",
+                                                                                        blackboard_ptr_,
+                                                                                        color_detected_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::NONE && blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::FRONT)
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto under_attack_condition_ = std::make_shared<rrts::decision::PreconditionNode>("plan buff under attack condition",
+                                                                                    blackboard_ptr_,
+                                                                                    turn_to_hurt_action_,
+                                                                                    [&]() {
+                                                                                      if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::NONE && blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::FRONT)
+                                                                                      {
+                                                                                        return true;
+                                                                                      }
+                                                                                      else
+                                                                                      {
+                                                                                        return false;
+                                                                                      }
+                                                                                    },
+                                                                                    rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto final_selector_ = std::make_shared<rrts::decision::SelectorNode>("final_selector", blackboard_ptr_);
+  final_selector_->AddChildren(under_attack_condition_);
+  final_selector_->AddChildren(color_detected_condition_);
+  final_selector_->AddChildren(whirl_action_);
+
   auto gain_buff_sequence_ = std::make_shared<rrts::decision::SequenceNode>("gain_buff_sequence", blackboard_ptr_);
   gain_buff_sequence_ ->AddChildren(gain_buff_action_);
-  gain_buff_sequence_ ->AddChildren(whirl_action_);
+  gain_buff_sequence_ ->AddChildren(final_selector_);
 
   auto engage_condition_ = std::make_shared<rrts::decision::PreconditionNode>("engage_condition", blackboard_ptr_,
                                                                                  gain_buff_sequence_,
                                                                                  [&]() {
-                                                                                   if (blackboard_ptr_->GetAmmoCount() >= 3)
+                                                                                   if (blackboard_ptr_->GetAmmoCount() >= 1)
                                                                                      return true;
                                                                                    else
                                                                                      return false;
