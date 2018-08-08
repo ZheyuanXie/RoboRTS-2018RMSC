@@ -18,14 +18,16 @@ AB_HEIGHT = 0.55
 MAP_ORIGIN_OFFSET_X = 0.25
 MAP_ORIGIN_OFFSET_Y = 0.25
 
-AmmoBoxPossiblePos = [
+LOCAL = True
+
+AmmoBoxGlobalPos = [
     # Grounded ammo boxs
     # (0.20,4.80,0), (0.70,4.80,0), 
     # (2.60,4.80,0), (0.20,3.60,0),
     # (0.60,3.10,0), (2.90,0.20,0),
     # Elevated ammo boxs
     {'id':7,  'center':(1.60,3.85,AB_HEIGHT)},
-    {'id':8,  'center':(0.25,2.35,AB_HEIGHT)},
+    {'id':8,  'center':(-100,-100,AB_HEIGHT)},
     {'id':9,  'center':(0.60,2.35,AB_HEIGHT)},
     {'id':10, 'center':(1.95,2.60,AB_HEIGHT)},
     {'id':11, 'center':(1.95,2.10,AB_HEIGHT)},
@@ -35,11 +37,24 @@ AmmoBoxPossiblePos = [
     {'id':15, 'center':(3.25,0.20,AB_HEIGHT)}
 ]
 
+AmmoBoxLocalPos = [
+    # Elevated ammo boxs (ZWang)
+    {'id':7,  'center':(2.78,-0.25,AB_HEIGHT)},
+    {'id':8,  'center':(-100,-100,AB_HEIGHT)},
+    {'id':9,  'center':(1.30,0.70,AB_HEIGHT)},
+    {'id':10, 'center':(1.59,-0.59,AB_HEIGHT)},
+    {'id':11, 'center':(1.14,-0.65,AB_HEIGHT)},
+    {'id':12, 'center':(0.69,-0.70,AB_HEIGHT)},
+    {'id':13, 'center':(0.81,-1.94,AB_HEIGHT)},
+    {'id':14, 'center':(0.20,-1.95,AB_HEIGHT)},
+    {'id':15, 'center':(-0.78,-1.85,AB_HEIGHT)}
+]
+
 class AmmoBoxLocation:
     def __init__(self,abp):
         self.id = abp['id']
-        self.x = abp['center'][0] + MAP_ORIGIN_OFFSET_X
-        self.y = abp['center'][1] + MAP_ORIGIN_OFFSET_Y
+        self.x = abp['center'][0] + (0 if LOCAL else MAP_ORIGIN_OFFSET_X)
+        self.y = abp['center'][1] + (0 if LOCAL else MAP_ORIGIN_OFFSET_Y)
         self.z = abp['center'][2]
         self.vote = 0
     
@@ -59,16 +74,21 @@ class MapCompletionTest(object):
 
         # initialize a list for all possible ammobox sites
         self.ammobox_list = []
-        for abp in AmmoBoxPossiblePos:
-            self.ammobox_list.append(AmmoBoxLocation(abp))
+        if LOCAL:
+            for abp in AmmoBoxLocalPos:
+                self.ammobox_list.append(AmmoBoxLocation(abp))
+        else:
+            for abp in AmmoBoxGlobalPos:
+                self.ammobox_list.append(AmmoBoxLocation(abp))
+
 
         # process laserscan data
-        self.sub_top_lidar = rospy.Subscriber("/scan2", LaserScan, self.TopLidarCB)
-        self.pub_pc = rospy.Publisher("/converted_pc", PointCloud, queue_size=1)
+        self.sub_top_lidar = rospy.Subscriber("scan2", LaserScan, self.TopLidarCB)
+        self.pub_pc = rospy.Publisher("converted_pc", PointCloud, queue_size=1)
 
         # publish the marker array to visualize in rviz
         self.pub_ammo_detect = rospy.Publisher("ammo_detect", AmmoDetect, queue_size=1)
-        self.pub_markers = rospy.Publisher("/ammobox_markers", MarkerArray, queue_size=1)
+        self.pub_markers = rospy.Publisher("ammobox_markers", MarkerArray, queue_size=1)
         self.marker_timer = rospy.Timer(rospy.Duration(0.1), self.MarkerTimerCB)
 
 
@@ -76,10 +96,11 @@ class MapCompletionTest(object):
         rospy.sleep(0.005)
         local_pc = self.GetLocalPC(data)
         # global point cloud for ammobox matching
-        global_pc = self.tfListener.transformPointCloud('map',local_pc)
-        self.pub_pc.publish(global_pc)
+        if not LOCAL:
+            global_pc = self.tfListener.transformPointCloud('map',local_pc)
+            self.pub_pc.publish(global_pc)
         for ab in self.ammobox_list:
-            ab.check(global_pc)
+            ab.check(local_pc) if LOCAL else ab.check(global_pc)
 
     def GetLocalPC(self,data):
         pc2_msg = self.lp.projectLaser(data)
@@ -97,7 +118,7 @@ class MapCompletionTest(object):
         ad_msg = AmmoDetect()
         ammobox_detected = 0
         for ab in self.ammobox_list:
-            ad_msg.ammo_detect.append(ab.id)
+            if ab.vote >= 1: ad_msg.ammo_detect.append(ab.id)
             marker = Marker()
             marker.header.frame_id = "map"
             marker.type = marker.CUBE
@@ -117,10 +138,10 @@ class MapCompletionTest(object):
             id += 1
         self.pub_markers.publish(markerArray)
         self.pub_ammo_detect.publish(ad_msg)
+        print ad_msg
 
 
 if __name__ == "__main__":
     rospy.init_node("map_completion_test")
     mct = MapCompletionTest()
     rospy.spin()
-#TODO
