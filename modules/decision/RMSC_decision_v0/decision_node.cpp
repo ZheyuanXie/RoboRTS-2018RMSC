@@ -37,8 +37,8 @@ int main(int argc, char **argv)
   rrts::decision::DecisionConfig robot_config;
   rrts::common::ReadProtoFromTextFile("/modules/decision/RMSC_decision_v0/config/decision.prototxt", &robot_config);
 
-  blackboard_ptr_ -> PlaySound("/sound/createtree.wav");
-
+  // Debug
+  //blackboard_ptr_ -> PlaySound("/sound/createtree.wav");
   //blackboard_ptr_ -> SetAmmoCollected(1);
 
   //leaves
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
   gain_buff_sequence_ ->AddChildren(gain_buff_action_);
   gain_buff_sequence_ ->AddChildren(whirl_action_);
 
-  auto first_ammo_condition_ = std::make_shared<rrts::decision::PreconditionNode>("first_ammo_condition", blackboard_ptr_,
+  auto engage_condition_ = std::make_shared<rrts::decision::PreconditionNode>("engage_condition", blackboard_ptr_,
                                                                                  gain_buff_sequence_,
                                                                                  [&]() {
                                                                                    if (blackboard_ptr_->GetAmmoCount() >= 3)
@@ -62,17 +62,9 @@ int main(int argc, char **argv)
                                                                                  },
                                                                                  rrts::decision::AbortType::BOTH);
 
-
-  auto fetch_ammo_sequence_ = std::make_shared<rrts::decision::SequenceNode>("fetch_ammo_sequence", blackboard_ptr_);
-  fetch_ammo_sequence_ ->AddChildren(get_ammo_action_);
-  //fetch_ammo_sequence_ ->AddChildren(whirl_action_);
-  //fetch_ammo_sequence_ ->AddChildren(ammo_goto_acion_); //TODO
-  //fetch_ammo_sequence_ ->AddChildren(ammo_servo_action_); //TODO
-  //fetch_ammo_sequence_ ->AddChildren(ammo_gripper_action_); // TODO
-
-  auto game_start_selector_ = std::make_shared<rrts::decision::SelectorNode>("first_ammo_selector", blackboard_ptr_);
-  game_start_selector_->AddChildren(first_ammo_condition_);
-  game_start_selector_->AddChildren(fetch_ammo_sequence_);
+  auto game_start_selector_ = std::make_shared<rrts::decision::SelectorNode>("game_start_selector", blackboard_ptr_);
+  game_start_selector_->AddChildren(engage_condition_);
+  game_start_selector_->AddChildren(get_ammo_action_);
 
   auto game_stop_condition_ = std::make_shared<rrts::decision::PreconditionNode>("game_stop_condition", blackboard_ptr_,
                                                                                  wait_action_,
