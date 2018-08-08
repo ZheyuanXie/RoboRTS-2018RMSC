@@ -805,7 +805,7 @@ class GoalFactory {
   // Get ammo action client -------------------------------------------------------------------------------------------
 
   void SendAmmoGoal(int index) {
-
+    LOG_WARNING << "Send Ammo Goal!";
     get_ammo_goal_.ammobox_index = index;
     get_ammo_actionlib_client_.sendGoal(get_ammo_goal_);
   }

@@ -35,4 +35,6 @@
   <!-- Run the GetAmmo Node -->
   <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" />
 
+  <node pkg="sound_play" type="soundplay_node.py" name="sound_play_node" respawn="false" />
+
 </launch>

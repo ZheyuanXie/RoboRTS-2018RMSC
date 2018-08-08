@@ -600,7 +600,6 @@ class GetAmmoAction : public ActionNode {
   virtual BehaviorState Update() {
 
     if (goal_factory_ptr_->GetGetAmmoActionState()!=BehaviorState::RUNNING){
-      LOG_WARNING << "SEND AMMO GOAL!";
       goal_factory_ptr_->CancelGoal();
       ammobox_index_ = blackboard_ptr_->GetAmmoIndex();
       if (ammobox_index_ == -1){
