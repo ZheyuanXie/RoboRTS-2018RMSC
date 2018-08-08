@@ -1,0 +1,42 @@
+camera: {
+  camera_type: "uvc"
+
+  mode: VIDEO
+  camera_id: 1
+  video_path: "/dev/video1"
+
+  camera_matrix {
+    data: 544.769738
+    data: 0.0
+    data: 323.369896
+    data: 0.0
+    data: 510.683482
+    data: 242.934393
+    data: 0.0
+    data: 0.0
+    data: 1.0
+  }
+
+  camera_distortion {
+    data: -0.007842
+    data: -0.033669
+    data: 0.001583
+    data: 0.002524
+    data: 0.0
+  }
+
+  resolution {
+    width: 640
+    height: 480
+
+    width_offset: 0
+    height_offset: 0
+  }
+
+  fps: 60
+  auto_exposure: 0
+  exposure_value: 150
+  exposure_time: 40
+  auto_white_balance: 1
+  auto_gain: 0
+}

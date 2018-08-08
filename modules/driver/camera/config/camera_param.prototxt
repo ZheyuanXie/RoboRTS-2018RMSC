@@ -45,7 +45,7 @@ camera: {
 
   mode: VIDEO
   camera_id: 1
-  video_path: "/dev/video1"
+  video_path: "/dev/video0"
 
   camera_matrix {
     data: 839.923052
@@ -75,10 +75,10 @@ camera: {
     height_offset: 0
   }
 
-  fps: 100
-  auto_exposure: 1
-  exposure_value: 30
-  exposure_time: 60
-  auto_white_balance: 1
+  fps: 30
+  auto_exposure: 0
+  exposure_value: 90
+  exposure_time: 300
+  auto_white_balance: 0
   auto_gain: 0
 }

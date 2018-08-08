@@ -61,6 +61,7 @@ class GetAmmoStatus:
     BLIND       = 3
     GRASP       = 4
     WITHDRAW    = 5
+    LOOKMOVE    = 6
 
 class GetAmmoNode(object):
     _feedback = GetAmmoActionFeedback()
@@ -169,17 +170,21 @@ class GetAmmoNode(object):
                     self.gripper.SetState(GripperCmd.GRIP_HIGH)
                     self.blind_cnt = 0
                     self.state = GetAmmoStatus.BLIND
+                # SERVO TIME-OUT
                 if self.servo_cnt > 80:
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
+            
+            elif self.state == GetAmmoStatus.LOOKMOVE:
+                pass
 
             elif self.state == GetAmmoStatus.BLIND:
                 self.blind_cnt += 1
-                if self.gripper.feedback == GripperInfo.TOUCHED:
-                    # Gripper movement is triggered automatically by the 
+                if self.gripper.feedback == GripperInfo.TOUCHED: 
                     self.touch_cnt = 0
                     self.state = GetAmmoStatus.GRASP
+                # BLIND APPROACH TIME-OUT
                 if self.blind_cnt > 60:
                     self.SendCmdVel(WITHDRAW_VX,0.,0.)
                 else:

@@ -22,6 +22,7 @@
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <geometry_msgs/PoseStamped.h>
 
 #include "messages/ArmorDetectionAction.h"
