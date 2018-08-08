@@ -1,44 +1,45 @@
-# camera: {
-#   camera_type: "mercure"
 
-#   mode: VIDEO
-#   camera_id: 0
-#   video_path: "/dev/video0"
+camera: {
+  camera_type: "mercure"
 
-#   camera_matrix {
-#     data: 864.130689
-#     data: 0.0
-#     data: 652.100575
-#     data: 0.0
-#     data: 865.896866
-#     data: 200.048885
-#     data: 0.0
-#     data: 0.0
-#     data: 1.0
-#   }
+  mode: VIDEO
+  camera_id: 0
+  video_path: "/dev/video0"
 
-#   camera_distortion {
-#     data: -0.091517
-#     data: 0.079762
-#     data: 0.000830
-#     data: -0.000103
-#     data: 0.0
-#   }
+  camera_matrix {
+    data: 864.934764
+    data: 0.0
+    data: 636.398576
+    data: 0.0
+    data: 865.661979
+    data: 500.454547
+    data: 0.0
+    data: 0.0
+    data: 1.0
+  }
 
-#   resolution {
-#     width: 1280
-#     height: 574
+  camera_distortion {
+    data: -0.093251
+    data: 0.088381
+    data: -0.000266
+    data: 0
+    data: 0
+  }
 
-#     width_offset: 0
-#     height_offset: 450
-#   }
+  resolution {
+    width:1280
+    height: 500
 
-#   fps: 100
-#   auto_exposure: 0
-#   exposure_time: 20000
-#   auto_white_balance: 1
-#   auto_gain: 0
-# }
+    width_offset: 0
+    height_offset: 524
+  }
+
+  fps: 80
+  auto_exposure: 0
+  exposure_time: 4000
+  auto_white_balance: 1
+  auto_gain: 0
+}
 
 camera: {
   camera_type: "uvc"
@@ -48,22 +49,22 @@ camera: {
   video_path: "/dev/video0"
 
   camera_matrix {
-    data: 839.923052
+    data: 508.271738
     data: 0.0
-    data: 340.780730
+    data: 313.267263
     data: 0.0
-     data: 837.671081
-    data: 261.766523
+    data: 508.713650
+    data: 242.008923
     data: 0.0
     data: 0.0
     data: 1.0
   }
 
   camera_distortion {
-    data: 0.082613
-    data: 0.043275
-    data: 0.002486
-    data: -0.000823
+    data: -0.386707
+    data: 0.154871
+    data: 0.002717
+    data: 0.000037
     data: 0.0
   }
 
@@ -75,10 +76,10 @@ camera: {
     height_offset: 0
   }
 
-  fps: 30
+  fps: 60
   auto_exposure: 0
-  exposure_value: 90
-  exposure_time: 300
-  auto_white_balance: 0
+  exposure_value: 150
+  exposure_time: 40
+  auto_white_balance: 1
   auto_gain: 0
 }

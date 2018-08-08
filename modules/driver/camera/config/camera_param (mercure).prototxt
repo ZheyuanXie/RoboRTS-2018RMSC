@@ -1,0 +1,42 @@
+camera: {
+  camera_type: "mercure"
+
+  mode: VIDEO
+  camera_id: 0
+  video_path: "/dev/video0"
+
+  camera_matrix {
+    data: 864.934764
+    data: 0.0
+    data: 636.398576
+    data: 0.0
+    data: 865.661979
+    data: 500.454547
+    data: 0.0
+    data: 0.0
+    data: 1.0
+  }
+
+  camera_distortion {
+    data: -0.093251
+    data: 0.088381
+    data: -0.000266
+    data: 0
+    data: 0
+  }
+
+  resolution {
+    width:1280
+    height: 500
+
+    width_offset: 0
+    height_offset: 524
+  }
+
+  fps: 80
+  auto_exposure: 0
+  exposure_time: 4000
+  auto_white_balance: 1
+  auto_gain: 0
+}
+
