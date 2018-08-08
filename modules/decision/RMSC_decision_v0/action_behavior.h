@@ -614,7 +614,6 @@ class GetAmmoAction : public ActionNode {
         case 4: blackboard_ptr_->PlaySound("/sound/getammo5.wav"); break;
         case 5: blackboard_ptr_->PlaySound("/sound/getammolast.wav"); break;
       }
-      
       goal_factory_ptr_->SendAmmoGoal(ammobox_index_);
     }
 

@@ -592,6 +592,8 @@ class Blackboard {
   }
 
 
+  /// Collect Ammmo Functions ----------------------------------------------------------------------------------------------
+
   void SetAmmoCollected(unsigned int index) {
     LOG_WARNING << "Ammobox Collected:" << index;
     ammobox_collected_cnt++;
@@ -624,22 +626,23 @@ class Blackboard {
     return ammobox_collected_cnt;
   }
 
-  void PlaySound(const std::string &filename){
-    std::string path = ros::package::getPath("roborts");
-    LOG_INFO << "PLAY:" << path+filename;
-    sound_client_.playWave(path+filename);
-  }
-
   void AmmoDetectionCallback(const messages::AmmoDetectConstPtr &msg) {
     if (ammo_detect_init) {
       return;
     }
-    LOG_WARNING << "AMMO DETECT CB!";
-    for (std::vector<int32_t>::const_iterator it = msg->ammo_detect.begin(); it != msg->ammo_detect.end(); ++it)
-    {
+    LOG_WARNING << "Load Ammo Detection Data...";
+    for (std::vector<int32_t>::const_iterator it = msg->ammo_detect.begin(); it != msg->ammo_detect.end(); ++it) {
       ammobox_list_[*it - 1] = 1;
     }
     ammo_detect_init = true;
+  }
+
+  //-------------------------------------------------------------------------------------------------------------------
+
+  void PlaySound(const std::string &filename){
+    std::string path = ros::package::getPath("roborts");
+    LOG_INFO << "PLAY:" << path+filename;
+    sound_client_.playWave(path+filename);
   }
 
  private:
@@ -725,15 +728,19 @@ class Blackboard {
   messages::ConditionOverride condition_override_;
   sound_play::SoundClient sound_client_;
 
-  // Ammobox 
+  // Collect ammo variables ----------------------------------
   unsigned int ammobox_collected_cnt;
   bool ammo_detect_init = false;
-  int ammobox_list_[15] = 
+  int ammobox_list_[30] = 
   {
-    0,0,0,0,
-    0,0,0,0,
-    0,0,0,0,
-    0,0,0
+    // Red Area
+    0,0,0,0,0,
+    0,0,0,0,0,
+    0,0,0,0,0,
+    // Blue Area
+    0,0,0,0,0,
+    0,0,0,0,0,
+    0,0,0,0,0
   };
 
 };

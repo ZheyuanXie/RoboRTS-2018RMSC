@@ -802,6 +802,8 @@ class GoalFactory {
     return action_state_;
   }
 
+  // Get ammo action client -------------------------------------------------------------------------------------------
+
   void SendAmmoGoal(int index) {
 
     get_ammo_goal_.ammobox_index = index;
@@ -843,6 +845,8 @@ class GoalFactory {
       get_ammo_actionlib_client_.cancelAllGoals();
     }
   }
+
+  // ------------------------------------------------------------------------------------------------------------------
 
   void CancelGoal() {
     LOG_WARNING<<"Cancel Goal!";
