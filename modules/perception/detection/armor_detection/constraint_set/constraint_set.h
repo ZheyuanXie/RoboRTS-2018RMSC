@@ -173,6 +173,7 @@ class ConstraintSet : public ArmorDetectionBase {
   float optical_axis_offset_;
   float yaw_offset_;
   float pitch_offset_;
+  float bullet_speed_;
 
   cv::Mat show_lights_before_filter_;
   cv::Mat show_lights_after_filter_;
@@ -188,6 +189,7 @@ class ConstraintSet : public ArmorDetectionBase {
   float light_min_area_;
   float light_max_angle_;
   float light_max_angle_diff_;
+
 
   //Filter armor
   float armor_max_angle_;

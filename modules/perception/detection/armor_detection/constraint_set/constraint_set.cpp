@@ -59,6 +59,7 @@ void ConstraintSet::LoadParam() {
   optical_axis_offset_ = constraint_set_config_.optical_axis_offset();
   yaw_offset_ = constraint_set_config_.yaw_offset();
   pitch_offset_ = constraint_set_config_.pitch_offset();
+  bullet_speed_ = constraint_set_config_.bullet_speed();
   //armor info
   float armor_width = constraint_set_config_.armor_size().width();
   float armor_height = constraint_set_config_.armor_size().height();
@@ -113,7 +114,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, double &x, double &y, doubl
       detected = true;
       ArmorInfo final_armor = SlectFinalArmor(armors);
       cv_toolbox_.DrawRotatedRect(src_img_, armors[0].rect, cv::Scalar(0, 255, 0), 2);
-      CalcControlInfo(final_armor, x, y, z, distance, pitch, yaw, 10);
+      CalcControlInfo(final_armor, x, y, z, distance, pitch, yaw, bullet_speed_);
     } else
       detected = false;
     if(enable_debug_) {
@@ -151,14 +152,16 @@ void ConstraintSet::DetectLights(const cv::Mat &src, std::vector<cv::RotatedRect
     else
       thresh = red_thread_;
     cv::threshold(light, binary_color_img, thresh, 255, CV_THRESH_BINARY);
-    if(enable_debug_)
-      cv::imshow("light", light);
+    //if(enable_debug_)
+    //  cv::imshow("light", light);
   }
+  cv::Mat element2 = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+  cv::dilate(binary_color_img, binary_color_img, element2, cv::Point(-1, -1), 1);
   binary_light_img = binary_color_img & binary_brightness_img;
   if (enable_debug_) {
-    cv::imshow("binary_brightness_img", binary_brightness_img);
-    cv::imshow("binary_light_img", binary_light_img);
-    cv::imshow("binary_color_img", binary_color_img);
+  //  cv::imshow("binary_brightness_img", binary_brightness_img);
+  //  cv::imshow("binary_light_img", binary_light_img);
+  //  cv::imshow("binary_color_img", binary_color_img);
   }
 
   auto contours_light = cv_toolbox_.FindContours(binary_light_img);
@@ -181,8 +184,8 @@ void ConstraintSet::DetectLights(const cv::Mat &src, std::vector<cv::RotatedRect
       }
     }
   }
-  if (enable_debug_)
-    cv::imshow("show_lights_before_filter", show_lights_before_filter_);
+  //if (enable_debug_)
+  //  cv::imshow("show_lights_before_filter", show_lights_before_filter_);
 }
 
 
@@ -245,9 +248,21 @@ void ConstraintSet::PossibleArmors(const std::vector<cv::RotatedRect> &lights, s
 
       float light1_angle = light1.size.width < light1.size.height ? -light1.angle : light1.angle + 90;
       float light2_angle = light2.size.width < light2.size.height ? -light2.angle : light2.angle + 90;
-      //std::cout << "light1_angle: " << light1_angle << std::endl;
-      //std::cout << "light2_angle: " << light2_angle << std::endl;
-
+      
+      if (enable_debug_)
+      {
+      std::cout << "light1_angle: " << light1_angle << std::endl;
+      std::cout << "light2_angle: " << light2_angle << std::endl;
+      std::cout << "max/min: " 
+                << std::max<float>(edge1.second, edge2.second)/std::min<float>(edge1.second, edge2.second) << std::endl;
+      std::cout << "std::abs(center_angle): " << center_angle << std::endl;
+      std::cout << "ration: " << rect.size.width / (float) (rect.size.height) <<  std::endl;
+      std::cout << "area: " << std::abs(rect.size.area()) << std::endl;
+      
+      std::cout << "-------" << std::endl;
+      
+      cv::circle(src_img_, rect.center,2, cv::Scalar(0,255,0), 1 );
+      }
       if (std::abs(light1_angle - light2_angle) < light_max_angle_diff_ &&
           std::max<float>(edge1.second, edge2.second)/std::min<float>(edge1.second, edge2.second) < 2.0 &&
           std::abs(center_angle) < armor_max_angle_ &&
@@ -341,6 +356,7 @@ ArmorInfo ConstraintSet::SlectFinalArmor(std::vector<ArmorInfo> &armors) {
   std::sort(armors.begin(),
             armors.end(),
             [](const ArmorInfo &p1, const ArmorInfo &p2) { return p1.rect.size.area() > p2.rect.size.area(); });
+  
 
   return armors[0];
 }
@@ -355,8 +371,14 @@ void ConstraintSet::CalcControlInfo(const ArmorInfo & armor,
                                     double bullet_speed) {
   cv::Mat rvec;
   cv::Mat tvec;
+  std::vector<cv::Point2f> armor_vectex;
+  for (int j=0; j < armor.vertex.size(); j++)
+  {
+      armor_vectex.push_back(cv::Point(armor.vertex[j].x, armor.vertex[j].y + 524));
+  }
+  std::cout << "x: " << armor.vertex[0].x << "y: " << armor.vertex[0].y << std::endl;
   cv::solvePnP(armor_points_,
-               armor.vertex,
+               armor_vectex,
                cameras_.GetCameraParam()[camera_id_].camera_matrix,
                cameras_.GetCameraParam()[camera_id_].camera_distortion,
                rvec,
@@ -379,21 +401,29 @@ void ConstraintSet::CalcControlInfo(const ArmorInfo & armor,
   //  old_pitch_    = pitch;
   //  old_yaw_      = yaw;
   //  old_updated_ = true;
-  //}
+  //} 
   x = tvec.at<double>(2)/1000;
   y = -tvec.at<double>(0)/1000;
   z = tvec.at<double>(1)/1000;
-
-  double fly_time = tvec.at<double>(2) / 1000.0 / bullet_speed;
-  double gravity_offset = 0.5 * 0.98 * fly_time * fly_time * 1000;
-  double xyz[3] = {tvec.at<double>(0), tvec.at<double>(1) + gravity_offset + gimbal_offset_z_, tvec.at<double>(2)};
+  
+  distance = sqrt(tvec.at<double>(0)*tvec.at<double>(0) + tvec.at<double>(2)*tvec.at<double>(2))/1000.;
+  
+  std::cout << "tvec" << tvec << std::endl;
+  double fly_time = distance / bullet_speed;
+  std::cout << "fly_time: " << fly_time << std::endl;
+  double gravity_offset = 0.5 * 9.8 * fly_time * fly_time * 1000;
+  std::cout << "gravity_offset: " << gravity_offset << std::endl;
+  double xyz[3] = {tvec.at<double>(0), tvec.at<double>(1) - gravity_offset + gimbal_offset_z_, tvec.at<double>(2)};
+  std::cout << "xyz[3]: " << xyz[0] << " " << xyz[1] <<" " << xyz[2] << std::endl;
 
   //calculate pitch
   pitch =  atan(xyz[1]/xyz[2]) + pitch_offset_;
+  std::cout << "pitch : " << pitch  << std::endl;
   //calculate yaw
   yaw   = -atan2(xyz[0], xyz[2]) + yaw_offset_;
+  std::cout << "yaw : " << yaw  << std::endl;
 
-  distance = sqrt(tvec.at<double>(0)*tvec.at<double>(0) + tvec.at<double>(2)*tvec.at<double>(2))/1000.;
+  
 
   if(!old_updated_) {
     old_x_ = x;

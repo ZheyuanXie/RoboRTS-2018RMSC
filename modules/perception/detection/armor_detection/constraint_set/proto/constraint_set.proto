@@ -51,4 +51,7 @@ message ConstraintSetConfig {
   required float optical_axis_offset = 11;//mf
   required float yaw_offset = 12;//m
   required float pitch_offset = 13;//m
+  required float bullet_speed = 14;
+
+  required bool enable_predict = 15;
 }
