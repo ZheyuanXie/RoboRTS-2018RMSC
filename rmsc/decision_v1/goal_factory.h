@@ -440,7 +440,7 @@ class GoalFactory {
         } else {
           switch_mode_ = true;
           blackboard_ptr_->SetGimbalMode(GimbalMode::GIMBAL_RELATIVE_MODE);
-          blackboard_ptr_->SetChassisMode(ChassisMode::AUTO_SEPARATE_GIMBAL);
+          blackboard_ptr_->SetChassisMode(ChassisMode::DODGE_MODE);
           SendGoal(reduce_goal);
         }
       }

@@ -618,9 +618,6 @@ class Blackboard {
         min_index = i + 1;
       }
     }
-    if (min_index == -1) {
-      no_ammo_to_collect_ = true;
-    }
     return min_index;
   }
 
@@ -643,10 +640,6 @@ class Blackboard {
             << ammobox_list_[27] << ammobox_list_[28] << ammobox_list_[29];
   }
 
-  bool NoAmmoToCollect() {
-    return no_ammo_to_collect_;
-  }
-
   unsigned int GetAmmoCount() {
     LOG_INFO << "Get Ammobox Collected Count:" << ammobox_collected_cnt;
     return ammobox_collected_cnt;
@@ -659,7 +652,7 @@ class Blackboard {
     LOG_WARNING << "Load Ammo Detection Data...";
     for (std::vector<int32_t>::const_iterator it = msg->ammo_detect.begin(); it != msg->ammo_detect.end(); ++it) {
       ammobox_list_[*it - 1] = 1;
-      ammobox_list_[*it + 15- 1] = 1; // enemy box
+      ammobox_list_[*it + 15- 1] = 2; // enemy box
     }
     ammo_detect_init = true;
   }
@@ -758,7 +751,6 @@ class Blackboard {
   // Collect ammo variables ----------------------------------
   unsigned int ammobox_collected_cnt;
   bool ammo_detect_init = false;
-  bool no_ammo_to_collect_ = false;
   int ammobox_list_[30] = 
   {
     // Domestic Ammo

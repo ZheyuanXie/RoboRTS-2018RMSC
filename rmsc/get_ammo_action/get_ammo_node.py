@@ -35,7 +35,7 @@ TARGET_OFFSET_X  = 0.5
 TARGET_OFFSET_Y = 0.05
 KP_VX = 3.0
 KP_VY = 4.5
-KP_VYAW = 0.3
+KP_VYAW = 0.2
 MAX_LINEAR_VEL  = 0.2
 MAX_ANGULAR_VEL = 0.8
 # blind
@@ -199,7 +199,7 @@ class GetAmmoNode(object):
             if self.state == GetAmmoStatus.MOVETO:
                 if self.navto_reached or (rospy.get_time() - self.navto_start_time > 15):
                     self._ac_navto.cancel_all_goals()
-                    if self.ammotype == AmmoType.DOMESTIC_ELEVATED or AmmoType.ENEMY_ELEVATED:
+                    if self.ammotype == AmmoType.DOMESTIC_ELEVATED or self.ammotype == AmmoType.ENEMY_ELEVATED:
                         self.SetStateServo()
                     else:
                         self.SetStateLookMove()
