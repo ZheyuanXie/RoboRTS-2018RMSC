@@ -771,6 +771,14 @@ class Blackboard {
     0,0,0,0,0
   };
 
+  int random_obstacle_list_[6] =
+  {
+    // 1,2,3
+    0,0,0,
+    // 4,5,6
+    0,0,0
+  };
+
 };
 } //namespace decision
 } //namespace rrts
