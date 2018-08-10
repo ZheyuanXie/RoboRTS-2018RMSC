@@ -22,7 +22,7 @@
 
 #include <ros/ros.h>
 
-#include "modules/decision/RMSC_decision_v0/behavior_node.h"
+#include "rmsc/decision_v1/behavior_node.h"
 
 namespace rrts{
 namespace decision {

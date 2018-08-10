@@ -1,5 +1,44 @@
-simulate: false
+simulate: true
 master: true 
+use_referee: false
+minimum_ammo: 2
+
+initial_ammo_list {
+  # domestic ground 
+  state:-1     # 01
+  state:0     # 02
+  state:0     # 03
+  state:0     # 04
+  state:0     # 05
+  state:-1    # 06
+  # domestic elevated
+  state:0     # 07
+  state:-1    # 08
+  state:0     # 09
+  state:0     # 10
+  state:0     # 11
+  state:0     # 12
+  state:0     # 13
+  state:0     # 14
+  state:0     # 15
+  # enemy ground 
+  state:-1     # 01
+  state:0     # 02
+  state:0     # 03
+  state:0     # 04
+  state:0     # 05
+  state:-1    # 06
+  # enemy elevated
+  state:0     # 07
+  state:-1    # 08
+  state:0     # 09
+  state:0     # 10
+  state:0     # 11
+  state:0     # 12
+  state:0     # 13
+  state:0     # 14
+  state:0     # 15
+}
 
 wing_bot {
   start_position {

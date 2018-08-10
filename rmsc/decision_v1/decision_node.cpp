@@ -15,8 +15,8 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  ***************************************************************************/
 
-#include "modules/decision/RMSC_decision_v0/behavior_tree.h"
-#include "modules/decision/RMSC_decision_v0/action_behavior.h"
+#include "rmsc/decision_v1/behavior_tree.h"
+#include "rmsc/decision_v1/action_behavior.h"
 
 #include "common/log.h"
 
@@ -30,12 +30,15 @@ int main(int argc, char **argv)
 
   LOG_INFO << "Decision Node Starting...";
 
+
   ros::init(argc, argv, "decision_node");
   
-  auto blackboard_ptr_ = std::make_shared<rrts::decision::Blackboard>("/modules/decision/RMSC_decision_v0/config/decision.prototxt");
-  auto goal_factory_ = std::make_shared<rrts::decision::GoalFactory>(blackboard_ptr_,"/modules/decision/RMSC_decision_v0/config/decision.prototxt");
+  auto blackboard_ptr_ = std::make_shared<rrts::decision::Blackboard>("/rmsc/decision_v1/config/decision.prototxt");
+  auto goal_factory_ = std::make_shared<rrts::decision::GoalFactory>(blackboard_ptr_,"/rmsc/decision_v1/config/decision.prototxt");
   rrts::decision::DecisionConfig robot_config;
-  rrts::common::ReadProtoFromTextFile("/modules/decision/RMSC_decision_v0/config/decision.prototxt", &robot_config);
+  rrts::common::ReadProtoFromTextFile("/rmsc/decision_v1/config/decision.prototxt", &robot_config);
+  LOG_WARNING << "Use Referee:" << robot_config.use_referee();
+  LOG_WARNING << "Minimum Ammo:" << robot_config.minimum_ammo();
 
   // Debug
   //blackboard_ptr_ -> PlaySound("/sound/createtree.wav");
@@ -131,7 +134,7 @@ int main(int argc, char **argv)
   auto engage_condition_ = std::make_shared<rrts::decision::PreconditionNode>("engage_condition", blackboard_ptr_,
                                                                                  final_selector_,
                                                                                  [&]() {
-                                                                                   if ((blackboard_ptr_->GetAmmoCount() >= 3) || blackboard_ptr_->NoAmmo())
+                                                                                   if ((blackboard_ptr_->GetAmmoCount() >= robot_config.minimum_ammo()) || blackboard_ptr_->NoAmmoToCollect())
                                                                                      return true;
                                                                                    else
                                                                                      return false;
@@ -146,7 +149,7 @@ int main(int argc, char **argv)
                                                                                  wait_action_,
                                                                                  [&]() {
                                                                                    //return false;
-                                                                                   if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT)
+                                                                                   if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT && robot_config.use_referee())
                                                                                      return true;
                                                                                    else
                                                                                      return false;

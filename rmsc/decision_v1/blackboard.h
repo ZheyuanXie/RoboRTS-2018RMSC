@@ -42,7 +42,7 @@
 #include "messages/AmmoDetect.h"
 
 #include "common/io.h"
-#include "modules/decision/behavior_tree/proto/decision.pb.h"
+#include "rmsc/decision_v1/proto/decision.pb.h"
 #include "modules/perception/map/costmap/costmap_interface.h"
 #include "sound_play/sound_play.h"
 
@@ -184,6 +184,8 @@ class Blackboard {
 
     rrts::decision::DecisionConfig decision_config;
     rrts::common::ReadProtoFromTextFile(proto_file_path, &decision_config);
+
+    LoadAmmoList(decision_config);
 
     if (!decision_config.simulate()){
       //Connect to color detection server and start
@@ -593,7 +595,7 @@ class Blackboard {
   }
 
 
-  /// Collect Ammmo Functions ----------------------------------------------------------------------------------------------
+  /// Collect Ammo Functions ----------------------------------------------------------------------------------------------
 
   void SetAmmoCollected(unsigned int index) {
     LOG_WARNING << "Ammobox Collected:" << index;
@@ -602,19 +604,12 @@ class Blackboard {
   }
 
   void SetAmmoNotCollected(unsigned int index) {
-    LOG_WARNING << "Ammobox Failed to Collected:" << index;
+    LOG_WARNING << "Ammobox Not Collected:" << index;
     ammobox_list_[index-1] = ammobox_list_[index-1] + 1;
   }
 
   int GetAmmoIndex() {
-    LOG_WARNING << ammobox_list_[0] << ammobox_list_[1] << ammobox_list_[2] << ammobox_list_[3] << "|"
-            << ammobox_list_[4] << ammobox_list_[5] << ammobox_list_[6] << ammobox_list_[7] << "|"
-            << ammobox_list_[8] << ammobox_list_[9] << ammobox_list_[10] << ammobox_list_[11] << "|"
-            << ammobox_list_[12] << ammobox_list_[13] << ammobox_list_[14];
-    LOG_WARNING << ammobox_list_[15] << ammobox_list_[16] << ammobox_list_[17] << ammobox_list_[18] << "|"
-            << ammobox_list_[19] << ammobox_list_[20] << ammobox_list_[21] << ammobox_list_[22] << "|"
-            << ammobox_list_[23] << ammobox_list_[24] << ammobox_list_[25] << ammobox_list_[26] << "|"
-            << ammobox_list_[27] << ammobox_list_[28] << ammobox_list_[29];
+    DisplayAmmoList();
     int min_cnt = 4;
     int min_index = -1;
     for (int i = 0; i < 30; i++){
@@ -629,7 +624,26 @@ class Blackboard {
     return min_index;
   }
 
-  bool NoAmmo() {
+  void LoadAmmoList(const rrts::decision::DecisionConfig &decision_config) {
+    LOG_WARNING << "Loading Initial Ammo List...";
+    for (int i = 0; i < 30; i++) {
+      ammobox_list_[i]= decision_config.initial_ammo_list().state(i);
+    }
+    DisplayAmmoList();
+  }
+
+  void DisplayAmmoList() {
+    LOG_WARNING << "Ammo List:" << std::endl << ammobox_list_[0] << ammobox_list_[1] << ammobox_list_[2] << ammobox_list_[3]
+            << ammobox_list_[4] << ammobox_list_[5] << " | " << ammobox_list_[6] << ammobox_list_[7]
+            << ammobox_list_[8] << "," << ammobox_list_[9] << ammobox_list_[10] << ammobox_list_[11] << "," 
+            << ammobox_list_[12] << ammobox_list_[13] << ammobox_list_[14] << std::endl
+            << ammobox_list_[15] << ammobox_list_[16] << ammobox_list_[17] << ammobox_list_[18]
+            << ammobox_list_[19] << ammobox_list_[20] << " | " << ammobox_list_[21] << ammobox_list_[22] 
+            << ammobox_list_[23] << "," << ammobox_list_[24] << ammobox_list_[25] << ammobox_list_[26] << ","
+            << ammobox_list_[27] << ammobox_list_[28] << ammobox_list_[29];
+  }
+
+  bool NoAmmoToCollect() {
     return no_ammo_to_collect_;
   }
 
@@ -747,12 +761,12 @@ class Blackboard {
   bool no_ammo_to_collect_ = false;
   int ammobox_list_[30] = 
   {
-    // Red Area
-    -1,2,2,0,2,
+    // Domestic Ammo
+    -1,0,0,0,0,
     -1,0,-1,0,0,
     0,0,0,0,0,
-    // Blue Area
-    -1,2,2,0,2,
+    // Enemy Ammo
+    -1,0,0,0,0,
     -1,0,-1,0,0,
     0,0,0,0,0
   };

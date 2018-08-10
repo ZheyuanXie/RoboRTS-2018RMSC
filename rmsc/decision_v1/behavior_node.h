@@ -22,7 +22,7 @@
 #include <thread>
 #include <vector>
 
-#include "modules/decision/RMSC_decision_v0/blackboard.h"
+#include "rmsc/decision_v1/blackboard.h"
 
 namespace rrts{
 namespace decision{

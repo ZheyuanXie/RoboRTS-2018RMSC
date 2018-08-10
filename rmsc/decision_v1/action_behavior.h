@@ -29,10 +29,10 @@
 #include "common/error_code.h"
 #include "common/log.h"
 
-#include "modules/decision/RMSC_decision_v0/behavior_tree.h"
-#include "modules/decision/RMSC_decision_v0/blackboard.h"
+#include "rmsc/decision_v1/behavior_tree.h"
+#include "rmsc/decision_v1/blackboard.h"
 
-#include "modules/decision/RMSC_decision_v0/goal_factory.h"
+#include "rmsc/decision_v1/goal_factory.h"
 
 namespace rrts {
 namespace decision {
@@ -632,7 +632,7 @@ class GetAmmoAction : public ActionNode {
         if (ammobox_index_ > 0) blackboard_ptr_->SetAmmoCollected(ammobox_index_);
         break;
       case BehaviorState::FAILURE:
-        LOG_WARNING<<name_<<" "<<__FUNCTION__<<" FAILURE!";
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" FAILURE!";
         if (ammobox_index_ > 0) blackboard_ptr_->SetAmmoNotCollected(ammobox_index_);
         break;
       default:

@@ -37,8 +37,8 @@
 
 #include "modules/planning/local_planner/line_iterator.h"
 
-#include "modules/decision/RMSC_decision_v0/blackboard.h"
-#include "modules/decision/RMSC_decision_v0/behavior_node.h"
+#include "rmsc/decision_v1/blackboard.h"
+#include "rmsc/decision_v1/behavior_node.h"
 #include "modules/perception/map/costmap/costmap_interface.h"
 
 namespace rrts {
