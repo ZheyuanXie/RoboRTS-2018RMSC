@@ -15,7 +15,7 @@
   </node>
   
   <!-- Run the rviz -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts)/tools/rviz/rm.rviz" />
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts)/tools/rviz/rm.rviz" /> -->
 
   <!-- Run the SelfCheck Node -->
   <node pkg="roborts" type="self_check_node" name="self_check_node" respawn="false" />
@@ -30,13 +30,13 @@
   <node pkg="roborts" type="local_planner_node" name="local_planner_node" respawn="false" />
 
   <!-- Run the Nav To Node -->
-  <node pkg="roborts" type="nav_to_node.py" name="nav_to_node" respawn="false" />
+  <node pkg="roborts" type="nav_to_node.py" name="nav_to_node" respawn="false" output="screen"/>
 
   <!-- Run the Look And Move Node -->
   <node pkg="roborts" type="look_n_move_node.py" name="look_n_move_node" respawn="false" />
 
   <!-- Run the Get Ammo Node -->
-  <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" />
+  <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" output="screen"/>
 
   <!-- Run the Sound Play Node -->
   <node pkg="sound_play" type="soundplay_node.py" name="sound_play_node" respawn="false" />

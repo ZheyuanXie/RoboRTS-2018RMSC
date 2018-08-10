@@ -27,8 +27,8 @@ class NavToNode(object):
         self.local_planner_goal_ = LocalPlannerGoal()
         self.new_goal_ = False
         self.new_path_ = False
-        self.global_planner_done = False
-        self.local_planner_done = False
+        self.global_planner_error_code = -1
+        self.local_planner_error_code = -1
 
         # new thread running the execution loop
         self.thread_ = Thread(target=self.Loop)
@@ -36,23 +36,27 @@ class NavToNode(object):
         self._as.start()
 
     def ExecuteCB(self, goal):
-        print 'NAV GOAL RCV'
+        rospy.loginfo('NAVTO: Goal received')
         self.global_planner_goal_.goal = goal.navgoal
-        self.global_planner_done = False
-        self.local_planner_done = False
+        self.global_planner_error_code = -1
+        self.global_planner_error_code = -1
         self.new_goal_ = True
         while not rospy.is_shutdown():
             if self._as.is_preempt_requested():
-                print 'PREEMPT REQ'
+                rospy.loginfo('NAVTO: preempt requested')
                 self._as.set_preempted()
                 self.new_goal_ = False
                 self.new_path_ = False
                 self._ac_gp.cancel_all_goals()
                 self._ac_lp.cancel_all_goals()
                 return
-            if self.global_planner_done and self.local_planner_done:
+            if self.global_planner_error_code == 0:
                 self._as.set_succeeded()
-                print 'SUCCESS'
+                rospy.loginfo('NAVTO: succeeded')
+                break
+            if self.global_planner_error_code >=1:
+                self._as.set_aborted()
+                rospy.loginfo('NAVTO: failed')
                 break
     
     def Loop(self):
@@ -67,20 +71,19 @@ class NavToNode(object):
             try:
                 rate.sleep()
             except:
-                print "Exiting..."
+                rospy.loginfo('NAVTO: exiting')
     
-    def GlobalPlannerDoneCB(self,data1,data2):
-        #print "GP:",data1,data2,rospy.get_time()
-        self.global_planner_done = True
+    def GlobalPlannerDoneCB(self,state,result):
+        rospy.loginfo("GP:%d, %d"%(state,result.error_code))
+        self.global_planner_error_code = result.error_code
     
     def GlobalPlannerFeedbackCallback(self,data):
         self.local_planner_goal_.route = data.path
         self.new_path_ = True
-        print '.',
     
-    def LocalPlannerDoneCallback(self,data1,data2):
-        #print "LP:",data1,data2,rospy.get_time()
-        self.local_planner_done = True
+    def LocalPlannerDoneCallback(self,state,result):
+        rospy.loginfo("LP:%d, %d"%(state,result.error_code))
+        self.local_planner_error_code = result.error_code
     
     def LocalPlanerFeedbackCallback(self,data):
         pass

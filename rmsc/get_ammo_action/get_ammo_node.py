@@ -46,46 +46,44 @@ X_ERROR = 0.02
 Y_ERROR = 0.03
 YAW_ERROR = 0.2
 
+class AmmoType:
+    DOMESTIC_GROUND      = 0
+    DOMESTIC_ELEVATED    = 1 
+    ENEMY_GROUND         = 2
+    ENEMY_ELEVATED       = 3
+
 AmmoBoxes = [
     # ground ----------------------------------
-    # {'id':1,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
-    {'id':2,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(1.20,4.30,-1.57),'type':False},
-    {'id':3,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.60,4.20,-1.57),'type':False},
-    {'id':4,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(0.50,4.65,1.57),'type':False},
-    {'id':5,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(1.05,4.30,1.57),'type':False},
-    # {'id':6,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    {'id':2,  'checkpoint':[(1.20,4.30,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':3,  'checkpoint':[(2.60,4.20,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':4,  'checkpoint':[(0.50,4.65,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':5,  'checkpoint':[(1.05,4.30,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     # elevated ----------------------------------
-    {'id':7,  'center':(1.50,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,-1.57),'type':True},
-    # {'id':8,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
-    {'id':9,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
-    {'id':10, 'center':(2.10,2.20,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00),'type':True},
-    {'id':11, 'center':(2.05,1.80,AB_HEIGHT),'checkpoint':(1.50,2.50,3.14),'type':True},
-    {'id':12, 'center':(2.05,1.40,AB_HEIGHT),'checkpoint':(1.50,2.00,3.14),'type':True},
-    {'id':13, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(4.20,1.75,0),'type':True},
-    {'id':14, 'center':(3.25,1.00,AB_HEIGHT),'checkpoint':(4.20,1.20,0),'type':True},
-    {'id':15, 'center':(3.25,0.40,AB_HEIGHT),'checkpoint':(4.20,0.50,0),'type':True},
+    {'id':7,  'checkpoint':[(2.00,3.60,-1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':9,  'checkpoint':[(0.88,3.26,1.57)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':10, 'checkpoint':[(2.80,2.90,0.00)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':11, 'checkpoint':[(1.50,2.50,3.14)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':12, 'checkpoint':[(1.50,2.00,3.14)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':13, 'checkpoint':[(4.20,1.75,0)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':14, 'checkpoint':[(4.20,1.20,0)],'conflict':[0,6],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':15, 'checkpoint':[(4.20,0.50,0)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
     # enemy ground ----------------------------------
-    # {'id':16,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
-    {'id':17,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 1.20, MAP_WIDTH - 4.30,-1.57+3.14),'type':False},
-    {'id':18,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 2.60, MAP_WIDTH - 4.20,-1.57+3.14),'type':False},
-    {'id':19,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 0.50, MAP_WIDTH - 4.65,1.57-3.14),'type':False},
-    {'id':20,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 1.05, MAP_WIDTH - 4.30,1.57-3.14),'type':False},
-    # {'id':21,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    {'id':17, 'checkpoint':[(MAP_LENGTH-1.20,MAP_WIDTH-4.30,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
+    {'id':18, 'checkpoint':[(MAP_LENGTH-2.60,MAP_WIDTH-4.20,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
+    {'id':19, 'checkpoint':[(MAP_LENGTH-0.50,MAP_WIDTH-4.65,1.57-3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
+    {'id':20, 'checkpoint':[(MAP_LENGTH-1.05,MAP_WIDTH-4.30,1.57-3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
     # enemy elevated ----------------------------------
-    {'id':22,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 2.00, MAP_WIDTH - 3.60,-1.57+3.14),'type':True},
-    # {'id':23,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
-    {'id':24,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 0.88, MAP_WIDTH - 3.26,1.57+3.14),'type':True},
-    {'id':25, 'center':(2.10,2.20,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 2.80, MAP_WIDTH - 2.90,0.00+3.14),'type':True},
-    {'id':26, 'center':(2.05,1.80,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 1.50, MAP_WIDTH - 2.50,0.00),'type':True},
-    {'id':27, 'center':(2.05,1.40,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 1.50, MAP_WIDTH - 2.00,0.00),'type':True},
-    {'id':28, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 4.20, MAP_WIDTH - 1.75,0+3.14),'type':True},
-    {'id':29, 'center':(3.25,1.00,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 4.20, MAP_WIDTH - 1.20,0+3.14),'type':True},
-    {'id':30, 'center':(3.25,0.40,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 4.20, MAP_WIDTH - 0.50,0+3.14),'type':True}
+    {'id':22, 'checkpoint':[(MAP_LENGTH-2.00,MAP_WIDTH-3.60,-1.57+3.14)],'conflict':[0,1],'type':AmmoType.ENEMY_ELEVATED},
+    {'id':24, 'checkpoint':[(MAP_LENGTH-0.88,MAP_WIDTH-3.26,1.57+3.14)],'conflict':[0,0],'type':AmmoType.ENEMY_ELEVATED},
+    {'id':25, 'checkpoint':[(MAP_LENGTH-2.80,MAP_WIDTH-2.90,0.00+3.14)],'conflict':[0,4],'type':AmmoType.ENEMY_ELEVATED},
+    {'id':26, 'checkpoint':[(MAP_LENGTH-1.50,MAP_WIDTH-2.50,0.00)],'conflict':[4,5],'type':AmmoType.ENEMY_ELEVATED},
+    {'id':27, 'checkpoint':[(MAP_LENGTH-1.50,MAP_WIDTH-2.00,0.00)],'conflict':[0,5],'type':AmmoType.ENEMY_ELEVATED},
+    {'id':28, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.75,0+3.14)],'conflict':[0,5],'type':AmmoType.ENEMY_ELEVATED},
+    {'id':29, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.20,0+3.14)],'conflict':[0,6],'type':AmmoType.ENEMY_ELEVATED},
+    {'id':30, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-0.50,0+3.14)],'conflict':[0,0],'type':AmmoType.ENEMY_ELEVATED}
 ]
 
-class AmmoType:
-    GROUND      = 0
-    ELEVATED    = 1 
+
 
 class GetAmmoStatus:
     IDLE        = 0
@@ -111,18 +109,18 @@ class GetAmmoNode(object):
         # initialize navto action server
         if not SERVO_ONLY and not VISUAL_ONLY:
             self._ac_navto = SimpleActionClient("nav_to_node_action", NavToAction)
-            rospy.loginfo('tring to connect NavTo action server...')
+            rospy.loginfo('GETAMMO: Connecting NavTo action server...')
             ret = self._ac_navto.wait_for_server(timeout=rospy.Duration(5.0))
-            rospy.loginfo('NavTo sever connected!' if ret else 'error: NavTo server not started!')
+            rospy.loginfo('GETAMMO: NavTo sever connected!') if ret else rospy.logerr('error: NavTo server not started!')
         
         if not SERVO_ONLY:
             self._ac_lookmove = SimpleActionClient("look_n_move_node_action", LookAndMoveAction)
-            rospy.loginfo('tring to connect LookAndMove action server...')
+            rospy.loginfo('GETAMMO: Connecting LookAndMove action server...')
             ret = self._ac_lookmove.wait_for_server(timeout=rospy.Duration(5.0))
-            rospy.loginfo('LookAndMove sever connected!') if ret else rospy.loginfo('error: LookAndMove server not started!')
+            rospy.loginfo('GETAMMO: LookAndMove sever connected!') if ret else rospy.logerr('error: LookAndMove server not started!')
 
         self.state = GetAmmoStatus.IDLE
-        self.ammotype = AmmoType.ELEVATED
+        self.ammotype = 0
         # navigation phase
         self.navto_start_time = 0
         self.navto_reached = False
@@ -153,7 +151,7 @@ class GetAmmoNode(object):
     
     def ExecuteCB(self, goal):
         rate = rospy.Rate(20)
-        
+        rospy.loginfo('GETAMMO: Goal received (%d)'%(goal.ammobox_index))
         if SERVO_ONLY:
             self.SetStateServo()
         if VISUAL_ONLY:
@@ -167,13 +165,13 @@ class GetAmmoNode(object):
                     box_info = box
                     id_found = True
             if id_found == False:
-                rospy.loginfo('ID Not Found, Aborted')
+                rospy.loginfo('GETAMMO: ID %d Not Found, Aborted'%(goal.ammobox_index))
                 self._as.set_aborted()
                 return
-            checkpoint = box_info.get('checkpoint')
+            checkpoint = box_info.get('checkpoint')[0]
             self.ammotype = box_info.get('type')
             if checkpoint is None:
-                rospy.loginfo('No CheckPoint Info, Aborted')
+                rospy.loginfo('GETAMMO: No CheckPoint Info, Aborted')
                 self._as.set_aborted()
                 return
             g = NavToGoal()
@@ -191,7 +189,7 @@ class GetAmmoNode(object):
         while not rospy.is_shutdown():
             # Check Preempt Request
             if self._as.is_preempt_requested():
-                rospy.loginfo('preempt requested')
+                rospy.loginfo('GETAMMO: preempt requested')
                 self._ac_navto.cancel_all_goals()
                 self._as.set_preempted()
                 self.state = GetAmmoStatus.IDLE
@@ -201,7 +199,7 @@ class GetAmmoNode(object):
             if self.state == GetAmmoStatus.MOVETO:
                 if self.navto_reached or (rospy.get_time() - self.navto_start_time > 15):
                     self._ac_navto.cancel_all_goals()
-                    if self.ammotype == AmmoType.ELEVATED:
+                    if self.ammotype == AmmoType.DOMESTIC_ELEVATED or AmmoType.ENEMY_ELEVATED:
                         self.SetStateServo()
                     else:
                         self.SetStateLookMove()
@@ -215,6 +213,7 @@ class GetAmmoNode(object):
                 self.servo_cnt += 1
                 self.pub_cmd_vel.publish(self.cmd_vel)
                 if self.servo_no_target > 10:
+                    rospy.loginfo('GETAMMO: Servo no target')
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -228,12 +227,14 @@ class GetAmmoNode(object):
                     self.state = GetAmmoStatus.BLIND
                 # SERVO TIME-OUT
                 if self.servo_cnt > 80:
+                    rospy.loginfo('GETAMMO: Servo timeout')
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
             
             elif self.state == GetAmmoStatus.LOOKMOVE:
                 if rospy.get_time() - self.looknmove_start_time > 4 and not self.looknmove_issued:
+                    rospy.loginfo('GETAMMO: Visual timeout')
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -241,6 +242,7 @@ class GetAmmoNode(object):
                     self.gripper.SetPosition(100,200)
                 self.looknmove_cnt += 1
                 if self.looknmove_no_target > 15:
+                    rospy.loginfo('GETAMMO: Visual no target')
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -267,12 +269,12 @@ class GetAmmoNode(object):
                 # BLIND APPROACH TIME-OUT
                 if self.blind_cnt > 80:
                     self.SendCmdVel(WITHDRAW_VX,0.,0.)
-                    rospy.logwarn('BLIND_WITH')
+                    # rospy.logwarn('BLIND_WITH')
                 else:
                     self.SendCmdVel(BLIND_APPROACH_VX,0.,0.)
-                    rospy.logwarn('BLIND_APP')
+                    # rospy.logwarn('BLIND_APP')
                 if self.blind_cnt > 100:
-                    rospy.logwarn('BLIND_EXIT')
+                    # rospy.logwarn('BLIND_EXIT')
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -301,15 +303,6 @@ class GetAmmoNode(object):
         rospy.sleep(.1)
         self.SendCmdVel(0.,0.,0.)
     
-    def NavToDoneCB(self,terminal_state,result):
-        if terminal_state == GoalStatus.SUCCEEDED:
-            self.navto_reached = True
-            self._ac_navto.cancel_all_goals()
-            rospy.loginfo('Navto reached')
-        else:
-            self.navto_failed = True
-            rospy.loginfo('Navto failed')
-    
     def TopLidarCB(self,data):
         if self.state == GetAmmoStatus.SERVO:
             theta = np.deg2rad(np.linspace(-SERVO_AOV/2,SERVO_AOV/2,num=SERVO_AOV+1))
@@ -319,7 +312,7 @@ class GetAmmoNode(object):
             dist_cut = np.delete(dist, range_cut_index)
             if theta_cut.size == 0:
                 self.servo_no_target += 1
-                rospy.loginfo('TOP LIDAR: NO TARTGET')
+                # rospy.loginfo('TOP LIDAR: NO TARTGET')
                 return
             y = dist_cut * np.sin(theta_cut)
             mean_y = np.average(y)
@@ -334,7 +327,7 @@ class GetAmmoNode(object):
             theta_cut = np.delete(theta, range_cut_index)
             dist_cut = np.delete(dist, range_cut_index)
             if theta_cut.size == 0:
-                rospy.loginfo('BASE LIDAR: NO TARTGET')
+                # rospy.loginfo('BASE LIDAR: NO TARTGET')
                 return
             x = dist_cut * np.cos(theta_cut)
             y = dist_cut * np.sin(theta_cut)
@@ -349,7 +342,7 @@ class GetAmmoNode(object):
         if self.state == GetAmmoStatus.LOOKMOVE and self.looknmove_issued == False and self.looknmove_cnt > 20:
             if data.pose.position.x == 0:
                 self.looknmove_no_target += 1
-                rospy.loginfo('CAMERA: NO TARGET')
+                # rospy.loginfo('CAMERA: NO TARGET')
             else:
                 err_y = (data.pose.position.z - 300) / 1000
                 err_x = data.pose.position.x / 1000
@@ -362,15 +355,24 @@ class GetAmmoNode(object):
                 self._ac_lookmove.send_goal(goal, done_cb=self.LookAndMoveDoneCB)
                 self.looknmove_issued = True
     
+    def NavToDoneCB(self,terminal_state,result):
+        if terminal_state == GoalStatus.SUCCEEDED:
+            self.navto_reached = True
+            self._ac_navto.cancel_all_goals()
+            rospy.loginfo('GETAMMO: Navto reached')
+        else:
+            self.navto_failed = True
+            rospy.loginfo('GETAMMO: Navto failed')
+    
     def LookAndMoveDoneCB(self,terminal_state,result):
         print terminal_state, result
         if terminal_state == GoalStatus.SUCCEEDED:
             self.looknmove_reached = True
             self._ac_lookmove.cancel_all_goals()
-            rospy.loginfo('LooknMove reached')
+            rospy.loginfo('GETAMMO: LooknMove reached')
         else:
             self.looknmove_failed = True
-            rospy.loginfo('LooknMove failed')
+            rospy.loginfo('GETAMMO: LooknMove failed')
 
     def SendCmdVel(self, vx, vy, vyaw):
         self.cmd_vel.linear.x = np.clip(vx, -MAX_LINEAR_VEL, MAX_LINEAR_VEL)
