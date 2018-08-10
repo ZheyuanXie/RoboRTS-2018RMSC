@@ -37,17 +37,30 @@ AmmoBoxGlobalPos = [
     {'id':15, 'center':(3.25,0.20,AB_HEIGHT)}
 ]
 
+# AmmoBoxLocalPos = [
+#     # Elevated ammo boxs (ZWang)
+#     {'id':7,  'center':(2.78,-0.25,AB_HEIGHT)},
+#     {'id':8,  'center':(-100,-100,AB_HEIGHT)},
+#     {'id':9,  'center':(1.30,0.70,AB_HEIGHT)},
+#     {'id':10, 'center':(1.59,-0.59,AB_HEIGHT)},
+#     {'id':11, 'center':(1.14,-0.65,AB_HEIGHT)},
+#     {'id':12, 'center':(0.69,-0.70,AB_HEIGHT)},
+#     {'id':13, 'center':(0.81,-1.94,AB_HEIGHT)},
+#     {'id':14, 'center':(0.20,-1.95,AB_HEIGHT)},
+#     {'id':15, 'center':(-0.78,-1.85,AB_HEIGHT)}
+# ]
+
 AmmoBoxLocalPos = [
     # Elevated ammo boxs (ZWang)
-    {'id':7,  'center':(2.78,-0.25,AB_HEIGHT)},
+    {'id':7,  'center':(2.675,-0.435,AB_HEIGHT)},
     {'id':8,  'center':(-100,-100,AB_HEIGHT)},
-    {'id':9,  'center':(1.30,0.70,AB_HEIGHT)},
-    {'id':10, 'center':(1.59,-0.59,AB_HEIGHT)},
-    {'id':11, 'center':(1.14,-0.65,AB_HEIGHT)},
-    {'id':12, 'center':(0.69,-0.70,AB_HEIGHT)},
-    {'id':13, 'center':(0.81,-1.94,AB_HEIGHT)},
-    {'id':14, 'center':(0.20,-1.95,AB_HEIGHT)},
-    {'id':15, 'center':(-0.78,-1.85,AB_HEIGHT)}
+    {'id':9,  'center':(1.26,0.485,AB_HEIGHT)},
+    {'id':10, 'center':(1.565,-0.81,AB_HEIGHT)},
+    {'id':11, 'center':(1.105,-0.83,AB_HEIGHT)},
+    {'id':12, 'center':(0.605,-0.835,AB_HEIGHT)},
+    {'id':13, 'center':(0.625,-2.05,AB_HEIGHT)},
+    {'id':14, 'center':(0.075,-2.095,AB_HEIGHT)},
+    {'id':15, 'center':(-0.415,-2.09,AB_HEIGHT)}
 ]
 
 class AmmoBoxLocation:
@@ -62,9 +75,8 @@ class AmmoBoxLocation:
         self.vote = 0
         for p in pc.points:
             dist = np.sqrt((p.x - self.x)**2 + (p.y - self.y)**2)
-            if dist < 0.25:
-                self.vote = 1
-                break
+            if dist < 0.32:
+                self.vote += 1
 
 class MapCompletionTest(object):
     def __init__(self):
