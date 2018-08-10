@@ -52,14 +52,14 @@
 #include "messages/EnemyPos.h"
 #include "messages/ShootState.h"
 #include "messages/ShootInfo.h"
-#include "messages/GripperInfo.h"
+#include "rmsc_messages/GripperInfo.h"
 
 #include "messages/GameBuffStatus.h"
 #include "messages/ChassisMode.h"
 #include "messages/GimbalMode.h"
 #include "messages/ShootModeControl.h"
 #include "messages/CheckStatus.h"
-#include "messages/GripperCmd.h"
+#include "rmsc_messages/GripperCmd.h"
 
 #include "modules/driver/serial/infantry_info.h"
 #include "modules/driver/serial/proto/serial_com_config.pb.h"
@@ -248,7 +248,7 @@ class SerialComNode : public rrts::common::RRTS {
   /**
    * @brief Callback of gripper control(cmd_grip) message
    */
-  void GripperControlCallback(const messages::GripperCmdConstPtr &msg);
+  void GripperControlCallback(const rmsc_messages::GripperCmdConstPtr &msg);
 
   void SendChassisControl(const ChassisControl &chassis_control);
 
@@ -306,7 +306,7 @@ class SerialComNode : public rrts::common::RRTS {
   messages::RfidInfo rfid_info_msg_;
   messages::GimbalAngle gim_angle_;
   messages::ShootInfo shoot_info_msg_;
-  messages::GripperInfo gripper_info_msg_;
+  rmsc_messages::GripperInfo gripper_info_msg_;
   messages::GameBuffStatus game_buff_status_;
   geometry_msgs::PoseStamped uwb_position_msg_;
   geometry_msgs::TransformStamped arm_tf_;

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import rospy
 from actionlib import SimpleActionClient
-from messages.msg import GetAmmoAction, GetAmmoActionGoal
+from rmsc_messages.msg import GetAmmoAction, GetAmmoActionGoal
 
 def help():
     print '''

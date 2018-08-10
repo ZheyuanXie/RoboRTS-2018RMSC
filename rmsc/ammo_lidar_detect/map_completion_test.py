@@ -9,7 +9,7 @@ import sensor_msgs.point_cloud2 as pc2
 from geometry_msgs.msg import Point32, Vector3, PointStamped
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import MarkerArray, Marker
-from messages.msg import AmmoDetect
+from rmsc_messages.msg import AmmoDetect
 
 from actionlib import ActionClient
 

@@ -4,7 +4,7 @@ from threading import Thread
 import tf
 import numpy as np
 from actionlib import SimpleActionServer
-from messages.msg import LookAndMoveAction
+from rmsc_messages.msg import LookAndMoveAction
 from geometry_msgs.msg import PoseStamped, Twist
 from nav_msgs.msg import Odometry
 

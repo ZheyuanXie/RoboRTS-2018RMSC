@@ -2,7 +2,7 @@
 import rospy
 import tf
 from actionlib import SimpleActionClient
-from messages.msg import LookAndMoveAction, LookAndMoveActionGoal
+from rmsc_messages.msg import LookAndMoveAction, LookAndMoveActionGoal
 
 def help():
     print '''

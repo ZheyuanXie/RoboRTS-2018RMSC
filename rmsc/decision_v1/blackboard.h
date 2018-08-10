@@ -38,8 +38,8 @@
 #include "messages/ShootModeControl.h"
 #include "messages/GoalTask.h"
 #include "messages/SelfCheck.h"
-#include "messages/ConditionOverride.h"
-#include "messages/AmmoDetect.h"
+#include "rmsc_messages/ConditionOverride.h"
+#include "rmsc_messages/AmmoDetect.h"
 
 #include "common/io.h"
 #include "rmsc/decision_v1/proto/decision.pb.h"
@@ -235,13 +235,13 @@ class Blackboard {
       LOG_INFO << "SelfCheck "<<self_check_msg.response.passed ? "Passed":"Not Passed";
   }
 
-  void ConditionOverrideCallback(const messages::ConditionOverride::ConstPtr & condition_override){
+  void ConditionOverrideCallback(const rmsc_messages::ConditionOverride::ConstPtr & condition_override){
     //LOG_ERROR<<"condition override received!";
     condition_override_ = *condition_override;
     //LOG_ERROR<<condition_override_;
   }
 
-  messages::ConditionOverride GetConditionOverride() {
+  rmsc_messages::ConditionOverride GetConditionOverride() {
     return condition_override_;
   }
 
@@ -652,7 +652,7 @@ class Blackboard {
     return ammobox_collected_cnt;
   }
 
-  void AmmoDetectionCallback(const messages::AmmoDetectConstPtr &msg) {
+  void AmmoDetectionCallback(const rmsc_messages::AmmoDetectConstPtr &msg) {
     if (ammo_detect_init) {
       return;
     }
@@ -752,7 +752,7 @@ class Blackboard {
   bool enemy_detected_;
 
   // Debug Info
-  messages::ConditionOverride condition_override_;
+  rmsc_messages::ConditionOverride condition_override_;
   sound_play::SoundClient sound_client_;
 
   // Collect ammo variables ----------------------------------

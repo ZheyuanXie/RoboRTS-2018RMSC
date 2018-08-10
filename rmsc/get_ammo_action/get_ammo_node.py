@@ -10,10 +10,10 @@ from geometry_msgs.msg import Point32, Vector3, Twist, PointStamped, PoseStamped
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import MarkerArray, Marker
 from messages.msg import LocalPlannerAction, GlobalPlannerAction
-from messages.msg import NavToAction, NavToGoal
-from messages.msg import LookAndMoveAction, LookAndMoveGoal
-from messages.msg import GetAmmoAction, GetAmmoActionResult, GetAmmoActionFeedback
-from messages.msg import GripperCmd, GripperInfo
+from rmsc_messages.msg import NavToAction, NavToGoal
+from rmsc_messages.msg import LookAndMoveAction, LookAndMoveGoal
+from rmsc_messages.msg import GetAmmoAction, GetAmmoActionResult, GetAmmoActionFeedback
+from rmsc_messages.msg import GripperCmd, GripperInfo
 from actionlib_msgs.msg import GoalStatus
 
 from gripper import GripperController

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import rospy
 from actionlib import SimpleActionClient
-from messages.msg import NavToAction, NavToActionGoal
+from rmsc_messages.msg import NavToAction, NavToActionGoal
 from actionlib_msgs.msg import GoalStatus
 import tf
 

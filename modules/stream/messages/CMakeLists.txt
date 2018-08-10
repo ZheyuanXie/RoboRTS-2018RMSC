@@ -10,9 +10,9 @@ add_action_files(
   ArmorDetection.action
   Localization.action
   BotGoal.action
-  GetAmmo.action
-  NavTo.action
-  LookAndMove.action
+  # GetAmmo.action
+  # NavTo.action
+  # LookAndMove.action
 )
 
 
@@ -28,10 +28,10 @@ add_message_files(
   ShootInfo.msg
   RobotHurtData.msg
   GoalTask.msg
-  GripperCmd.msg
-  GripperInfo.msg
-  ConditionOverride.msg
-  AmmoDetect.msg
+  # GripperCmd.msg
+  # GripperInfo.msg
+  # ConditionOverride.msg
+  # AmmoDetect.msg
 )
 
 add_service_files(

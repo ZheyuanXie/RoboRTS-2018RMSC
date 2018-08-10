@@ -56,7 +56,7 @@ SerialComNode::SerialComNode(std::string module_name)
   robot_hurt_data_pub_ = nh_.advertise<messages::RobotHurtData>("referee_system/robot_hurt_data", 30);
   rfid_info_pub_ = nh_.advertise<messages::RfidInfo>("referee_system/rfid_info", 30);
   shoot_info_pub_ = nh_.advertise<messages::ShootInfo>("referee_system/shoot_info", 30);
-  gripper_info_pub_ = nh_.advertise<messages::GripperInfo>("gripper",30);
+  gripper_info_pub_ = nh_.advertise<rmsc_messages::GripperInfo>("gripper",30);
 
   game_buff_status_srv_ = nh_.serviceClient<messages::GameBuffStatus>("referee_system/set_buff_status");
   chassis_mode_srv_ = nh_.advertiseService("set_chassis_mode", &SerialComNode::SetChassisMode, this);
@@ -562,7 +562,7 @@ void SerialComNode::ChassisControlCallback(const geometry_msgs::Twist::ConstPtr 
   }
 }
 
-void SerialComNode::GripperControlCallback(const messages::GripperCmdConstPtr &msg) {
+void SerialComNode::GripperControlCallback(const rmsc_messages::GripperCmdConstPtr &msg) {
   GripperControl gripper_control_data;
   gripper_control_data.cmd = msg->cmd;
   gripper_control_data.motor1_ref = msg->motor1_ref;

@@ -1,5 +1,5 @@
 import rospy
-from messages.msg import GripperCmd, GripperInfo
+from rmsc_messages.msg import GripperCmd, GripperInfo
 
 CMD_REPEAT = 3
 

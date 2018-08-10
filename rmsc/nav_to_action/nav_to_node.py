@@ -4,7 +4,7 @@ from threading import Thread
 
 from actionlib import SimpleActionClient, SimpleActionServer
 from messages.msg import GlobalPlannerAction, LocalPlannerAction, GlobalPlannerGoal, LocalPlannerGoal
-from messages.msg import NavToAction
+from rmsc_messages.msg import NavToAction
 from geometry_msgs.msg import PoseStamped
 
 class NavToStatus:

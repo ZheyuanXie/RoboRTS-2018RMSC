@@ -30,8 +30,8 @@
 #include "messages/LocalPlannerAction.h"
 #include "messages/BotGoalAction.h"
 #include "messages/GoalTask.h"
-#include "messages/GetAmmoAction.h"
-#include "messages/GetAmmoActionGoal.h"
+#include "rmsc_messages/GetAmmoAction.h"
+#include "rmsc_messages/GetAmmoActionGoal.h"
 
 #include "common/io.h"
 
@@ -60,8 +60,8 @@ class GoalFactory {
   typedef rrts::perception::map::Costmap2D CostMap2D;
   typedef std::shared_ptr<GoalFactory> GoalFactoryPtr;
 
-  typedef messages::GetAmmoGoal GetAmmoGoal;
-  typedef messages::GetAmmoActionResultConstPtr GetAmmoResult;
+  typedef rmsc_messages::GetAmmoGoal GetAmmoGoal;
+  typedef rmsc_messages::GetAmmoActionResultConstPtr GetAmmoResult;
 
   GoalFactory(const Blackboard::Ptr &blackboard_ptr, const std::string & proto_file_path) :
       blackboard_ptr_(blackboard_ptr),
@@ -1101,7 +1101,7 @@ class GoalFactory {
   unsigned char * charmap_;
   LocalActionClient local_planner_actionlib_client_;
   GlobalActionClient global_planner_actionlib_client_;
-  actionlib::SimpleActionClient<messages::GetAmmoAction> get_ammo_actionlib_client_;
+  actionlib::SimpleActionClient<rmsc_messages::GetAmmoAction> get_ammo_actionlib_client_;
 
   GlobalGoal global_planner_goal_;
   LocalGoal local_planner_goal_;

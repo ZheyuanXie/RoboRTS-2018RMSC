@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from gripper import GripperController
-from messages.msg import GripperCmd
+from rmsc_messages.msg import GripperCmd
 
 def help():
     print('''
