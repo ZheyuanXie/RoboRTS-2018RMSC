@@ -274,8 +274,8 @@ class GoalFactory {
       SendGoal(patrol_goals_[patrol_count_]);
       patrol_count_ = ++patrol_count_ % point_size_;
 
-      SendGoalTask(patrol_goals_[patrol_count_]);
-      patrol_count_ = ++patrol_count_ % point_size_;
+      // SendGoalTask(patrol_goals_[patrol_count_]);   0808
+      // patrol_count_ = ++patrol_count_ % point_size_;
 
     }
 
@@ -345,7 +345,7 @@ class GoalFactory {
 
 
       }
-      SendGoalTask(wing_bot_goal);
+      // SendGoalTask(wing_bot_goal);  0808
       //SendGoal(blackboard_ptr_->GetEnemy());
 
 
@@ -356,7 +356,7 @@ class GoalFactory {
 
       if (std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) >= 1.0 && std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) <= 2.0) {
         blackboard_ptr_->SetGimbalMode(GimbalMode::GIMBAL_RELATIVE_MODE);
-        blackboard_ptr_->SetChassisMode(ChassisMode::DODGE_MODE);
+        blackboard_ptr_->SetChassisMode(ChassisMode::AUTO_SEPARATE_GIMBAL);
         if (switch_mode_) {
           global_planner_actionlib_client_.cancelGoal();
           local_planner_actionlib_client_.cancelGoal();

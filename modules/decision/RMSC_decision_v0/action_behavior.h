@@ -484,15 +484,15 @@ class WaitAction : public ActionNode {
 
   virtual BehaviorState Update() {
 
-    goal_factory_ptr_->BackBootArea();
+    // goal_factory_ptr_->BackBootArea();
 
-    goal_factory_ptr_->UpdateActionState();
+    // goal_factory_ptr_->UpdateActionState();
 
-    if (goal_factory_ptr_->GetActionState() == BehaviorState::SUCCESS) {
-      blackboard_ptr_->SetChassisMode(ChassisMode::AUTO_SEPARATE_GIMBAL);
-      blackboard_ptr_->SetGimbalMode(GimbalMode::GIMBAL_RELAX);
-    }
-    blackboard_ptr_->ResetAllStatus();
+    // if (goal_factory_ptr_->GetActionState() == BehaviorState::SUCCESS) {
+    //   blackboard_ptr_->SetChassisMode(ChassisMode::AUTO_SEPARATE_GIMBAL);
+    //   blackboard_ptr_->SetGimbalMode(GimbalMode::GIMBAL_RELAX);
+    // }
+    // blackboard_ptr_->ResetAllStatus();
 
 //    if (goal_factory_ptr_->GetState() != BehaviorState::SUCCESS) {
 //      blackboard_ptr_->SetGimbalMode(GimbalMode::GIMBAL_PATROL_MODE);

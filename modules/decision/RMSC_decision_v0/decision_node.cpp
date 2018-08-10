@@ -49,9 +49,27 @@ int main(int argc, char **argv)
   auto turn_to_hurt_action_ = std::make_shared<rrts::decision::TurnToWoundedArmorAction>(blackboard_ptr_,
                                                                                          goal_factory_);
   auto color_detected_action_ = std::make_shared<rrts::decision::TurnToDetectedDirection>(blackboard_ptr_, goal_factory_);
-
+  auto chase_action_ = std::make_shared<rrts::decision::ChaseAction>(blackboard_ptr_, goal_factory_);
+  auto shoot_action_ = std::make_shared<rrts::decision::ShootAction>(blackboard_ptr_, goal_factory_);
+  auto patrol_action_ = std::make_shared<rrts::decision::PatrolAction>(blackboard_ptr_, goal_factory_);
+  auto search_action_ = std::make_shared<rrts::decision::SearchAction>(blackboard_ptr_, goal_factory_);
 
   //tree
+  auto detect_enemy_condition_ = std::make_shared<rrts::decision::PreconditionNode>("plan buff detect enemy condition",
+                                                                                    blackboard_ptr_,
+                                                                                    chase_action_,
+                                                                                    [&]() {
+                                                                                      if (blackboard_ptr_->GetEnemyDetected())
+                                                                                      {
+                                                                                        return true;
+                                                                                      }
+                                                                                      else
+                                                                                      {
+                                                                                        return false;
+                                                                                      }
+                                                                                    },
+                                                                                    rrts::decision::AbortType::BOTH);
+
   auto color_detected_condition_ = std::make_shared<rrts::decision::PreconditionNode>("color detected condition",
                                                                                         blackboard_ptr_,
                                                                                         color_detected_action_,
@@ -67,7 +85,7 @@ int main(int argc, char **argv)
                                                                                         },
                                                                                         rrts::decision::AbortType::LOW_PRIORITY);
 
-  auto under_attack_condition_ = std::make_shared<rrts::decision::PreconditionNode>("plan buff under attack condition",
+  auto under_attack_condition_ = std::make_shared<rrts::decision::PreconditionNode>("under_attack_condition",
                                                                                     blackboard_ptr_,
                                                                                     turn_to_hurt_action_,
                                                                                     [&]() {
@@ -82,24 +100,43 @@ int main(int argc, char **argv)
                                                                                     },
                                                                                     rrts::decision::AbortType::LOW_PRIORITY);
 
+  auto rfid_condition_ = std::make_shared<rrts::decision::PreconditionNode>("rfid_condition", blackboard_ptr_,
+                                                                            gain_buff_action_,
+                                                                            [&]() {
+                                                                              if (blackboard_ptr_->GetRfidActive())
+                                                                              {
+                                                                                return false;
+                                                                              }
+                                                                              else
+                                                                              {
+                                                                                return true;
+                                                                              }
+                                                                            },
+                                                                            rrts::decision::AbortType::BOTH);
+
   auto final_selector_ = std::make_shared<rrts::decision::SelectorNode>("final_selector", blackboard_ptr_);
+  final_selector_->AddChildren(detect_enemy_condition_);
   final_selector_->AddChildren(under_attack_condition_);
   final_selector_->AddChildren(color_detected_condition_);
-  final_selector_->AddChildren(whirl_action_);
+  final_selector_->AddChildren(patrol_action_);
 
-  auto gain_buff_sequence_ = std::make_shared<rrts::decision::SequenceNode>("gain_buff_sequence", blackboard_ptr_);
-  gain_buff_sequence_ ->AddChildren(gain_buff_action_);
-  gain_buff_sequence_ ->AddChildren(final_selector_);
+  auto buff_whirl_sequence_ = std::make_shared<rrts::decision::SequenceNode>("buff_whirl_sequence", blackboard_ptr_);
+  buff_whirl_sequence_->AddChildren(gain_buff_action_);
+  buff_whirl_sequence_->AddChildren(whirl_action_);
+
+  auto gain_buff_selector_ = std::make_shared<rrts::decision::SelectorNode>("gain_buff_selector", blackboard_ptr_);
+  //gain_buff_selector_ ->AddChildren(rfid_condition_);
+  gain_buff_selector_ ->AddChildren(final_selector_);
 
   auto engage_condition_ = std::make_shared<rrts::decision::PreconditionNode>("engage_condition", blackboard_ptr_,
-                                                                                 gain_buff_sequence_,
+                                                                                 final_selector_,
                                                                                  [&]() {
-                                                                                   if (blackboard_ptr_->GetAmmoCount() >= 1)
+                                                                                   if ((blackboard_ptr_->GetAmmoCount() >= 3) || blackboard_ptr_->NoAmmo())
                                                                                      return true;
                                                                                    else
                                                                                      return false;
                                                                                  },
-                                                                                 rrts::decision::AbortType::BOTH);
+                                                                                 rrts::decision::AbortType::SELF);
 
   auto game_start_selector_ = std::make_shared<rrts::decision::SelectorNode>("game_start_selector", blackboard_ptr_);
   game_start_selector_->AddChildren(engage_condition_);
@@ -108,8 +145,8 @@ int main(int argc, char **argv)
   auto game_stop_condition_ = std::make_shared<rrts::decision::PreconditionNode>("game_stop_condition", blackboard_ptr_,
                                                                                  wait_action_,
                                                                                  [&]() {
-                                                                                   return false;
-                                                                                   if (blackboard_ptr_->GetConditionOverride().game_stop_condition_)
+                                                                                   //return false;
+                                                                                   if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT)
                                                                                      return true;
                                                                                    else
                                                                                      return false;
