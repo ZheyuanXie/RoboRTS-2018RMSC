@@ -28,6 +28,19 @@ target_link_libraries(RMSC_decision_node_v0
   ${catkin_LIBRARIES}
   )
 
+add_executable(RMSC_decision_node_v1
+  RMSC_decision_v0/decision_node.cpp
+  RMSC_decision_v0/goal_factory.h
+  RMSC_decision_v0/action_behavior.h
+  )
+target_link_libraries(RMSC_decision_node_v1
+  PRIVATE
+  common::log
+  behavior_tree
+  perception::map::costmap
+  ${catkin_LIBRARIES}
+  )
+
 add_executable(test_decision_node
         test_decision/decision_node.cpp
         )
