@@ -611,15 +611,26 @@ class Blackboard {
             << ammobox_list_[4] << ammobox_list_[5] << ammobox_list_[6] << ammobox_list_[7] << "|"
             << ammobox_list_[8] << ammobox_list_[9] << ammobox_list_[10] << ammobox_list_[11] << "|"
             << ammobox_list_[12] << ammobox_list_[13] << ammobox_list_[14];
+    LOG_WARNING << ammobox_list_[15] << ammobox_list_[16] << ammobox_list_[17] << ammobox_list_[18] << "|"
+            << ammobox_list_[19] << ammobox_list_[20] << ammobox_list_[21] << ammobox_list_[22] << "|"
+            << ammobox_list_[23] << ammobox_list_[24] << ammobox_list_[25] << ammobox_list_[26] << "|"
+            << ammobox_list_[27] << ammobox_list_[28] << ammobox_list_[29];
     int min_cnt = 4;
     int min_index = -1;
-    for (int i = 0; i < 15; i++){
+    for (int i = 0; i < 30; i++){
       if (ammobox_list_[i] < min_cnt && ammobox_list_[i] > 0){
         min_cnt = ammobox_list_[i];
         min_index = i + 1;
       }
     }
+    if (min_index == -1) {
+      no_ammo_to_collect_ = true;
+    }
     return min_index;
+  }
+
+  bool NoAmmo() {
+    return no_ammo_to_collect_;
   }
 
   unsigned int GetAmmoCount() {
@@ -634,6 +645,7 @@ class Blackboard {
     LOG_WARNING << "Load Ammo Detection Data...";
     for (std::vector<int32_t>::const_iterator it = msg->ammo_detect.begin(); it != msg->ammo_detect.end(); ++it) {
       ammobox_list_[*it - 1] = 1;
+      ammobox_list_[*it + 15- 1] = 1; // enemy box
     }
     ammo_detect_init = true;
   }
@@ -732,14 +744,15 @@ class Blackboard {
   // Collect ammo variables ----------------------------------
   unsigned int ammobox_collected_cnt;
   bool ammo_detect_init = false;
+  bool no_ammo_to_collect_ = false;
   int ammobox_list_[30] = 
   {
     // Red Area
-    -1,0,0,0,0,
+    -1,2,2,0,2,
     -1,0,-1,0,0,
     0,0,0,0,0,
     // Blue Area
-    -1,0,0,0,0,
+    -1,2,2,0,2,
     -1,0,-1,0,0,
     0,0,0,0,0
   };

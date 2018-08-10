@@ -21,19 +21,21 @@ from gripper import GripperController
 # debug mode
 SERVO_ONLY = False
 VISUAL_ONLY = False
-NO_GRASP = True
+NO_GRASP = False
 
 # environment
 AB_HEIGHT = 0.55
 MAP_ORIGIN_OFFSET_X = 0.25
 MAP_ORIGIN_OFFSET_Y = 0.25
+MAP_WIDTH = 5.5
+MAP_LENGTH = 8.5
 # servo
 SERVO_AOV       = 40
 TARGET_OFFSET_X  = 0.5
 TARGET_OFFSET_Y = 0.05
 KP_VX = 3.0
-KP_VY = 3.0
-KP_VYAW = 0.35
+KP_VY = 4.5
+KP_VYAW = 0.3
 MAX_LINEAR_VEL  = 0.2
 MAX_ANGULAR_VEL = 0.8
 # blind
@@ -45,23 +47,40 @@ Y_ERROR = 0.03
 YAW_ERROR = 0.2
 
 AmmoBoxes = [
-    # ground
+    # ground ----------------------------------
     # {'id':1,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
     {'id':2,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(1.20,4.30,-1.57),'type':False},
-    {'id':3,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(3.00,3.80,-1.57),'type':False},
+    {'id':3,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.60,4.20,-1.57),'type':False},
     {'id':4,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(0.50,4.65,1.57),'type':False},
     {'id':5,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(1.05,4.30,1.57),'type':False},
     # {'id':6,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
-    # elevated
-    {'id':7,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,-1.57),'type':True},
+    # elevated ----------------------------------
+    {'id':7,  'center':(1.50,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,-1.57),'type':True},
     # {'id':8,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
     {'id':9,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
-    {'id':10, 'center':(2.10,2.40,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00),'type':True},
-    {'id':11, 'center':(2.05,1.90,AB_HEIGHT),'checkpoint':(2.80,2.50,0.00),'type':True},
-    {'id':12, 'center':(2.05,1.40,AB_HEIGHT),'checkpoint':(2.80,2.00,0.00),'type':True},
-    {'id':13, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(2.80,2.00,3.14),'type':True},
-    {'id':14, 'center':(3.25,0.90,AB_HEIGHT),'checkpoint':(2.80,1.20,3.14),'type':True},
-    {'id':15, 'center':(3.25,0.20,AB_HEIGHT),'checkpoint':(2.80,0.50,3.14),'type':True}
+    {'id':10, 'center':(2.10,2.20,AB_HEIGHT),'checkpoint':(2.80,2.90,0.00),'type':True},
+    {'id':11, 'center':(2.05,1.80,AB_HEIGHT),'checkpoint':(1.50,2.50,3.14),'type':True},
+    {'id':12, 'center':(2.05,1.40,AB_HEIGHT),'checkpoint':(1.50,2.00,3.14),'type':True},
+    {'id':13, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(4.20,1.75,0),'type':True},
+    {'id':14, 'center':(3.25,1.00,AB_HEIGHT),'checkpoint':(4.20,1.20,0),'type':True},
+    {'id':15, 'center':(3.25,0.40,AB_HEIGHT),'checkpoint':(4.20,0.50,0),'type':True},
+    # enemy ground ----------------------------------
+    # {'id':16,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    {'id':17,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 1.20, MAP_WIDTH - 4.30,-1.57+3.14),'type':False},
+    {'id':18,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 2.60, MAP_WIDTH - 4.20,-1.57+3.14),'type':False},
+    {'id':19,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 0.50, MAP_WIDTH - 4.65,1.57-3.14),'type':False},
+    {'id':20,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 1.05, MAP_WIDTH - 4.30,1.57-3.14),'type':False},
+    # {'id':21,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(2.00,3.60,0),'type':False},
+    # enemy elevated ----------------------------------
+    {'id':22,  'center':(1.60,3.85,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 2.00, MAP_WIDTH - 3.60,-1.57+3.14),'type':True},
+    # {'id':23,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(0.88,3.26,1.57),'type':True},
+    {'id':24,  'center':(0.60,2.35,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 0.88, MAP_WIDTH - 3.26,1.57+3.14),'type':True},
+    {'id':25, 'center':(2.10,2.20,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 2.80, MAP_WIDTH - 2.90,0.00+3.14),'type':True},
+    {'id':26, 'center':(2.05,1.80,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 1.50, MAP_WIDTH - 2.50,0.00),'type':True},
+    {'id':27, 'center':(2.05,1.40,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 1.50, MAP_WIDTH - 2.00,0.00),'type':True},
+    {'id':28, 'center':(3.25,1.60,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 4.20, MAP_WIDTH - 1.75,0+3.14),'type':True},
+    {'id':29, 'center':(3.25,1.00,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 4.20, MAP_WIDTH - 1.20,0+3.14),'type':True},
+    {'id':30, 'center':(3.25,0.40,AB_HEIGHT),'checkpoint':(MAP_LENGTH - 4.20, MAP_WIDTH - 0.50,0+3.14),'type':True}
 ]
 
 class AmmoType:
@@ -105,6 +124,7 @@ class GetAmmoNode(object):
         self.state = GetAmmoStatus.IDLE
         self.ammotype = AmmoType.ELEVATED
         # navigation phase
+        self.navto_start_time = 0
         self.navto_reached = False
         self.navto_failed = False
         # approach phase
@@ -164,6 +184,7 @@ class GetAmmoNode(object):
             g.navgoal.pose.orientation.w = quat[3]
             self.navto_reached = False
             self.navto_failed = False
+            self.navto_start_time = rospy.get_time()
             self._ac_navto.send_goal(g,done_cb=self.NavToDoneCB)
         
         self.gripper.SetState(GripperCmd.NORMAL)
@@ -178,7 +199,7 @@ class GetAmmoNode(object):
                 
             # Finite State Machine
             if self.state == GetAmmoStatus.MOVETO:
-                if self.navto_reached:
+                if self.navto_reached or (rospy.get_time() - self.navto_start_time > 15):
                     self._ac_navto.cancel_all_goals()
                     if self.ammotype == AmmoType.ELEVATED:
                         self.SetStateServo()
@@ -188,6 +209,7 @@ class GetAmmoNode(object):
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
+
 
             elif self.state == GetAmmoStatus.SERVO:
                 self.servo_cnt += 1
@@ -211,7 +233,7 @@ class GetAmmoNode(object):
                     break
             
             elif self.state == GetAmmoStatus.LOOKMOVE:
-                if rospy.get_time() - self.looknmove_start_time > 3 and not self.looknmove_issued:
+                if rospy.get_time() - self.looknmove_start_time > 4 and not self.looknmove_issued:
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -227,9 +249,10 @@ class GetAmmoNode(object):
                         self._as.set_succeeded()
                         self.state = GetAmmoStatus.IDLE
                         break
-                    self.gripper.SetState(GripperCmd.GRIP_LOW)
                     self.blind_cnt = 0
+                    self.gripper.SetState(GripperCmd.GRIP_LOW)
                     self.state = GetAmmoStatus.BLIND
+                self.blind_cnt = 0
                 # TIME-OUT
                 if self.looknmove_failed:# or self.visual_cnt > 120:
                     self._as.set_aborted()
@@ -244,9 +267,12 @@ class GetAmmoNode(object):
                 # BLIND APPROACH TIME-OUT
                 if self.blind_cnt > 80:
                     self.SendCmdVel(WITHDRAW_VX,0.,0.)
+                    rospy.logwarn('BLIND_WITH')
                 else:
                     self.SendCmdVel(BLIND_APPROACH_VX,0.,0.)
+                    rospy.logwarn('BLIND_APP')
                 if self.blind_cnt > 100:
+                    rospy.logwarn('BLIND_EXIT')
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
