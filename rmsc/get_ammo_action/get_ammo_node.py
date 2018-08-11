@@ -55,7 +55,7 @@ class AmmoType:
 AmmoBoxes = [
     # ground ----------------------------------
     {'id':2,  'checkpoint':[(1.20,4.30,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
-    {'id':3,  'checkpoint':[(2.60,4.20,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':3,  'checkpoint':[(2.70,4.20,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     {'id':4,  'checkpoint':[(0.50,4.65,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     {'id':5,  'checkpoint':[(1.05,4.30,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     # elevated ----------------------------------
@@ -69,7 +69,7 @@ AmmoBoxes = [
     {'id':15, 'checkpoint':[(4.20,0.50,0)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
     # enemy ground ----------------------------------
     {'id':17, 'checkpoint':[(MAP_LENGTH-1.20,MAP_WIDTH-4.30,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
-    {'id':18, 'checkpoint':[(MAP_LENGTH-2.60,MAP_WIDTH-4.20,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
+    {'id':18, 'checkpoint':[(MAP_LENGTH-2.70,MAP_WIDTH-4.20,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
     {'id':19, 'checkpoint':[(MAP_LENGTH-0.50,MAP_WIDTH-4.65,1.57-3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
     {'id':20, 'checkpoint':[(MAP_LENGTH-1.05,MAP_WIDTH-4.30,1.57-3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
     # enemy elevated ----------------------------------
@@ -264,6 +264,7 @@ class GetAmmoNode(object):
             elif self.state == GetAmmoStatus.BLIND:
                 self.blind_cnt += 1
                 if self.gripper.feedback == GripperInfo.TOUCHED: 
+                    rospy.logwarn('GETAMMO: Gripper touched.')
                     self.touch_cnt = 0
                     self.state = GetAmmoStatus.GRASP
                 # BLIND APPROACH TIME-OUT
