@@ -608,12 +608,12 @@ class Blackboard {
     ammobox_list_[index-1] = ammobox_list_[index-1] + 1;
   }
 
-  int GetAmmoIndex() {
+  int GetAmmoIndex(const int priority_thres) {
     DisplayAmmoList();
-    int min_cnt = 4;
+    int min_cnt = priority_thres;
     int min_index = -1;
     for (int i = 0; i < 30; i++){
-      if (ammobox_list_[i] < min_cnt && ammobox_list_[i] > 0){
+      if (ammobox_list_[i] <= min_cnt && ammobox_list_[i] > 0){
         min_cnt = ammobox_list_[i];
         min_index = i + 1;
       }

@@ -134,7 +134,7 @@ int main(int argc, char **argv)
   auto engage_condition_ = std::make_shared<rrts::decision::PreconditionNode>("engage_condition", blackboard_ptr_,
                                                                                  final_selector_,
                                                                                  [&]() {
-                                                                                   if ((blackboard_ptr_->GetAmmoCount() >= robot_config.minimum_ammo()) || blackboard_ptr_->GetAmmoIndex() == -1)
+                                                                                   if ((blackboard_ptr_->GetAmmoCount() >= robot_config.minimum_ammo()) || blackboard_ptr_->GetAmmoIndex(3) == -1)
                                                                                      return true;
                                                                                    else
                                                                                      return false;

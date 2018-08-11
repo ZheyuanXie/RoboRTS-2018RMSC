@@ -601,7 +601,7 @@ class GetAmmoAction : public ActionNode {
 
     if (goal_factory_ptr_->GetGetAmmoActionState()!=BehaviorState::RUNNING){
       goal_factory_ptr_->CancelGoal();
-      ammobox_index_ = blackboard_ptr_->GetAmmoIndex();
+      ammobox_index_ = blackboard_ptr_->GetAmmoIndex(3);
       if (ammobox_index_ == -1){
         return BehaviorState::SUCCESS;
       }
