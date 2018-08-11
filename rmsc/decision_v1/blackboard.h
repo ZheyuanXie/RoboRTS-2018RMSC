@@ -180,6 +180,7 @@ class Blackboard {
     shoot_control_client_ = nh.serviceClient<messages::ShootModeControl>("shoot_mode_control");
     track_pub_=nh.advertise<geometry_msgs::PoseStamped>("track_pose",100);
 
+    fake_game_info_sub_ = nh.subscribe("fake_game_info", 30, &Blackboard::FakeGameInfoCallback, this);
     ammo_detection_sub_ = nh.subscribe("ammo_detect", 30, &Blackboard::AmmoDetectionCallback, this);
 
     rrts::decision::DecisionConfig decision_config;
@@ -188,10 +189,9 @@ class Blackboard {
     LoadAmmoList(decision_config);
 
     if (!decision_config.simulate()){
-      //Connect to color detection server and start
+      LOG_WARNING << "Waiting for Color & Armor detection module...";
       enemy_direction_actionlib_client_.waitForServer();
-      LOG_INFO << "Armor detection module has been connected!";
-
+      LOG_INFO << "Color detection module has been connected!";
       enemy_direction_goal_.command = 1;
       enemy_direction_actionlib_client_.sendGoal(enemy_direction_goal_,
                                                  actionlib::SimpleActionClient<messages::EnemyDirectionAction>::SimpleDoneCallback(),
@@ -200,9 +200,7 @@ class Blackboard {
 
 
       armor_detection_actionlib_client_.waitForServer();
-
       LOG_INFO << "Armor detection module has been connected!";
-
       armor_detection_goal_.command = 1;
       armor_detection_actionlib_client_.sendGoal(armor_detection_goal_,
                                                  actionlib::SimpleActionClient<messages::ArmorDetectionAction>::SimpleDoneCallback(),
@@ -254,6 +252,11 @@ class Blackboard {
   void GameInfoCallback(const messages::GameInfo::ConstPtr & game_info){
     game_process_ = static_cast<GameProcess>(game_info->game_process);
     remain_hp_ = static_cast<unsigned int>(game_info->remain_hp);
+  }
+
+  void FakeGameInfoCallback(const messages::GameInfo::ConstPtr & game_info){
+    fake_game_process_ = static_cast<GameProcess>(game_info->game_process);
+    LOG_WARNING << "FAKE GAME INFO";
   }
 
   // Robot Hurt
@@ -421,6 +424,11 @@ class Blackboard {
   GameProcess GetGameProcess() const{
     LOG_INFO<<__FUNCTION__<<": "<<(int)game_process_;
     return game_process_;
+  }
+
+  GameProcess GetFakeGameProcess() const{
+    LOG_INFO<<__FUNCTION__<<": "<<(int)fake_game_process_;
+    return fake_game_process_;
   }
 
   unsigned int GetHP() const{
@@ -646,7 +654,8 @@ class Blackboard {
   }
 
   void AmmoDetectionCallback(const rmsc_messages::AmmoDetectConstPtr &msg) {
-    if (ammo_detect_init) {
+    if (ammo_detect_init && (GetFakeGameProcess() != rrts::decision::GameProcess::COUNTDOWN ||
+                             GetGameProcess() != rrts::decision::GameProcess::COUNTDOWN)) {
       return;
     }
     LOG_WARNING << "Load Ammo Detection Data...";
@@ -674,6 +683,8 @@ class Blackboard {
 
   //! Referee system subscriber
   ros::Subscriber game_info_sub_;
+
+  ros::Subscriber fake_game_info_sub_;
 
   ros::Subscriber robot_hurt_data_sub_;
 
@@ -711,6 +722,7 @@ class Blackboard {
 
   //! Referee system info
   GameProcess game_process_;
+  GameProcess fake_game_process_;
   unsigned int remain_hp_;
   unsigned int last_hp_;
   ros::Time last_get_hp_time_;

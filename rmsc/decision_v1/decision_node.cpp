@@ -148,11 +148,18 @@ int main(int argc, char **argv)
   auto game_stop_condition_ = std::make_shared<rrts::decision::PreconditionNode>("game_stop_condition", blackboard_ptr_,
                                                                                  wait_action_,
                                                                                  [&]() {
-                                                                                   //return false;
-                                                                                   if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT && robot_config.use_referee())
-                                                                                     return true;
-                                                                                   else
-                                                                                     return false;
+                                                                                   if (robot_config.use_referee()) {
+                                                                                      if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT)
+                                                                                        return true;
+                                                                                      else
+                                                                                        return false;
+                                                                                   }
+                                                                                   else {
+                                                                                     if (blackboard_ptr_->GetFakeGameProcess() != rrts::decision::GameProcess::FIGHT)
+                                                                                        return true;
+                                                                                      else
+                                                                                        return false;
+                                                                                   }    
                                                                                  },
                                                                                  rrts::decision::AbortType::BOTH);
 
