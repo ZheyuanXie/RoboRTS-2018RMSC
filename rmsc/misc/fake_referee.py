@@ -16,7 +16,7 @@ def help():
 if __name__ == "__main__":
     rospy.init_node("fake_referee")
     soundhandle = SoundClient()
-    pub_game_info = rospy.Publisher("/fake_game_info",GameInfo,queue_size=1)
+    pub_game_info = rospy.Publisher("/master/fake_game_info",GameInfo,queue_size=1)
     info = GameInfo()
     while not rospy.is_shutdown():
         help()

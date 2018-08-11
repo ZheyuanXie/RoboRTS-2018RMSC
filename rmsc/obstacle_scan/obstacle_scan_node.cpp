@@ -31,7 +31,7 @@ static void OnMouseAction(int event,int x,int y,int flags,void *ustc)
 }
 
 
-ObstacleScan::ObstacleScan():as_(nh_, "obstacle_scan_action", boost::bind(&ObstacleScan::ActionCB, this, _1), false)
+ObstacleScan::ObstacleScan():as_(nh_, "obstacle_scan_node_action", boost::bind(&ObstacleScan::ActionCB, this, _1), false)
 {
     
     loadArguments();

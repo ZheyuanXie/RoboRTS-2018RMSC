@@ -627,11 +627,11 @@ class Blackboard {
   }
 
   int GetAmmoIndex(const int priority_thres) {
-    DisplayAmmoList();
-    int min_cnt = priority_thres;
+    // DisplayAmmoList();
+    int min_cnt = priority_thres+1;
     int min_index = -1;
     for (int i = 0; i < 30; i++){
-      if (ammobox_list_[i] <= min_cnt && ammobox_list_[i] > 0){
+      if (ammobox_list_[i] < min_cnt && ammobox_list_[i] > 0){
         min_cnt = ammobox_list_[i];
         min_index = i + 1;
       }
@@ -644,7 +644,7 @@ class Blackboard {
     for (int i = 0; i < 30; i++) {
       ammobox_list_[i]= decision_config.initial_ammo_list().state(i);
     }
-    DisplayAmmoList();
+    // DisplayAmmoList();
   }
 
   void DisplayAmmoList() {
@@ -674,6 +674,7 @@ class Blackboard {
       ammobox_list_[*it + 15- 1] = 2; // enemy box
     }
     ammo_detect_init_ = true;
+    DisplayAmmoList();
   }
 
   /// Random Obstacle Functions ----------------------------------------------------------------------------------------------
