@@ -1,0 +1,25 @@
+syntax = "proto2";
+package obstacle_scan;
+
+message Array {
+  repeated float data = 1;
+}
+
+message Arguments {
+   required string iam = 1;
+   required Array red_location = 2;
+   required Array blue_location = 3;
+   required Array vote_threshold = 4;
+
+   required int32 scale = 5;
+   required float dis_thres = 6;
+   required int32 x_map_offset = 7;
+   required int32 y_map_offset = 8;
+
+   required bool enable_debug = 9;
+   required string pub_topic = 10;
+}
+
+
+
+
