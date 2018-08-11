@@ -1,4 +1,4 @@
-simulate: true
+simulate: false
 master: true 
 use_referee: false
 minimum_ammo: 2

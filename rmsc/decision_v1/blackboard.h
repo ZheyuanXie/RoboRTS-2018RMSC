@@ -40,6 +40,7 @@
 #include "messages/SelfCheck.h"
 #include "rmsc_messages/ConditionOverride.h"
 #include "rmsc_messages/AmmoDetect.h"
+#include "rmsc_messages/ObstacleScanAction.h"
 
 #include "common/io.h"
 #include "rmsc/decision_v1/proto/decision.pb.h"
@@ -127,6 +128,7 @@ class Blackboard {
       localization_actionlib_client_("localization_node_action", true),
       armor_detection_actionlib_client_("armor_detection_node_action", true),
       enemy_direction_actionlib_client_("color_detection_node_action", true),
+      obstacle_scan_actionlib_client_("obstacle_scan_node_action", true),
       ammobox_collected_cnt(0){
 
     last_get_hp_time_ = ros::Time::now();
@@ -206,6 +208,14 @@ class Blackboard {
                                                  actionlib::SimpleActionClient<messages::ArmorDetectionAction>::SimpleDoneCallback(),
                                                  actionlib::SimpleActionClient<messages::ArmorDetectionAction>::SimpleActiveCallback(),
                                                  boost::bind(&Blackboard::ArmorDetectionFeedbackCallback, this, _1));
+      
+      obstacle_scan_actionlib_client_.waitForServer();
+      LOG_INFO << "Obstacle scan module has been connected!";
+      obstacle_scan_goal_.checkpoint = 1;
+      obstacle_scan_actionlib_client_.sendGoal(obstacle_scan_goal_,
+                                                actionlib::SimpleActionClient<rmsc_messages::ObstacleScanAction>::SimpleDoneCallback(),
+                                                actionlib::SimpleActionClient<rmsc_messages::ObstacleScanAction>::SimpleActiveCallback(),
+                                                boost::bind(&Blackboard::ObstacleScanCallback, this, _1));
     }
 
     if (decision_config.master()) {
@@ -654,25 +664,48 @@ class Blackboard {
   }
 
   void AmmoDetectionCallback(const rmsc_messages::AmmoDetectConstPtr &msg) {
-    if (ammo_detect_init && (GetFakeGameProcess() != rrts::decision::GameProcess::COUNTDOWN ||
+    if (ammo_detect_init_ && (GetFakeGameProcess() != rrts::decision::GameProcess::COUNTDOWN ||
                              GetGameProcess() != rrts::decision::GameProcess::COUNTDOWN)) {
       return;
     }
     LOG_WARNING << "Load Ammo Detection Data...";
     for (std::vector<int32_t>::const_iterator it = msg->ammo_detect.begin(); it != msg->ammo_detect.end(); ++it) {
-      ammobox_list_[*it - 1] = 1;
+      ammobox_list_[*it - 1] = 1; // domestic box
       ammobox_list_[*it + 15- 1] = 2; // enemy box
     }
-    ammo_detect_init = true;
+    ammo_detect_init_ = true;
   }
 
-  //-------------------------------------------------------------------------------------------------------------------
+  /// Random Obstacle Functions ----------------------------------------------------------------------------------------------
+
+  void ObstacleScanCallback(const rmsc_messages::ObstacleScanFeedbackConstPtr& feedback)
+  {
+    if (obstacle_scan_init_ && (GetFakeGameProcess() != rrts::decision::GameProcess::COUNTDOWN ||
+                             GetGameProcess() != rrts::decision::GameProcess::COUNTDOWN)) {
+      return;
+    }
+    LOG_WARNING << "Load Obstacle Scan Data...";
+    for (std::vector<int32_t>::const_iterator it = feedback->found_obst.begin(); it != feedback->found_obst.end(); ++it) {
+      random_obstacle_list_[*it - 1] = 1;
+    }
+    obstacle_scan_init_ = true;
+    DisplayObstacleList();
+  }
+
+  void DisplayObstacleList() {
+    LOG_WARNING << "Obstacle List:" << random_obstacle_list_[0] << random_obstacle_list_[1] << random_obstacle_list_[2]
+                                    << random_obstacle_list_[3] << random_obstacle_list_[4] << random_obstacle_list_[5];
+  }
+
+  /// Utility Functions ----------------------------------------------------------------------------------------------
 
   void PlaySound(const std::string &filename){
     std::string path = ros::package::getPath("roborts");
     LOG_INFO << "PLAY:" << path+filename;
     sound_client_.playWave(path+filename);
   }
+
+  /// ----------------------------------------------------------------------------------------------
 
  private:
   //! tf
@@ -714,11 +747,13 @@ class Blackboard {
   actionlib::SimpleActionClient<messages::LocalizationAction> localization_actionlib_client_;
   actionlib::SimpleActionClient<messages::ArmorDetectionAction> armor_detection_actionlib_client_;
   actionlib::SimpleActionClient<messages::EnemyDirectionAction> enemy_direction_actionlib_client_;
+  actionlib::SimpleActionClient<rmsc_messages::ObstacleScanAction> obstacle_scan_actionlib_client_;
 
   //! Action goal
   messages::LocalizationGoal localization_goal_;
   messages::ArmorDetectionGoal armor_detection_goal_;
   messages::EnemyDirectionGoal enemy_direction_goal_;
+  rmsc_messages::ObstacleScanGoal obstacle_scan_goal_;
 
   //! Referee system info
   GameProcess game_process_;
@@ -762,7 +797,7 @@ class Blackboard {
 
   // Collect ammo variables ----------------------------------
   unsigned int ammobox_collected_cnt;
-  bool ammo_detect_init = false;
+  bool ammo_detect_init_ = false;
   int ammobox_list_[30] = 
   {
     // Domestic Ammo
@@ -775,6 +810,7 @@ class Blackboard {
     0,0,0,0,0
   };
 
+  bool obstacle_scan_init_ = false;
   int random_obstacle_list_[6] =
   {
     // 1,2,3
