@@ -130,7 +130,7 @@ class MapCompletionTest(object):
         ad_msg = AmmoDetect()
         ammobox_detected = 0
         for ab in self.ammobox_list:
-            if ab.vote >= 1: ad_msg.ammo_detect.append(ab.id)
+            if ab.vote >= 2: ad_msg.ammo_detect.append(ab.id)
             marker = Marker()
             marker.header.frame_id = "map"
             marker.type = marker.CUBE

@@ -1,4 +1,4 @@
-simulate: true
+simulate: false
 master: true 
 use_referee: false
 minimum_ammo: 2
@@ -7,7 +7,7 @@ initial_ammo_list {
   # domestic ground 
   state:-1     # 01
   state:0     # 02
-  state:0     # 03
+  state:1     # 03
   state:0     # 04
   state:0     # 05
   state:-1    # 06
@@ -72,7 +72,7 @@ point {
 
   roll:  0
   pitch: 0
-  yaw:   0
+  yaw:   1.57
 }
 
 point {
@@ -82,29 +82,29 @@ point {
 
   roll:  0
   pitch: 0
-  yaw:   3.14
+  yaw:   -1.57
 }
 
 
-point {
-  x: 2.49
-  y: 4.64
-  z: 0
+# point {
+#   x: 2.49
+#   y: 4.64
+#   z: 0
 
-  roll:  0
-  pitch: 0
-  yaw:   3.14
-}
+#   roll:  0
+#   pitch: 0
+#   yaw:   3.14
+# }
 
-point {
-  x: 1.26
-  y: 1.02
-  z: 0
+# point {
+#   x: 1.26
+#   y: 1.02
+#   z: 0
 
-  roll:  0
-  pitch: 0
-  yaw:   0
-}
+#   roll:  0
+#   pitch: 0
+#   yaw:   0
+# }
 
 escape {
   left_x_limit: 2.5

@@ -1,6 +1,0 @@
-<launch>
-  <group ns="master">
-  <node pkg="roborts" type="gripper_test.py" name="gripper_test" respawn="false" />
-  </group>
-</launch>
-

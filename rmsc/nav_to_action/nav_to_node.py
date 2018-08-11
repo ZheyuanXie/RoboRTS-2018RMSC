@@ -51,17 +51,26 @@ class NavToNode(object):
                 self._ac_lp.cancel_all_goals()
                 return
             if self.global_planner_error_code == 0:
+                self.new_goal_ = False
+                self.new_path_ = False
+                self._ac_lp.cancel_all_goals()
                 self._as.set_succeeded()
                 rospy.loginfo('NAVTO: succeeded')
                 break
             if self.global_planner_error_code >=1:
+                self.new_goal_ = False
+                self.new_path_ = False
+                self._ac_lp.cancel_all_goals()
                 self._as.set_aborted()
                 rospy.loginfo('NAVTO: failed')
                 break
     
     def Loop(self):
-        rate = rospy.Rate(100)
+        rate = rospy.Rate(20)
         while not rospy.is_shutdown():
+            if self._as.is_preempt_requested():
+                self._ac_gp.cancel_all_goals()
+                self._ac_lp.cancel_all_goals()
             if self.new_goal_:
                 self._ac_gp.send_goal(self.global_planner_goal_,self.GlobalPlannerDoneCB,None,self.GlobalPlannerFeedbackCallback)
                 self.new_goal_ = False
