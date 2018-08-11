@@ -6,6 +6,7 @@ add_action_files(
   GetAmmo.action
   NavTo.action
   LookAndMove.action
+  ObstacleScan.action
 )
 
 

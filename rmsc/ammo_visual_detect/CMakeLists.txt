@@ -1,7 +1,6 @@
 project(ammo_visual_detect)
 
-file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/proto/*.proto")
-rrts_protobuf_generate_cpp(${CMAKE_CURRENT_SOURCE_DIR}/proto AmmoVisualDetectProtoSrc AmmoVisualDetectProtoHds ${ProtoFiles})
+protobuf_generate_cpp(proto/arguments.pb.cc proto/arguments.pb.h proto/arguments.proto)
 
 include_directories(
   proto
@@ -11,7 +10,6 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
-
 add_library(${PROJECT_NAME}_proto
   SHARED
   proto/arguments.pb.cc 
@@ -20,13 +18,13 @@ add_library(${PROJECT_NAME}_proto
 
 add_executable(${PROJECT_NAME}_node 
   ammo_visual_detect_node.cpp 
-  proto/arguments.pb.cc .
+  proto/arguments.pb.cc
   proto/arguments.pb.h)
 
 target_link_libraries(${PROJECT_NAME}_node
-    ${PROTOBUF_LIBRARIES}
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBRARIES}
+  ${PROTOBUF_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 # add_executable(${PROJECT_NAME}_client

@@ -4,7 +4,7 @@
    dis_thres : 0.25
    x_map_offset : 500
    y_map_offset : 500
-   pub_topic : "/scan"
+   pub_topic : "scan"
 
    red_location {
      # obstacle 4 at checkPoint 1

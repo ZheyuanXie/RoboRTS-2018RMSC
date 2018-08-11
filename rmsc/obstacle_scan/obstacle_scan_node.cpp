@@ -1,6 +1,7 @@
 #include "obstacle_scan_node.h"
 #include <string>
 #include <ros/package.h>
+#include "common/log.h"
 
 using namespace std;
 using namespace cv;
@@ -21,7 +22,7 @@ static void OnMouseAction(int event,int x,int y,int flags,void *ustc)
 {	
 	if(event==CV_EVENT_LBUTTONUP)
 	{
-		cout<< "# obstacle " << cnt << " at checkPoint " << (int) checkPoint << endl 
+		LOG_INFO<< "# obstacle " << cnt << " at checkPoint " << (int) checkPoint << endl 
             << "data: " << (y - y_map_offset)/(1.0*scale)<< endl 
             << "data: " << (x- x_map_offset)/(1.0*scale)
             <<endl;
@@ -48,7 +49,7 @@ ObstacleScan::ObstacleScan():as_(nh_, "obstacle_scan_action", boost::bind(&Obsta
     for(int i = 0; i < 35; i++)
         obst_exist[i] = -1;
 
-    cout << "I am " << args.iam() << " infantry." << endl;
+    LOG_INFO << "I am " << args.iam() << " infantry." << endl;
     
     if (args.iam() == "RED")
     {
@@ -87,7 +88,7 @@ ObstacleScan::ObstacleScan():as_(nh_, "obstacle_scan_action", boost::bind(&Obsta
         obst_location[2][4] = cv::Point2f(args.blue_location().data(20), args.blue_location().data(21));
         obst_location[3][4] = cv::Point2f(args.blue_location().data(22), args.blue_location().data(23));
     }
-    std::cerr << "waiting for goal!" << endl;
+    LOG_WARNING << "waiting for goal!" << endl;
     as_.start(); 
 }
 
@@ -95,13 +96,13 @@ ObstacleScan::~ObstacleScan()
 {    
 }
 
-void ObstacleScan::ActionCB(const obstacle_scan::ObstacleScanGoal::ConstPtr &data)
+void ObstacleScan::ActionCB(const rmsc_messages::ObstacleScanGoal::ConstPtr &data)
 {
     switch (data->checkpoint) {
       case 0:
         checkPoint = data->checkpoint;
         as_.setSucceeded();
-        std::cerr << "Stop checking." << endl;
+        LOG_WARNING << "Stop checking." << endl;
         break;
       case 1:
       case 2:
@@ -109,10 +110,10 @@ void ObstacleScan::ActionCB(const obstacle_scan::ObstacleScanGoal::ConstPtr &dat
       case 4:
         checkPoint = data->checkpoint;
         as_.setSucceeded();
-        std::cerr << "Checking at check point " << checkPoint << "." << endl;
+        LOG_WARNING << "Checking at check point " << checkPoint << "." << endl;
         break;
       default: 
-        cout << "The check point is not defined." << endl;
+        LOG_INFO << "The check point is not defined." << endl;
         break;
     }
 
@@ -121,17 +122,17 @@ void ObstacleScan::ActionCB(const obstacle_scan::ObstacleScanGoal::ConstPtr &dat
 
 bool ObstacleScan::loadArguments() 
 {
-      string path = ros::package::getPath("obstacle_scan") + "/proto/arguments.prototxt";
+      string path = ros::package::getPath("roborts") + "/rmsc/obstacle_scan/proto/arguments.prototxt";
       std::ifstream f1(path.c_str());
       std::string input((std::istreambuf_iterator<char>(f1)), std::istreambuf_iterator<char>());
       bool success = google::protobuf::TextFormat::ParseFromString(input, &args);
       if (success)     
       { 
-          cout << "data prepared." << endl;
+          LOG_INFO << "data prepared." << endl;
           return success;
       }else
       {
-          cout << "data loading failed." << endl;
+          LOG_INFO << "data loading failed." << endl;
           return success;
       }
 }
@@ -190,7 +191,7 @@ void ObstacleScan::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
              cl.push_back(1);
              break;
         default: 
-             cout << "The check point is not defined." << endl;
+             LOG_INFO << "The check point is not defined." << endl;
              break;
     }
     
@@ -234,7 +235,7 @@ void ObstacleScan::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 
     logicCheck();
     
-    ObstacleScanFeedback feedback;
+    rmsc_messages::ObstacleScanFeedback feedback;
     for(int j =0; j < cl.size(); j++)
     {
         Point2i tempPoint(scale*obst_location[cl[j]][checkPoint].y + x_map_offset,
@@ -372,6 +373,12 @@ float ObstacleScan::calcDistance(const Point2f &p1, const Point2f &p2)
 
 int main(int argc, char** argv)
 {
+    google::InitGoogleLogging(argv[0]);
+    FLAGS_stderrthreshold = google::INFO;
+    FLAGS_colorlogtostderr = true;
+    FLAGS_v = 3;
+    google::InstallFailureSignalHandler();
+
     ros::init(argc, argv, "obstacle_scan_node");
     ObstacleScan obstacleScan;
     ros::spin();

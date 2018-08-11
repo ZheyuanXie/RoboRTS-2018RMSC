@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <streambuf>
-#include "arguments.pb.h"
+#include "rmsc/obstacle_scan/proto/arguments.pb.h"
 #include <google/protobuf/text_format.h>
 
 #include <opencv2/opencv.hpp>
@@ -17,7 +17,7 @@
 #include <string>
 
 #include <actionlib/server/simple_action_server.h>
-#include "ObstacleScanAction.h"
+#include "rmsc_messages/ObstacleScanAction.h"
 
 using namespace cv;
 using namespace obstacle_scan;
@@ -31,7 +31,7 @@ class ObstacleScan
         void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan);
         bool isPointInBox(const Point2f &point, const Point2f &centerOfBox, const char direction);
         float calcDistance(const Point2f &p1, const Point2f &p2);
-        void ActionCB(const obstacle_scan::ObstacleScanGoal::ConstPtr &data);
+        void ActionCB(const rmsc_messages::ObstacleScanGoal::ConstPtr &data);
         bool logicCheck();
 
        
@@ -39,7 +39,7 @@ class ObstacleScan
         Arguments args;
         bool loadArguments();
         ros::NodeHandle nh_;
-        actionlib::SimpleActionServer<obstacle_scan::ObstacleScanAction> as_;
+        actionlib::SimpleActionServer<rmsc_messages::ObstacleScanAction> as_;
 
         laser_geometry::LaserProjection projector_;
         
