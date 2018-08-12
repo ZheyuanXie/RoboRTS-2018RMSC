@@ -1,0 +1,75 @@
+<launch>
+  <master auto="start"/>
+  <arg name="map" value="icra"/>
+
+  <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery">
+    <param name="mcast_group" value="224.0.0.1" />
+  </node>
+
+  <node name="master_sync" pkg="master_sync_fkie" type="master_sync">
+    <rosparam param="sync_topics">[/master/goal_task,/wing/goal_task,/master/ammo_detect,/wing/ammo_detect]</rosparam>
+    <rosparam param="ignore_services">[/*]</rosparam>
+  </node>
+
+  <group ns="wing">
+
+  <!--Drivers-->
+  <node name="iiiroboticslidar2"    pkg="iiiroboticslidar2"  type="iiirobotics_lidar2_node" output="screen">
+    <param name="serial_port"         type="string" value="/dev/3ilidar"/>
+    <param name="frame_id"            type="string" value="top_laser_link"/>
+    <param name="lidar_scan"          type="string" value="scan2"/>
+  </node>
+
+  <node name="rplidar_node" pkg="rplidar_ros" type="rplidarNode" output="screen">
+      <param name="serial_port" type="string" value="/dev/rplidar"/>
+      <param name="serial_baudrate" type="int" value="115200"/>
+      <param name="frame_id" type="string" value="base_laser_link"/>
+      <param name="inverted" type="bool" value="false"/>
+      <param name="angle_compensate" type="bool" value="true"/>
+  </node>
+    
+  <node pkg="roborts" type="serial_com_node" name="serial_com_node" respawn="false" />
+
+  <node pkg="roborts" type="camera_node" name="camera_node" respawn="false" />
+
+  <node name="uwb_tf_static_publisher" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 1 map uwb 100" />
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/tools/maps/$(arg map).yaml" respawn="false" />
+
+  <!--Official Nodes-->
+  <node pkg="roborts" type="color_detection_node" name="color_detection_node" respawn="false" />
+
+  <node pkg="roborts" type="armor_detection_node" name="armor_detection_node" respawn="false" />
+
+  <node pkg="roborts" type="self_check_node" name="self_check_node" respawn="false" />
+
+  <node pkg="roborts" type="tf_tree" name="tf_tree_node" respawn="false" />
+
+  <node pkg="roborts" type="localization_node" name="localization_node" respawn="false" />
+
+  <node pkg="roborts" type="global_planner_node" name="global_planner_node" respawn="false" />
+
+  <node pkg="roborts" type="local_planner_node" name="local_planner_node" respawn="false" />
+
+  <!--Custom Motor Functions-->
+  <node pkg="roborts" type="look_n_move_node.py" name="look_n_move_node" respawn="false"/>
+
+  <node pkg="roborts" type="nav_to_node.py" name="nav_to_node" respawn="false" output="screen"/>
+
+  <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" output="screen"/>
+
+  <!--Custom Perception Functions-->
+  <node pkg="roborts" type="map_completion_test.py" name="map_comp" respawn="false" />
+
+  <node pkg="roborts" type="obstacle_scan_node" name="obstacle_scan_node" respawn="false" />
+
+  <node pkg="roborts" type="ammo_visual_detect_node" name="ammo_visual_detect_node" respawn="false" />
+
+  <!--Custom Decision Functions-->
+  <!--node pkg="sound_play" type="soundplay_node.py" name="sound_play_node" respawn="false" /-->
+
+  <node pkg="roborts" type="RMSC_decision_node_v1" name="RMSC_decision_node" respawn="false" />
+
+  </group>
+</launch>
+
