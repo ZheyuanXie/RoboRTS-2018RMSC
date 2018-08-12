@@ -7,6 +7,7 @@ add_action_files(
   NavTo.action
   LookAndMove.action
   ObstacleScan.action
+  MapMux.action
 )
 
 

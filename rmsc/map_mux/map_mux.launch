@@ -1,0 +1,9 @@
+<launch>
+  <group ns="map0"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/icra.yaml" respawn="false" /></group>
+  <group ns="map4"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map5-5.yaml" respawn="false" /></group>
+  <group ns="map5"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map5-5.yaml" respawn="false" /></group>
+  <group ns="map6"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map6-6.yaml" respawn="false" /></group>
+  <group ns="map34"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map36-36.yaml" respawn="false" /></group>
+  <group ns="map35"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map36-36.yaml" respawn="false" /></group>
+  <group ns="map36"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map36-36.yaml" respawn="false" /></group>
+</launch>
