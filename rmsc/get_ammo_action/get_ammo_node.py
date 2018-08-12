@@ -36,10 +36,10 @@ TARGET_OFFSET_Y = 0.05
 KP_VX = 3.0
 KP_VY = 4.5
 KP_VYAW = 0.2
-MAX_LINEAR_VEL  = 0.2
+MAX_LINEAR_VEL  = 0.3
 MAX_ANGULAR_VEL = 0.8
 # blind
-BLIND_APPROACH_VX = -0.1
+BLIND_APPROACH_VX = -0.15
 WITHDRAW_VX = 0.5
 # error tolerance
 X_ERROR = 0.02
@@ -60,7 +60,7 @@ AmmoBoxes = [
     {'id':5,  'checkpoint':[(1.05,4.30,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     # elevated ----------------------------------
     {'id':7,  'checkpoint':[(2.00,3.60,-1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':9,  'checkpoint':[(0.88,3.26,1.57)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':9,  'checkpoint':[(0.75,2.00,-1.57)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
     {'id':10, 'checkpoint':[(2.80,2.90,0.00)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
     {'id':11, 'checkpoint':[(1.50,2.50,3.14)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
     {'id':12, 'checkpoint':[(1.50,2.00,3.14)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
@@ -110,13 +110,13 @@ class GetAmmoNode(object):
         if not SERVO_ONLY and not VISUAL_ONLY:
             self._ac_navto = SimpleActionClient("nav_to_node_action", NavToAction)
             rospy.loginfo('GETAMMO: Connecting NavTo action server...')
-            ret = self._ac_navto.wait_for_server(timeout=rospy.Duration(5.0))
+            ret = self._ac_navto.wait_for_server()
             rospy.loginfo('GETAMMO: NavTo sever connected!') if ret else rospy.logerr('error: NavTo server not started!')
         
         if not SERVO_ONLY:
             self._ac_lookmove = SimpleActionClient("look_n_move_node_action", LookAndMoveAction)
             rospy.loginfo('GETAMMO: Connecting LookAndMove action server...')
-            ret = self._ac_lookmove.wait_for_server(timeout=rospy.Duration(5.0))
+            ret = self._ac_lookmove.wait_for_server()
             rospy.loginfo('GETAMMO: LookAndMove sever connected!') if ret else rospy.logerr('error: LookAndMove server not started!')
 
         self.state = GetAmmoStatus.IDLE
@@ -227,7 +227,7 @@ class GetAmmoNode(object):
                     self.state = GetAmmoStatus.BLIND
                 # SERVO TIME-OUT
                 if self.servo_cnt > 80:
-                    rospy.loginfo('GETAMMO: Servo timeout')
+                    rospy.logerr('GETAMMO: Servo timeout')
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -257,6 +257,7 @@ class GetAmmoNode(object):
                 self.blind_cnt = 0
                 # TIME-OUT
                 if self.looknmove_failed:# or self.visual_cnt > 120:
+                    rospy.logerr('GETAMMO: Look n move timeout.')
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -264,7 +265,7 @@ class GetAmmoNode(object):
             elif self.state == GetAmmoStatus.BLIND:
                 self.blind_cnt += 1
                 if self.gripper.feedback == GripperInfo.TOUCHED: 
-                    rospy.logwarn('GETAMMO: Gripper touched.')
+                    rospy.loginfo('GETAMMO: Gripper touched.')
                     self.touch_cnt = 0
                     self.state = GetAmmoStatus.GRASP
                 # BLIND APPROACH TIME-OUT
@@ -276,6 +277,7 @@ class GetAmmoNode(object):
                     # rospy.logwarn('BLIND_APP')
                 if self.blind_cnt > 100:
                     # rospy.logwarn('BLIND_EXIT')
+                    rospy.logerr('GETAMMO: Blind approach timeout.')
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
@@ -287,6 +289,7 @@ class GetAmmoNode(object):
                 else:
                     self.SendCmdVel(WITHDRAW_VX,0.,0.)
                 if self.gripper.feedback == GripperInfo.DONE:
+                    rospy.logerr('GETAMMO: Gripper done.')
                     self.withdraw_cnt = 0
                     self.state = GetAmmoStatus.WITHDRAW
 
@@ -352,7 +355,8 @@ class GetAmmoNode(object):
                 goal.relative_pose.pose.position.x = -err_y
                 goal.relative_pose.pose.position.y = err_x
                 self._ac_lookmove.cancel_all_goals()
-                print goal
+                # print goal
+                rospy.loginfo('GETAMMO: Look n move cmd issued.')
                 self._ac_lookmove.send_goal(goal, done_cb=self.LookAndMoveDoneCB)
                 self.looknmove_issued = True
     
