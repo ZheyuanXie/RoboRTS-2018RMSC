@@ -1,0 +1,39 @@
+syntax = "proto2";
+package seer;
+
+message Array {
+  repeated float data = 1;
+}
+
+message Arguments {
+   required string iam = 1;
+
+   required float ammobox_dis_thres = 2;
+   required float obst_dis_thres = 3;
+   required int32 ammobox_vote_thres = 4;
+   required int32 obst_vote_thres = 5;
+
+   required bool enable_debug = 6;
+   required int32 scale = 7;
+   required int32 x_map_offset = 8;
+   required int32 y_map_offset = 9;
+
+   required string high_lidar_topic = 10;
+   required string low_lidar_topic = 11;
+
+   required Array red_obstacle_location = 12;
+   required Array red_ammobox_location = 13;
+   required Array blue_obstacle_location = 14;
+   required Array blue_ammobox_location = 15;
+   
+   required Array obst4m = 16;
+   required Array obst4w = 17;
+   required Array obst5m = 18;
+   required Array obst5w = 19;
+   required Array obst6m = 20;
+   required Array obst6w = 21;
+}
+
+
+
+

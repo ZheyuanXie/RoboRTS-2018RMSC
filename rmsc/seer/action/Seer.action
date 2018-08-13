@@ -1,0 +1,11 @@
+#Send a flag to server to control the thread start, pause, restart and stop
+#command == 1 start
+#command == 0 stop
+int32 cmd
+---
+bool finished
+---
+#feedback
+int32 obstacle_scan
+int32[] master_ammobox_list
+int32[] wing_ammobox_list

@@ -1,0 +1,178 @@
+#2018/8/9 10:17:00 
+  iam : "RED"
+
+  ammobox_dis_thres : 0.15
+  obst_dis_thres : 0.22
+  ammobox_vote_thres : 3
+  obst_vote_thres : 4
+
+  enable_debug : false
+  scale : 120
+  x_map_offset : 400
+  y_map_offset : 400
+
+  high_lidar_topic : "/scan2"
+  low_lidar_topic : "/scan"
+  
+  ####################
+  # ammobox_location #
+  ####################
+  red_ammobox_location {
+    # Ammobox
+    data: 1.21667
+    data: 2.61667
+    # Ammobox
+    data: -1.56667
+    data: 2.4
+    # Ammobox
+    data: 0.166667
+    data: 1.175
+    # Ammobox
+    data: 1.55833
+    data: 1.46667
+    # Ammobox
+    data: 1.575
+    data: 1
+    # Ammobox
+    data: 1.575
+    data: 0.5
+    # Ammobox
+    data: 2.76667
+    data: 0.433333
+    # Ammobox
+    data: 2.74167
+    data: -0.108333
+    # Ammobox
+    data: 2.7
+    data: -0.55
+  }
+
+  blue_ammobox_location {
+     # ammobox 7 :
+     data: 2.675
+     data: -0.435
+     # ammobox 8 :
+     data: 100
+     data: 100
+     # ammobox 9 :
+     data: 1.26
+     data: 0.485
+     # ammobox 10 :
+     data: 1.565
+     data: -0.81
+     # ammobox 11 :
+     data: 1.105
+     data: -0.83
+     # ammobox 12 :
+     data: 0.605
+     data: -0.835
+     # ammobox 13 :
+     data: 0.625
+     data: -2.05
+     # ammobox 14 :
+     data: 0.075
+     data: -2.095
+     # ammobox 15 :
+     data: -0.415
+     data: -2.09
+  }
+
+  #####################
+  # obstacle_location #
+  #####################
+
+  red_obstacle_location {
+    # Obstacle 
+    data: -1.69167
+    data: -1.76667
+    # Obstacle 
+    data: -1.14167
+    data: -1.13333
+    # Obstacle 
+    data: -1.4
+    data: 0.208333
+    # Obstacle 2
+    # data: -2.75833
+    # data: -2.80833
+
+
+  }
+
+  blue_obstacle_location {
+     # ammobox 7 :
+     data: 2.675
+     data: -0.435
+     # ammobox 8 :
+     data: 100
+     data: 100
+     # ammobox 9 :
+     data: 1.26
+     data: 0.485
+  }
+
+  ####################
+  #checklist - Master#
+  ####################
+
+  obst4m {
+     data: 3
+     data: 2
+     data: 4
+     data: 5
+  }
+
+  obst5m {
+     data: 18
+     data: 3
+     data: 2
+     data: 4
+     data: 5
+  }
+
+  obst6m {
+     data: 18
+     data: 17
+     data: 16
+     data: 3
+     data: 2
+     data: 4
+     data: 5
+  }
+
+  ####################
+  # checklist - Wing #
+  ####################
+  obst4w {
+     data: 9
+     data: 15
+     data: 14
+     data: 13
+     data: 19
+     data: 20
+     data: 21
+     data: 7
+  }
+
+  obst5w {
+     data: 15
+     data: 14
+     data: 12
+     data: 11
+     data: 10
+     data: 9
+     data: 7
+     data: 5
+     data: 4
+  }
+
+  obst6w {
+     data: 12
+     data: 11
+     data: 10
+     data: 9
+     data: 7
+     data: 5
+     data: 4
+     data: 2
+     data: 3 
+  }
