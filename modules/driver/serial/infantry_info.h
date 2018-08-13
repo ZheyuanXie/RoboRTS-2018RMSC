@@ -56,6 +56,7 @@ typedef enum {
   REMOTE_CTRL_INFO_ID = 0x0016,
   BOTTOM_VERSION_ID = 0x0017,
   GRIPPER_DATA_ID = 0x0018,
+  AGGRESSIVE_GAIN_BUFF_ID = 0x0019,
 
   CHASSIS_CTRL_ID = 0x00A0,
   GIMBAL_CTRL_ID = 0x00A1,
@@ -142,6 +143,8 @@ typedef enum {
   DODGE_MODE = 4,
   AUTO_SEPARATE_GIMBAL = 5,
   AUTO_FOLLOW_GIMBAL = 6,
+  PATH_ONE = 7,
+  PATH_TWO = 8,
 } ChassisMode;
 
 typedef enum {
@@ -417,6 +420,14 @@ typedef struct {
   int32_t motor1_angle; /* total angle turned of motor 1 */
   int32_t motor2_angle; /* total angle turned of motor 1 */
 } __attribute__((packed)) GripperInfo;
+
+/**
+  * @brief  info of field buff(0x0019) //TODO
+  */
+typedef struct {
+  uint8_t state_fb;
+} __attribute__((packed)) AggressiveGameBuff;
+
 
 /************************ the control information from computer ************************/
 

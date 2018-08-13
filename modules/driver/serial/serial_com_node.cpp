@@ -57,6 +57,7 @@ SerialComNode::SerialComNode(std::string module_name)
   rfid_info_pub_ = nh_.advertise<messages::RfidInfo>("referee_system/rfid_info", 30);
   shoot_info_pub_ = nh_.advertise<messages::ShootInfo>("referee_system/shoot_info", 30);
   gripper_info_pub_ = nh_.advertise<rmsc_messages::GripperInfo>("gripper",30);
+  aggressive_gain_buff_info_pub_ = nh_.advertise<rmsc_messages::AggressiveGainBuffInfo>("aggressive_buff_info",30);
 
   game_buff_status_srv_ = nh_.serviceClient<messages::GameBuffStatus>("referee_system/set_buff_status");
   chassis_mode_srv_ = nh_.advertiseService("set_chassis_mode", &SerialComNode::SetChassisMode, this);
@@ -381,6 +382,8 @@ void SerialComNode::DataHandle() {
       odom.pose.pose.position.x = x;
       odom.pose.pose.position.y = y;
       odom.pose.pose.position.z = 0.0;
+      // aggressive_gain_buff_info_msg_.state = chassis_information_.get_buff_fb;
+      // aggressive_gain_buff_info_pub_.publish(aggressive_gain_buff_info_msg_);// for aggressive get buff action.
       q = tf::createQuaternionMsgFromYaw(chassis_information_.gyro_angle / 180.0 * M_PI);
       odom.pose.pose.orientation = q;
       odom.twist.twist.linear.x = (double) chassis_information_.x_speed / 1000.0;
@@ -398,6 +401,13 @@ void SerialComNode::DataHandle() {
       tf_broadcaster_.sendTransform(odom_tf);
     }
       break;
+    
+    case AGGRESSIVE_GAIN_BUFF_ID: memcpy(&aggressive_gain_buff_info_data_ ,data_addr, data_length);
+      aggressive_gain_buff_info_msg_.state = aggressive_gain_buff_info_data_.state_fb;
+      aggressive_gain_buff_info_pub_.publish(aggressive_gain_buff_info_msg_);// for aggressive get buff action.
+      break;
+
+    
     case GIMBAL_DATA_ID: memcpy(&gimbal_information_, data_addr, data_length);
       gim_angle_.pitch = gimbal_information_.pit_relative_angle / 180 * M_PI;
       gim_angle_.yaw = gimbal_information_.yaw_relative_angle / 180 * M_PI;
@@ -612,7 +622,7 @@ bool SerialComNode::SetChassisMode(messages::ChassisMode::Request  &req,
                                    messages::ChassisMode::Response  &res)
 {
 
-  if(req.chassis_mode > 6 || req.chassis_mode < 0){
+  if(req.chassis_mode > 8 || req.chassis_mode < 0){
     LOG_ERROR << "Invalid chassis mode, num = " << req.chassis_mode;
     res.received = false;
     return false;
@@ -629,7 +639,7 @@ bool SerialComNode::SetChassisMode(messages::ChassisMode::Request  &req,
   chassis_control.w_info.w_speed = 0;
 
 
-  if(req.chassis_mode == ChassisMode::DODGE_MODE) {
+  if(req.chassis_mode == ChassisMode::DODGE_MODE || req.chassis_mode == 7 || req.chassis_mode == 8) {
     SendChassisControl(chassis_control);
   }
 

@@ -6,6 +6,7 @@ add_action_files(
   GetAmmo.action
   NavTo.action
   LookAndMove.action
+  AggressiveGainBuff.action
   ObstacleScan.action
   MapMux.action
 )
@@ -16,6 +17,7 @@ add_message_files(
   FILES
   GripperCmd.msg
   GripperInfo.msg
+  AggressiveGainBuffInfo.msg
   ConditionOverride.msg
   AmmoDetect.msg
 )
