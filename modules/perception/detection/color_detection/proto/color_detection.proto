@@ -7,4 +7,6 @@ message ColorDetectionParams {
     optional bool enable_debug = 3;
     optional uint32 threshold = 4;
     optional uint32 min_pixel_number = 5;
+
+    optional uint32 brightness_threshold = 6;
 }

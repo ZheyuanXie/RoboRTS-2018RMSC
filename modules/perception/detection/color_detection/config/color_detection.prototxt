@@ -2,5 +2,6 @@
 enemy_color: 0
 using_hsv: false
 enable_debug: false
-threshold: 100
+threshold: 80
+brightness_threshold: 220
 min_pixel_number: 1300

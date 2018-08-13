@@ -8,6 +8,7 @@ add_action_files(
   LookAndMove.action
   AggressiveGainBuff.action
   ObstacleScan.action
+  MapMux.action
 )
 
 

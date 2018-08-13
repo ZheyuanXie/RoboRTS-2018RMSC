@@ -54,6 +54,9 @@ ErrorInfo ColorDetectionNode::Init() {
   enable_debug_= color_detection_params.enable_debug();
   using_hsv_   = color_detection_params.using_hsv();
   threshold_   = color_detection_params.threshold();
+  /************/
+  brightness_threshold_= color_detection_params.brightness_threshold();
+  /************/
   min_pixel_number_ = color_detection_params.min_pixel_number();
   return ErrorInfo(rrts::common::ErrorCode::OK);
 }
@@ -126,19 +129,75 @@ void ColorDetectionNode::ExecuteLoop() {
         cv::dilate(src_, src_, element, cv::Point(-1, -1), 1);
         auto binary_color_img = cv_toolbox_.DistillationColor(src_, enemy_color_, using_hsv_);
         cv::threshold(binary_color_img, binary_color_img, threshold_, 255, CV_THRESH_BINARY);
+
+        /***************************/  
+        cv::Mat binary_brightness_img, gray_img, binary_light_img;
+        cv::cvtColor(src_, gray_img, CV_BGR2GRAY);
+        cv::threshold(gray_img, binary_brightness_img, brightness_threshold_, 255, CV_THRESH_BINARY);
+        
+        if (enable_debug_)
+            cv::imshow("binary_color_img", binary_color_img);
+        cv::Mat element2 = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+        cv::dilate(binary_color_img, binary_color_img, element2, cv::Point(-1, -1), 1);
+        binary_light_img = binary_color_img & binary_brightness_img;
+        if(enable_debug_) {
+          cv::imshow("binary_light_img", binary_light_img);
+          cv::imshow("binary_brightness_img", binary_brightness_img);
+        }
+        
+       auto contours_light = cv_toolbox_.FindContours(binary_light_img);
+       auto contours_brightness = cv_toolbox_.FindContours(binary_brightness_img); 
+       for (unsigned int i = 0; i < contours_light.size(); ++i)
+       {
+          //std::cout << contours_light[i].size() << std::endl;
+          if (contours_light[i].size() < 8 ||
+              contours_light[i][0].y < 170)
+          {
+             contours_light.erase(contours_light.begin()+i);
+             i--;
+          }
+       }
+       std::vector<cv::RotatedRect> lights;
+       for (unsigned int i = 0; i < contours_light.size(); ++i) 
+       {
+         for (unsigned int j = 0; j < contours_brightness.size(); ++j) 
+         {
+           if (cv::pointPolygonTest(contours_brightness[j], contours_light[i][0],true) >= 0.0) 
+           {
+              cv::RotatedRect single_light = cv::minAreaRect(contours_brightness[j]);
+              lights.push_back(single_light);
+              if (enable_debug_)
+                cv_toolbox_.DrawRotatedRect(src_, single_light, cv::Scalar(0, 255, 0), 2);
+           }
+         }
+       }
+     
+      if (lights.size() > 0)
+      {
+          detected_enemy_ = true;
+          enemy_direction_ = 1;
+          std::cout << "enemy behind!" << std::endl;
+      }else 
+      {
+          detected_enemy_ = false;
+          enemy_direction_ = 0;
+      }
+          std::cout << "--------------" << std::endl;
+        /*******************************/
         int count = PixelSum(binary_color_img);
         if(enable_debug_) {
-          std::cout << "number: " << count << std::endl;
-          cv::imshow("src", binary_color_img);
+   //       std::cout << "number: " << count << std::endl;
+
+          cv::imshow("src_img", src_);
           cv::waitKey(1);
         }
-        if(count > min_pixel_number_) {
+  /*      if(count > min_pixel_number_) {
           detected_enemy_ = true;
           enemy_direction_ = 1;
         } else {
           detected_enemy_ = false;
           enemy_direction_ = 0;
-        }
+        }*/
       } else {
         NOTICE("Waiting for run camera driver...")
         usleep(1000);

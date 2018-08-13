@@ -1,0 +1,29 @@
+<launch>
+  <arg name="map" value="icra"/>
+  <master auto="start"/>
+  
+  <param name="/use_sim_time" value="true"/>
+
+  <!-- Run map multiplexer -->
+  <include file="$(find roborts)/rmsc/map_mux/map_mux.launch"/>
+  <node name="map_mux_node" pkg="roborts" type="map_mux_node.py" respawn="false" output="screen"/>
+  
+  <!-- Run the Stage Simulator -->
+  <node pkg="stage_ros" type="stageros" name="stageros" args="$(find roborts)/tools/worlds/$(arg map).world" respawn="false" >
+    <remap from="base_scan" to="scan"/> 
+    <param name="base_watchdog_timeout" value="0.01"/>
+  </node>
+  
+  <!-- Run the rviz -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts)/tools/rviz/rm.rviz" />
+  <node pkg="roborts" type="self_check_node" name="self_check_node" respawn="false" />
+  <node pkg="roborts" type="localization_node" name="localization_node" respawn="false" />
+  <node pkg="roborts" type="global_planner_node" name="global_planner_node" respawn="false" />
+  <node pkg="roborts" type="local_planner_node" name="local_planner_node" respawn="false" />
+  <node pkg="roborts" type="test_decision_node" name="test_decision_node" respawn="false" />
+
+  <node pkg="roborts" type="nav_to_node.py" name="nav_to_node" respawn="false" output="screen"/> -->
+  <node pkg="roborts" type="look_n_move_node.py" name="look_n_move_node" respawn="false" /> -->
+  <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" output="screen"/>
+
+</launch>

@@ -13,12 +13,19 @@ from rmsc_messages.msg import AmmoDetect
 
 from actionlib import ActionClient
 
+class RobotRole:
+    MASTER_RED  = 0
+    WING_RED    = 1
+    MASTER_BLUE = 2
+    WING_BLUE   = 3
+
 # environment
 AB_HEIGHT = 0.55
 MAP_ORIGIN_OFFSET_X = 0.25
 MAP_ORIGIN_OFFSET_Y = 0.25
-
+# scan mode
 LOCAL = True
+ROLE = RobotRole.MASTER_RED
 
 AmmoBoxGlobalPos = [
     # Grounded ammo boxs
@@ -37,30 +44,51 @@ AmmoBoxGlobalPos = [
     {'id':15, 'center':(3.25,0.20,AB_HEIGHT)}
 ]
 
-# AmmoBoxLocalPos = [
-#     # Elevated ammo boxs (ZWang)
-#     {'id':7,  'center':(2.78,-0.25,AB_HEIGHT)},
-#     {'id':8,  'center':(-100,-100,AB_HEIGHT)},
-#     {'id':9,  'center':(1.30,0.70,AB_HEIGHT)},
-#     {'id':10, 'center':(1.59,-0.59,AB_HEIGHT)},
-#     {'id':11, 'center':(1.14,-0.65,AB_HEIGHT)},
-#     {'id':12, 'center':(0.69,-0.70,AB_HEIGHT)},
-#     {'id':13, 'center':(0.81,-1.94,AB_HEIGHT)},
-#     {'id':14, 'center':(0.20,-1.95,AB_HEIGHT)},
-#     {'id':15, 'center':(-0.78,-1.85,AB_HEIGHT)}
-# ]
-
 AmmoBoxLocalPos = [
-    # Elevated ammo boxs (ZWang)
-    {'id':7,  'center':(2.675,-0.435,AB_HEIGHT)},
-    {'id':8,  'center':(-100,-100,AB_HEIGHT)},
-    {'id':9,  'center':(1.26,0.485,AB_HEIGHT)},
-    {'id':10, 'center':(1.565,-0.81,AB_HEIGHT)},
-    {'id':11, 'center':(1.105,-0.83,AB_HEIGHT)},
-    {'id':12, 'center':(0.605,-0.835,AB_HEIGHT)},
-    {'id':13, 'center':(0.625,-2.05,AB_HEIGHT)},
-    {'id':14, 'center':(0.075,-2.095,AB_HEIGHT)},
-    {'id':15, 'center':(-0.415,-2.09,AB_HEIGHT)}
+    [   # MASTER_RED
+        {'id':7,  'center':(2.675,-0.435,AB_HEIGHT)},
+        {'id':8,  'center':(-100,-100,AB_HEIGHT)},
+        {'id':9,  'center':(1.26,0.485,AB_HEIGHT)},
+        {'id':10, 'center':(1.565,-0.81,AB_HEIGHT)},
+        {'id':11, 'center':(1.105,-0.83,AB_HEIGHT)},
+        {'id':12, 'center':(0.605,-0.835,AB_HEIGHT)},
+        {'id':13, 'center':(0.625,-2.05,AB_HEIGHT)},
+        {'id':14, 'center':(0.075,-2.095,AB_HEIGHT)},
+        {'id':15, 'center':(-0.415,-2.09,AB_HEIGHT)}
+    ],
+    [   # WING_RED
+        {'id':7,  'center':(2.675,-0.435,AB_HEIGHT)},
+        {'id':8,  'center':(-100,-100,AB_HEIGHT)},
+        {'id':9,  'center':(1.26,0.485,AB_HEIGHT)},
+        {'id':10, 'center':(1.565,-0.81,AB_HEIGHT)},
+        {'id':11, 'center':(1.105,-0.83,AB_HEIGHT)},
+        {'id':12, 'center':(0.605,-0.835,AB_HEIGHT)},
+        {'id':13, 'center':(0.625,-2.05,AB_HEIGHT)},
+        {'id':14, 'center':(0.075,-2.095,AB_HEIGHT)},
+        {'id':15, 'center':(-0.415,-2.09,AB_HEIGHT)}
+    ],
+    [   # MASTER_BLUE
+        {'id':7,  'center':(2.675,-0.435,AB_HEIGHT)},
+        {'id':8,  'center':(-100,-100,AB_HEIGHT)},
+        {'id':9,  'center':(1.26,0.485,AB_HEIGHT)},
+        {'id':10, 'center':(1.565,-0.81,AB_HEIGHT)},
+        {'id':11, 'center':(1.105,-0.83,AB_HEIGHT)},
+        {'id':12, 'center':(0.605,-0.835,AB_HEIGHT)},
+        {'id':13, 'center':(0.625,-2.05,AB_HEIGHT)},
+        {'id':14, 'center':(0.075,-2.095,AB_HEIGHT)},
+        {'id':15, 'center':(-0.415,-2.09,AB_HEIGHT)}
+    ],
+    [   # WING_BLUE
+        {'id':7,  'center':(2.675,-0.435,AB_HEIGHT)},
+        {'id':8,  'center':(-100,-100,AB_HEIGHT)},
+        {'id':9,  'center':(1.26,0.485,AB_HEIGHT)},
+        {'id':10, 'center':(1.565,-0.81,AB_HEIGHT)},
+        {'id':11, 'center':(1.105,-0.83,AB_HEIGHT)},
+        {'id':12, 'center':(0.605,-0.835,AB_HEIGHT)},
+        {'id':13, 'center':(0.625,-2.05,AB_HEIGHT)},
+        {'id':14, 'center':(0.075,-2.095,AB_HEIGHT)},
+        {'id':15, 'center':(-0.415,-2.09,AB_HEIGHT)}
+    ]
 ]
 
 class AmmoBoxLocation:
@@ -87,7 +115,7 @@ class MapCompletionTest(object):
         # initialize a list for all possible ammobox sites
         self.ammobox_list = []
         if LOCAL:
-            for abp in AmmoBoxLocalPos:
+            for abp in AmmoBoxLocalPos[ROLE]:
                 self.ammobox_list.append(AmmoBoxLocation(abp))
         else:
             for abp in AmmoBoxGlobalPos:

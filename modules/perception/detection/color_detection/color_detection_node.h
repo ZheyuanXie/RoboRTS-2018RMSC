@@ -75,6 +75,7 @@ class ColorDetectionNode : public rrts::common::RRTS {
   bool enable_debug_;
   bool using_hsv_;
   unsigned int threshold_;
+  unsigned int brightness_threshold_;
   unsigned int min_pixel_number_;
 
   //enemy information
