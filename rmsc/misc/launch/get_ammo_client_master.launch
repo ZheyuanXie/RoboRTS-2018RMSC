@@ -1,0 +1,6 @@
+<launch>
+  <group ns="master">
+  <node pkg="roborts" type="get_ammo_client.py" name="get_ammo_client_node" respawn="false" output="screen"/>
+  </group>
+</launch>
+

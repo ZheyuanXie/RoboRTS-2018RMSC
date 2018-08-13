@@ -1,0 +1,5 @@
+<launch>
+  <!-- Run the rviz -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts)/tools/rviz/rm_wing.rviz" />
+</launch>
+
