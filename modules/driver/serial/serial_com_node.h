@@ -60,6 +60,7 @@
 #include "messages/ShootModeControl.h"
 #include "messages/CheckStatus.h"
 #include "rmsc_messages/GripperCmd.h"
+#include "rmsc_messages/AggressiveGainBuffInfo.h"
 
 #include "modules/driver/serial/infantry_info.h"
 #include "modules/driver/serial/proto/serial_com_config.pb.h"
@@ -293,7 +294,8 @@ class SerialComNode : public rrts::common::RRTS {
       rfid_info_pub_,
       game_buff_info_pub_,
       shoot_info_pub_,
-      gripper_info_pub_;
+      gripper_info_pub_,
+      aggressive_gain_buff_info_pub_;
 
   ros::ServiceClient game_buff_status_srv_;
   ros::ServiceServer chassis_mode_srv_,
@@ -307,6 +309,7 @@ class SerialComNode : public rrts::common::RRTS {
   messages::GimbalAngle gim_angle_;
   messages::ShootInfo shoot_info_msg_;
   rmsc_messages::GripperInfo gripper_info_msg_;
+  rmsc_messages::AggressiveGainBuffInfo aggressive_gain_buff_info_msg_;
   messages::GameBuffStatus game_buff_status_;
   geometry_msgs::PoseStamped uwb_position_msg_;
   geometry_msgs::TransformStamped arm_tf_;
@@ -342,6 +345,7 @@ class SerialComNode : public rrts::common::RRTS {
   RcInfo rc_info_data_;
   VersionInfo version_info_data_;
   GripperInfo gripper_info_data_;
+  AggressiveGameBuff aggressive_gain_buff_info_data_;
 };
 
 } //namespace serial
