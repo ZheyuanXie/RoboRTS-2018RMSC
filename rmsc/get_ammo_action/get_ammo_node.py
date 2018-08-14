@@ -7,6 +7,7 @@ import tf
 from sensor_msgs.msg import LaserScan, PointCloud2, PointCloud, ChannelFloat32
 import sensor_msgs.point_cloud2 as pc2
 from geometry_msgs.msg import Point32, Vector3, Twist, PointStamped, PoseStamped
+from nav_msgs.msg import Odometry
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import MarkerArray, Marker
 from messages.msg import LocalPlannerAction, GlobalPlannerAction
@@ -31,11 +32,13 @@ MAP_WIDTH = 5.5
 MAP_LENGTH = 8.5
 # servo
 SERVO_AOV       = 40
+SERVO_AOV_BASE   = 30
 TARGET_OFFSET_X  = 0.5
-TARGET_OFFSET_Y = 0.05
+TARGET_OFFSET_Y = 0.07
+TARGET_OFFSET_YAW = -1.0
 KP_VX = 3.0
 KP_VY = 4.5
-KP_VYAW = 0.2
+KP_VYAW = 0.4#0.3
 MAX_LINEAR_VEL  = 0.3
 MAX_ANGULAR_VEL = 0.8
 # blind
@@ -44,7 +47,7 @@ WITHDRAW_VX = 0.5
 # error tolerance
 X_ERROR = 0.02
 Y_ERROR = 0.03
-YAW_ERROR = 0.2
+YAW_ERROR = 0.4
 
 class AmmoType:
     DOMESTIC_GROUND      = 0
@@ -59,28 +62,35 @@ AmmoBoxes = [
     {'id':4,  'checkpoint':[(0.50,4.65,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     {'id':5,  'checkpoint':[(1.05,4.30,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     # elevated ----------------------------------
-    {'id':7,  'checkpoint':[(2.00,3.60,-1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':9,  'checkpoint':[(0.75,2.00,-1.57)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':10, 'checkpoint':[(2.80,2.90,0.00)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':11, 'checkpoint':[(1.50,2.50,3.14)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':12, 'checkpoint':[(1.50,2.00,3.14)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':13, 'checkpoint':[(4.20,1.75,0)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':14, 'checkpoint':[(4.20,1.20,0)],'conflict':[0,6],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':15, 'checkpoint':[(4.20,0.50,0)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':7,  'checkpoint':[(1.80,3.50,-1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':9,  'checkpoint':[(0.85,1.85,-1.57)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':10, 'checkpoint':[(1.55,2.90,3.14)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':11, 'checkpoint':[(1.55,2.55,3.14)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':12, 'checkpoint':[(1.55,1.80,3.14)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':13, 'checkpoint':[(2.65,1.85,3.14)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':14, 'checkpoint':[(2.65,1.2,3.14)],'conflict':[0,6],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':15, 'checkpoint':[(2.65,0.80,3.14)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':16, 'checkpoint':[(4.20,0.65,0)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':17, 'checkpoint':[(4.20,1.30,0)],'conflict':[0,6],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':18, 'checkpoint':[(4.20,1.85,0)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':19, 'checkpoint':[(2.85,1.80,0.00)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':20, 'checkpoint':[(2.85,2.55,0.00)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':21, 'checkpoint':[(2.85,2.90,0.00)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':22,  'checkpoint':[(1.70,4.45,1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
     # enemy ground ----------------------------------
-    {'id':17, 'checkpoint':[(MAP_LENGTH-1.20,MAP_WIDTH-4.30,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
-    {'id':18, 'checkpoint':[(MAP_LENGTH-2.70,MAP_WIDTH-4.20,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
-    {'id':19, 'checkpoint':[(MAP_LENGTH-0.50,MAP_WIDTH-4.65,1.57-3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
-    {'id':20, 'checkpoint':[(MAP_LENGTH-1.05,MAP_WIDTH-4.30,1.57-3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
-    # enemy elevated ----------------------------------
-    {'id':22, 'checkpoint':[(MAP_LENGTH-2.00,MAP_WIDTH-3.60,-1.57+3.14)],'conflict':[0,1],'type':AmmoType.ENEMY_ELEVATED},
-    {'id':24, 'checkpoint':[(MAP_LENGTH-0.88,MAP_WIDTH-3.26,1.57+3.14)],'conflict':[0,0],'type':AmmoType.ENEMY_ELEVATED},
-    {'id':25, 'checkpoint':[(MAP_LENGTH-2.80,MAP_WIDTH-2.90,0.00+3.14)],'conflict':[0,4],'type':AmmoType.ENEMY_ELEVATED},
-    {'id':26, 'checkpoint':[(MAP_LENGTH-1.50,MAP_WIDTH-2.50,0.00)],'conflict':[4,5],'type':AmmoType.ENEMY_ELEVATED},
-    {'id':27, 'checkpoint':[(MAP_LENGTH-1.50,MAP_WIDTH-2.00,0.00)],'conflict':[0,5],'type':AmmoType.ENEMY_ELEVATED},
-    {'id':28, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.75,0+3.14)],'conflict':[0,5],'type':AmmoType.ENEMY_ELEVATED},
-    {'id':29, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.20,0+3.14)],'conflict':[0,6],'type':AmmoType.ENEMY_ELEVATED},
-    {'id':30, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-0.50,0+3.14)],'conflict':[0,0],'type':AmmoType.ENEMY_ELEVATED}
+    # {'id':17, 'checkpoint':[(MAP_LENGTH-1.20,MAP_WIDTH-4.30,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
+    # {'id':18, 'checkpoint':[(MAP_LENGTH-2.70,MAP_WIDTH-4.20,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
+    # {'id':19, 'checkpoint':[(MAP_LENGTH-0.50,MAP_WIDTH-4.65,1.57-3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
+    # {'id':20, 'checkpoint':[(MAP_LENGTH-1.05,MAP_WIDTH-4.30,1.57-3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
+    # # enemy elevated ----------------------------------
+    # {'id':22, 'checkpoint':[(MAP_LENGTH-2.00,MAP_WIDTH-3.60,-1.57+3.14)],'conflict':[0,1],'type':AmmoType.ENEMY_ELEVATED},
+    # {'id':24, 'checkpoint':[(MAP_LENGTH-0.88,MAP_WIDTH-3.26,1.57+3.14)],'conflict':[0,0],'type':AmmoType.ENEMY_ELEVATED},
+    # {'id':25, 'checkpoint':[(MAP_LENGTH-2.80,MAP_WIDTH-2.90,0.00+3.14)],'conflict':[0,4],'type':AmmoType.ENEMY_ELEVATED},
+    # {'id':26, 'checkpoint':[(MAP_LENGTH-1.50,MAP_WIDTH-2.50,0.00)],'conflict':[4,5],'type':AmmoType.ENEMY_ELEVATED},
+    # {'id':27, 'checkpoint':[(MAP_LENGTH-1.50,MAP_WIDTH-2.00,0.00)],'conflict':[0,5],'type':AmmoType.ENEMY_ELEVATED},
+    # {'id':28, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.75,0+3.14)],'conflict':[0,5],'type':AmmoType.ENEMY_ELEVATED},
+    # {'id':29, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.20,0+3.14)],'conflict':[0,6],'type':AmmoType.ENEMY_ELEVATED},
+    # {'id':30, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-0.50,0+3.14)],'conflict':[0,0],'type':AmmoType.ENEMY_ELEVATED}
 ]
 
 
@@ -147,6 +157,8 @@ class GetAmmoNode(object):
         self.sub_base_lidar = rospy.Subscriber("scan", LaserScan, self.BaseLidarCB)
         self.sub_visual_pose = rospy.Subscriber("visual_pose", PoseStamped, self.VisualPoseCB)
         self.pub_cmd_vel = rospy.Publisher("cmd_vel", Twist, queue_size=1)
+        self.sub_odom = rospy.Subscriber("odom", Odometry, self.OdomCB)
+        self.is_stop = False
         self.cmd_vel = Twist()
     
     def ExecuteCB(self, goal):
@@ -210,6 +222,7 @@ class GetAmmoNode(object):
 
 
             elif self.state == GetAmmoStatus.SERVO:
+                # print self.servo_top_reached, self.servo_base_reached
                 self.servo_cnt += 1
                 self.pub_cmd_vel.publish(self.cmd_vel)
                 if self.servo_no_target > 10:
@@ -217,7 +230,7 @@ class GetAmmoNode(object):
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
-                if self.servo_base_reached and self.servo_top_reached:
+                if (self.servo_base_reached and self.servo_top_reached):
                     if NO_GRASP:
                         self._as.set_succeeded()
                         self.state = GetAmmoStatus.IDLE
@@ -322,25 +335,30 @@ class GetAmmoNode(object):
             mean_y = np.average(y)
             self.cmd_vel.linear.y = (TARGET_OFFSET_Y - mean_y) * KP_VY if self.cmd_vel.angular.z < 0.3 else 0
             self.servo_top_reached = np.abs(TARGET_OFFSET_Y - mean_y) < X_ERROR
+            # print np.abs(TARGET_OFFSET_Y - mean_y)
             
     def BaseLidarCB(self,data):
+        # angle increment should be 0.5 degree!!!
+        # print 'base lidar'
         if self.state == GetAmmoStatus.SERVO:
-            theta = np.deg2rad(np.linspace(-SERVO_AOV/2,SERVO_AOV/2,num=SERVO_AOV+1))
-            dist = np.array(data.ranges[180-SERVO_AOV/2:180+SERVO_AOV/2+1])
-            range_cut_index = list(np.where(np.abs(dist)>0.8)[0])
+            theta = np.deg2rad(np.linspace(-SERVO_AOV_BASE,SERVO_AOV_BASE,num=2*SERVO_AOV_BASE+1))
+            dist = np.array(data.ranges[359-SERVO_AOV_BASE:359+SERVO_AOV_BASE+1])
+            range_cut_index = list(np.where(np.abs(dist)>1.0)[0])
             theta_cut = np.delete(theta, range_cut_index)
             dist_cut = np.delete(dist, range_cut_index)
             if theta_cut.size == 0:
-                # rospy.loginfo('BASE LIDAR: NO TARTGET')
+                rospy.loginfo('BASE LIDAR: NO TARTGET')
                 return
             x = dist_cut * np.cos(theta_cut)
             y = dist_cut * np.sin(theta_cut)
             mean_x = np.average(x)
-            mean_angle = np.arctan(1/np.polyfit(x, y, 1)[0])
+            # print np.polyfit(x, y, 1)[0]
+            mean_angle = np.arctan(np.polyfit(x, y, 1)[0])
             self.cmd_vel.linear.x = (TARGET_OFFSET_X - mean_x) * KP_VX
-            self.cmd_vel.angular.z = (0 - mean_angle) * KP_VYAW
-            self.servo_base_reached = np.abs(TARGET_OFFSET_X - mean_x) < Y_ERROR and np.abs(0-mean_angle) < YAW_ERROR
+            self.cmd_vel.angular.z = (TARGET_OFFSET_YAW - mean_angle) * KP_VYAW
+            self.servo_base_reached = np.abs(TARGET_OFFSET_X - mean_x) < Y_ERROR and np.abs(TARGET_OFFSET_YAW - mean_angle) < YAW_ERROR
             #print mean_x,mean_angle
+            # print TARGET_OFFSET_YAW - mean_angle
     
     def VisualPoseCB(self,data):
         if self.state == GetAmmoStatus.LOOKMOVE and self.looknmove_issued == False and self.looknmove_cnt > 20:
@@ -402,6 +420,8 @@ class GetAmmoNode(object):
         self.servo_top_reached = False
         self.state = GetAmmoStatus.SERVO
 
+    def OdomCB(self,data):
+        self.is_stop = data.twist.twist.linear.x < 0.001 and data.twist.twist.linear.y < 0.001
 
 
 if __name__ == "__main__":

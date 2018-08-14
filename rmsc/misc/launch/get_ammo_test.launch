@@ -2,7 +2,7 @@
   <master auto="start"/>
   <arg name="map" value="icra"/>
 
-  <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery">
+  <!-- <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery">
     <param name="mcast_group" value="224.0.0.1" />
   </node>
 
@@ -13,7 +13,7 @@
 
   <include file="$(find roborts)/rmsc/map_mux/map_mux.launch"/>
 
-  <group ns="wing">
+  <group ns="wing"> -->
   <!--Drivers-->
   <node name="delta_2b_lidar"    pkg="delta_2b_lidar"  type="delta_2b_lidar_node" output="screen">
     <param name="serial_port"         type="string" value="/dev/3ilidar"/>
@@ -32,12 +32,12 @@
   <node pkg="roborts" type="serial_com_node" name="serial_com_node" respawn="false" />
   <node pkg="roborts" type="camera_node" name="camera_node" respawn="false" />
   <node name="uwb_tf_static_publisher" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 1 map uwb 100" />
-  <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/tools/maps/$(arg map).yaml" respawn="false" /> -->
-  <node name="map_mux_node" pkg="roborts" type="map_mux_node.py" respawn="false" output="screen"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/tools/maps/$(arg map).yaml" respawn="false" />
+  <!-- <node name="map_mux_node" pkg="roborts" type="map_mux_node.py" respawn="false" output="screen"/> -->
 
   <!--Official Nodes-->
-  <node pkg="roborts" type="color_detection_node" name="color_detection_node" respawn="false" />
-  <node pkg="roborts" type="armor_detection_node" name="armor_detection_node" respawn="false" />
+  <!-- <node pkg="roborts" type="color_detection_node" name="color_detection_node" respawn="false" /> -->
+  <!-- <node pkg="roborts" type="armor_detection_node" name="armor_detection_node" respawn="false" /> -->
   <node pkg="roborts" type="self_check_node" name="self_check_node" respawn="false" />
   <node pkg="roborts" type="tf_tree" name="tf_tree_node" respawn="false" />
   <node pkg="roborts" type="localization_node" name="localization_node" respawn="false" />
@@ -47,17 +47,17 @@
   <!--Custom Motor Functions-->
   <node pkg="roborts" type="look_n_move_node.py" name="look_n_move_node" respawn="false"/>
   <node pkg="roborts" type="nav_to_node.py" name="nav_to_node" respawn="false" output="screen"/>
-  <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" output="screen"/>
+  <!-- <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" output="screen"/> -->
 
   <!--Custom Perception Functions-->
   <!-- <node pkg="roborts" type="map_completion_test.py" name="map_comp" respawn="false" /> -->
   <!-- <node pkg="roborts" type="obstacle_scan_node" name="obstacle_scan_node" respawn="false" /> -->
-  <node pkg="roborts" type="ammo_visual_detect_node" name="ammo_visual_detect_node" respawn="false" />
-  <node pkg="roborts" type="seer_node" name="seer_node" respawn="false" />
+  <!-- <node pkg="roborts" type="ammo_visual_detect_node" name="ammo_visual_detect_node" respawn="false" /> -->
+  <!-- <node pkg="roborts" type="seer_node" name="seer_node" respawn="false" /> -->
 
   <!--Custom Decision Functions-->
   <!--node pkg="sound_play" type="soundplay_node.py" name="sound_play_node" respawn="false" /-->
-  <node pkg="roborts" type="RMSC_decision_node_v1" name="RMSC_decision_node" respawn="false" />
-  </group>
+  <!-- <node pkg="roborts" type="RMSC_decision_node_v1" name="RMSC_decision_node" respawn="false" /> -->
+  <!-- </group> -->
 </launch>
 
