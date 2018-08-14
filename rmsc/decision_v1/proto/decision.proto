@@ -56,6 +56,7 @@ message DecisionConfig {
     repeated Point search_region_3 = 13;
     repeated Point search_region_4 = 14;
     optional bool use_referee = 15 [default = false];
-    optional int32 minimum_ammo = 16 [default = 1];
-    optional InitialAmmoList initial_ammo_list = 17;
+    optional bool use_adaptive_map = 17 [default = false];
+    optional int32 minimum_ammo = 18 [default = 1];
+    optional InitialAmmoList initial_ammo_list = 19;
 }

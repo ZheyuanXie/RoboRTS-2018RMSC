@@ -11,8 +11,8 @@
   x_map_offset : 400
   y_map_offset : 400
 
-  high_lidar_topic : "/scan2"
-  low_lidar_topic : "/scan"
+  high_lidar_topic : "scan2"
+  low_lidar_topic : "scan"
   
   ####################
   # ammobox_location #

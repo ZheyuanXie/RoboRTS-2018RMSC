@@ -1,6 +1,7 @@
 simulate: false
 master: true 
 use_referee: false
+use_adaptive_map: true
 minimum_ammo: 2
 
 initial_ammo_list {

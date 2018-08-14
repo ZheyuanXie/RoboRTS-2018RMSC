@@ -17,7 +17,7 @@
 #include <string>
 
 #include <actionlib/server/simple_action_server.h>
-#include "SeerAction.h"
+#include "rmsc_messages/SeerAction.h"
 
 using namespace cv;
 using namespace seer;
@@ -32,14 +32,14 @@ class Seer
         void highLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan);
         void lowLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan);
         float calcDistance(const Point2f &p1, const Point2f &p2);
-        void ActionCB(const seer::SeerGoal::ConstPtr &data);
+        void ActionCB(const rmsc_messages::SeerGoal::ConstPtr &data);
         void arrange();
        
       private:
         Arguments args;
         bool loadArguments();
         ros::NodeHandle nh_;
-        actionlib::SimpleActionServer<SeerAction> as_;
+        actionlib::SimpleActionServer<rmsc_messages::SeerAction> as_;
         laser_geometry::LaserProjection projector_;
         
         ros::Subscriber high_scan_sub_;

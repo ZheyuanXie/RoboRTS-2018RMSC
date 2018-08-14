@@ -17,6 +17,7 @@ if __name__ == "__main__":
     rospy.init_node("fake_referee")
     soundhandle = SoundClient()
     pub_game_info = rospy.Publisher("/master/fake_game_info",GameInfo,queue_size=1)
+    pub_game_info_wing = rospy.Publisher("/wing/fake_game_info",GameInfo,queue_size=1)
     info = GameInfo()
     while not rospy.is_shutdown():
         help()
@@ -29,6 +30,7 @@ if __name__ == "__main__":
                 rospy.loginfo('Countdown:%d'%(cnt))
                 info.remain_time = cnt
                 pub_game_info.publish(info)
+                pub_game_info_wing.publish(info)
                 if PLAY_SOUND:
                     soundhandle.stopAll()
                     soundhandle.say(str(cnt))
@@ -42,11 +44,13 @@ if __name__ == "__main__":
             rospy.loginfo('Game Start!')
             for _ in range(30):
                 pub_game_info.publish(info)
+                pub_game_info_wing.publish(info)
                 rate.sleep()        
         elif cmd == '2':
             info = GameInfo()
             info.game_process = 0
             pub_game_info.publish(info)
+            pub_game_info_wing.publish(info)
             rospy.loginfo('Game Terminate!')
         elif cmd == '3':
             break

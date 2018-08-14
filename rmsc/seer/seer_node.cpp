@@ -114,6 +114,8 @@ Seer::Seer():as_(nh_, "seer_action", boost::bind(&Seer::ActionCB, this, _1), fal
     }
 
     cout << "waiting for lider data ..." << endl;
+
+    as_.start();
 }
 
 Seer::~Seer(){
@@ -121,7 +123,7 @@ Seer::~Seer(){
 
 bool Seer::loadArguments() 
 {
-    string path = ros::package::getPath("seer") + "/proto/arguments.prototxt";
+    string path = ros::package::getPath("roborts") + "/rmsc/seer/proto/arguments.prototxt";
     std::ifstream f1(path.c_str());
     std::string input((std::istreambuf_iterator<char>(f1)), std::istreambuf_iterator<char>());
     bool success = google::protobuf::TextFormat::ParseFromString(input, &args);
@@ -509,7 +511,7 @@ float Seer::calcDistance(const Point2f &p1, const Point2f &p2)
 }
 
 
-void Seer::ActionCB(const SeerGoal::ConstPtr &data)
+void Seer::ActionCB(const rmsc_messages::SeerGoal::ConstPtr &data)
 {
     switch (data->cmd) {
       case 1:

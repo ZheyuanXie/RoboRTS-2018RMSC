@@ -1,3 +1,4 @@
 add_subdirectory(obstacle_scan)
 add_subdirectory(ammo_visual_detect)
 add_subdirectory(decision_v1)
+add_subdirectory(seer)

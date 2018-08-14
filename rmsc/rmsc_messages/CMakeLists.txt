@@ -9,6 +9,7 @@ add_action_files(
   AggressiveGainBuff.action
   ObstacleScan.action
   MapMux.action
+  Seer.action
 )
 
 
