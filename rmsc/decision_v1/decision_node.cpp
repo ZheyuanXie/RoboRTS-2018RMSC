@@ -29,20 +29,17 @@ int main(int argc, char **argv)
   google::InstallFailureSignalHandler();
 
   LOG_INFO << "Decision Node Starting...";
-
-
   ros::init(argc, argv, "decision_node");
-  
-  auto blackboard_ptr_ = std::make_shared<rrts::decision::Blackboard>("/rmsc/decision_v1/config/decision.prototxt");
-  auto goal_factory_ = std::make_shared<rrts::decision::GoalFactory>(blackboard_ptr_,"/rmsc/decision_v1/config/decision.prototxt");
+
   rrts::decision::DecisionConfig robot_config;
   rrts::common::ReadProtoFromTextFile("/rmsc/decision_v1/config/decision.prototxt", &robot_config);
   LOG_WARNING << "Use Referee:" << robot_config.use_referee();
   LOG_WARNING << "Minimum Ammo:" << robot_config.minimum_ammo();
-
-  // Debug
-  //blackboard_ptr_ -> PlaySound("/sound/createtree.wav");
-  //blackboard_ptr_ -> SetAmmoCollected(1);
+  LOG_WARNING << "Initializing Blackboard...";
+  auto blackboard_ptr_ = std::make_shared<rrts::decision::Blackboard>("/rmsc/decision_v1/config/decision.prototxt");
+  LOG_WARNING << "Initializing Goal Factory...";
+  auto goal_factory_ = std::make_shared<rrts::decision::GoalFactory>(blackboard_ptr_,"/rmsc/decision_v1/config/decision.prototxt");
+  LOG_WARNING << "Building BT...";
 
   //leaves
   auto wait_action_ = std::make_shared<rrts::decision::WaitAction>(blackboard_ptr_, goal_factory_);
@@ -148,18 +145,10 @@ int main(int argc, char **argv)
   auto game_stop_condition_ = std::make_shared<rrts::decision::PreconditionNode>("game_stop_condition", blackboard_ptr_,
                                                                                  wait_action_,
                                                                                  [&]() {
-                                                                                   if (robot_config.use_referee()) {
-                                                                                      if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT)
-                                                                                        return true;
-                                                                                      else
-                                                                                        return false;
-                                                                                   }
-                                                                                   else {
-                                                                                     if (blackboard_ptr_->GetFakeGameProcess() != rrts::decision::GameProcess::FIGHT)
-                                                                                        return true;
-                                                                                      else
-                                                                                        return false;
-                                                                                   }    
+                                                                                    if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT)
+                                                                                      return true;
+                                                                                    else
+                                                                                      return false;
                                                                                  },
                                                                                  rrts::decision::AbortType::BOTH);
 
