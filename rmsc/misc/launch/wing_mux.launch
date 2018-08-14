@@ -13,7 +13,7 @@
 
   <include file="$(find roborts)/rmsc/map_mux/map_mux.launch"/>
 
-  <group ns="master">
+  <group ns="wing">
   <!--Drivers-->
   <node name="delta_2b_lidar"    pkg="delta_2b_lidar"  type="delta_2b_lidar_node" output="screen">
     <param name="serial_port"         type="string" value="/dev/3ilidar"/>
@@ -50,14 +50,14 @@
   <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" output="screen"/>
 
   <!--Custom Perception Functions-->
-  <node pkg="roborts" type="map_completion_test.py" name="map_comp" respawn="false" />
-  <node pkg="roborts" type="obstacle_scan_node" name="obstacle_scan_node" respawn="false" />
+  <!-- <node pkg="roborts" type="map_completion_test.py" name="map_comp" respawn="false" /> -->
+  <!-- <node pkg="roborts" type="obstacle_scan_node" name="obstacle_scan_node" respawn="false" /> -->
   <node pkg="roborts" type="ammo_visual_detect_node" name="ammo_visual_detect_node" respawn="false" />
+  <node pkg="roborts" type="seer_node" name="seer_node" respawn="false" />
 
   <!--Custom Decision Functions-->
   <!--node pkg="sound_play" type="soundplay_node.py" name="sound_play_node" respawn="false" /-->
   <node pkg="roborts" type="RMSC_decision_node_v1" name="RMSC_decision_node" respawn="false" />
-
   </group>
 </launch>
 

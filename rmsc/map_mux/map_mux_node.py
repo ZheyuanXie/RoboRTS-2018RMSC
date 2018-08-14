@@ -38,8 +38,8 @@ class MapMux(object):
         self.sub_map36 = rospy.Subscriber("/map36/map",OccupancyGrid,self.map36CB)
         self.sub_map36_meta = rospy.Subscriber("/map36/map_metadata",MapMetaData,self.mapmeta36CB)
         
-        self.pub_map = rospy.Publisher("/master/map",OccupancyGrid,queue_size=1,latch=True)
-        self.pub_map_meta = rospy.Publisher("/master/map_metadata",MapMetaData,queue_size=1,latch=True)
+        self.pub_map = rospy.Publisher("map",OccupancyGrid,queue_size=1,latch=True)
+        self.pub_map_meta = rospy.Publisher("map_metadata",MapMetaData,queue_size=1,latch=True)
         self._as = SimpleActionServer("map_mux_node_action", MapMuxAction, self.ExecuteCB, auto_start=False)
         self._as.start()
     
@@ -48,19 +48,15 @@ class MapMux(object):
         if map_index == 0:
             self.pub_map.publish(self.map0)
             self.pub_map_meta.publish(self.map0_meta)
-            print self.map0
         elif map_index == 1:
             self.pub_map.publish(self.map4)
             self.pub_map_meta.publish(self.map4_meta)
-            print self.map4
         elif map_index == 2:
             self.pub_map.publish(self.map5)
             self.pub_map_meta.publish(self.map5_meta)
-            print self.map5
         elif map_index == 3:
             self.pub_map.publish(self.map6)
             self.pub_map_meta.publish(self.map6_meta)
-            print self.map6
         elif map_index == 4:
             self.pub_map.publish(self.map34)
             self.pub_map_meta.publish(self.map34_meta)
