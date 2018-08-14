@@ -53,6 +53,7 @@ int main(int argc, char **argv)
   auto shoot_action_ = std::make_shared<rrts::decision::ShootAction>(blackboard_ptr_, goal_factory_);
   auto patrol_action_ = std::make_shared<rrts::decision::PatrolAction>(blackboard_ptr_, goal_factory_);
   auto search_action_ = std::make_shared<rrts::decision::SearchAction>(blackboard_ptr_, goal_factory_);
+  auto agb_action_ = std::make_shared<rrts::decision::AGBAction>(blackboard_ptr_, goal_factory_);
 
   //tree
   auto detect_enemy_condition_ = std::make_shared<rrts::decision::PreconditionNode>("plan buff detect enemy condition",
@@ -138,9 +139,14 @@ int main(int argc, char **argv)
                                                                                  },
                                                                                  rrts::decision::AbortType::SELF);
 
+  auto gain_buff_sequence_ = std::make_shared<rrts::decision::SequenceNode>("gain_buff_sequence", blackboard_ptr_);
+  gain_buff_sequence_->AddChildren(agb_action_);
+  gain_buff_sequence_->AddChildren(gain_buff_action_);
+  gain_buff_sequence_->AddChildren(get_ammo_action_);
+
   auto game_start_selector_ = std::make_shared<rrts::decision::SelectorNode>("game_start_selector", blackboard_ptr_);
   game_start_selector_->AddChildren(engage_condition_);
-  game_start_selector_->AddChildren(get_ammo_action_);
+  game_start_selector_->AddChildren(gain_buff_sequence_);
 
   auto game_stop_condition_ = std::make_shared<rrts::decision::PreconditionNode>("game_stop_condition", blackboard_ptr_,
                                                                                  wait_action_,
@@ -156,7 +162,25 @@ int main(int argc, char **argv)
   game_status_selector_->AddChildren(game_stop_condition_);
   game_status_selector_->AddChildren(game_start_selector_);
 
+  auto wing_bot_condition = std::make_shared<rrts::decision::PreconditionNode>("wing bot condition", blackboard_ptr_,
+                                                                               whirl_action_,
+                                                                               [&]() {
+                                                                                 if (robot_config.master())
+                                                                                 {
+                                                                                   return false;
+                                                                                 }
+                                                                                 else
+                                                                                 {
+                                                                                   return true;
+                                                                                 }
+                                                                               },
+                                                                               rrts::decision::AbortType::BOTH);
+
+  auto bot_selector_ = std::make_shared<rrts::decision::SelectorNode>("bot selector", blackboard_ptr_);
+  bot_selector_->AddChildren(wing_bot_condition);
+  bot_selector_->AddChildren(game_status_selector_);
+
   //root
-  rrts::decision::BehaviorTree root(game_status_selector_, 25);
+  rrts::decision::BehaviorTree root(bot_selector_, 25);
   root.Execute();
 }

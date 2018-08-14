@@ -31,7 +31,9 @@
 #include "messages/BotGoalAction.h"
 #include "messages/GoalTask.h"
 #include "rmsc_messages/GetAmmoAction.h"
-#include "rmsc_messages/GetAmmoActionGoal.h"
+// #include "rmsc_messages/GetAmmoActionGoal.h"
+#include "rmsc_messages/AggressiveGainBuffAction.h"
+// #include "rmsc_messages/AggressiveGainBuffGoal.h"
 
 #include "common/io.h"
 
@@ -67,7 +69,8 @@ class GoalFactory {
       blackboard_ptr_(blackboard_ptr),
       global_planner_actionlib_client_("global_planner_node_action", true),
       local_planner_actionlib_client_("local_planner_node_action", true),
-      get_ammo_actionlib_client_("get_ammo_node_action",true){
+      get_ammo_actionlib_client_("get_ammo_node_action",true),
+      aggressive_gain_buff_actionlib_client_("aggressive_gain_buff_action", true){
     self_check_done_ = false;
     lost_enemy_ = true;
     master_ = false;
@@ -125,6 +128,8 @@ class GoalFactory {
     LOG_INFO<<"Local planer server start!";
     get_ammo_actionlib_client_.waitForServer();
     LOG_INFO<<"Get ammo server start!";
+    aggressive_gain_buff_actionlib_client_.waitForServer();
+    LOG_INFO<<"Aggressive gain buff server start!";
   }
 
   ~GoalFactory() = default;
@@ -846,6 +851,51 @@ class GoalFactory {
     }
   }
 
+  // Aggressive gain buff action client -------------------------------------------------------------------------------------------
+
+  void SendAggressiveGainBuffGoal(int index) {
+    LOG_WARNING << "Send AGB Goal!";
+    aggressive_gain_buff_goal_.route_index = index;
+    aggressive_gain_buff_actionlib_client_.sendGoal(aggressive_gain_buff_goal_);
+  }
+
+  void UpdateAggressiveGainBuffState(){
+    auto state = aggressive_gain_buff_actionlib_client_.getState();
+    if (state == actionlib::SimpleClientGoalState::ACTIVE){
+      LOG_INFO << " "<<__FUNCTION__<< ": ACTIVE";
+      aggressive_gain_buff_action_state_ = BehaviorState::RUNNING;
+
+    } else if (state == actionlib::SimpleClientGoalState::PENDING) {
+      LOG_INFO << " "<<__FUNCTION__<< ": PENDING";
+      aggressive_gain_buff_action_state_ = BehaviorState::RUNNING;
+
+    } else if (state == actionlib::SimpleClientGoalState::SUCCEEDED) {
+      aggressive_gain_buff_action_state_ = BehaviorState::SUCCESS;
+
+    } else if (state == actionlib::SimpleClientGoalState::ABORTED) {
+      aggressive_gain_buff_action_state_ = BehaviorState::FAILURE;
+
+    } else {
+      LOG_INFO<<"Error: "<<state.toString();
+      aggressive_gain_buff_action_state_ = BehaviorState::FAILURE;
+    }
+  }
+
+  BehaviorState GetAggressiveGainBuffState() {
+    return aggressive_gain_buff_action_state_;
+  }
+
+  void CancelAggressiveGainBuffGoal() {
+    aggressive_gain_buff_action_state_ = BehaviorState::IDLE;
+    auto state = aggressive_gain_buff_actionlib_client_.getState();
+    if (state == actionlib::SimpleClientGoalState::ACTIVE || state == actionlib::SimpleClientGoalState::PENDING)
+    {
+      LOG_WARNING<<"Cancel AGB Goal!";
+      aggressive_gain_buff_actionlib_client_.cancelAllGoals();
+    }
+  }
+
+
   // ------------------------------------------------------------------------------------------------------------------
 
   void CancelGoal() {
@@ -1102,10 +1152,12 @@ class GoalFactory {
   LocalActionClient local_planner_actionlib_client_;
   GlobalActionClient global_planner_actionlib_client_;
   actionlib::SimpleActionClient<rmsc_messages::GetAmmoAction> get_ammo_actionlib_client_;
+  actionlib::SimpleActionClient<rmsc_messages::AggressiveGainBuffAction> aggressive_gain_buff_actionlib_client_;
 
   GlobalGoal global_planner_goal_;
   LocalGoal local_planner_goal_;
   GetAmmoGoal get_ammo_goal_;
+  rmsc_messages::AggressiveGainBuffGoal aggressive_gain_buff_goal_;
 
   geometry_msgs::PoseStamped robot_map_pose_;
   std::vector<geometry_msgs::PoseStamped> patrol_goals_;
@@ -1138,6 +1190,7 @@ class GoalFactory {
 
   BehaviorState action_state_;
   BehaviorState get_ammo_action_state_;
+  BehaviorState aggressive_gain_buff_action_state_;
 
 
   float search_x_limit_;

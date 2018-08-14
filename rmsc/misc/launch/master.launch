@@ -48,6 +48,7 @@
   <node pkg="roborts" type="look_n_move_node.py" name="look_n_move_node" respawn="false"/>
   <node pkg="roborts" type="nav_to_node.py" name="nav_to_node" respawn="false" output="screen"/>
   <node pkg="roborts" type="get_ammo_node.py" name="get_ammo_node" respawn="false" output="screen"/>
+  <node pkg="roborts" type="aggressive_gain_buff_node.py" name="aggressive_gain_buff_node" respawn="false" output="screen"/>
 
   <!--Custom Perception Functions-->
   <!-- <node pkg="roborts" type="map_completion_test.py" name="map_comp" respawn="false" /> -->

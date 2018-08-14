@@ -242,6 +242,9 @@ class Blackboard {
     // Seer Subscribers
     ammo_scan_sub_ = nh.subscribe("ammo_scan", 30, &Blackboard::AmmoScanCallback, this);
     obstacle_scan_sub_ = nh.subscribe("/obstacle_scan", 30, &Blackboard::ObstacleScanCallback, this);
+
+    collected_ammo_pub_ = nh.advertise<std_msgs::Int32>("/collected_ammo",100);
+    collected_ammo_sub_ = nh.subscribe("/collected_ammo",30,&Blackboard::CollectedAmmoCallback, this);
   }
 
   ~Blackboard() = default;
@@ -619,6 +622,9 @@ class Blackboard {
     LOG_WARNING << "Ammobox " << index << ": SUCCESS";
     ammobox_collected_cnt++;
     ammobox_list_[index-1] = -1;
+    std_msgs::Int32 msg;
+    msg.data = index;
+    collected_ammo_pub_.publish(msg);
   }
 
   void SetAmmoNotCollected(unsigned int index) {
@@ -628,6 +634,11 @@ class Blackboard {
 
   unsigned int GetAmmoCount() {
     return ammobox_collected_cnt;
+  }
+
+  void CollectedAmmoCallback(const std_msgs::Int32ConstPtr &msg) {
+    LOG_WARNING << "Ammobox " << msg->data << "is collected by someelse";
+    ammobox_list_[msg->data-1] = -1;
   }
 
   void LoadInitialAmmoList(const rrts::decision::DecisionConfig &decision_config) {
@@ -683,6 +694,10 @@ class Blackboard {
     }
   }
 
+  const int GetMapIndex() {
+    return map_index_;
+  }
+
   // void DisplayObstacleList() {
   //   LOG_WARNING << "Obstacle List:" << random_obstacle_list_[0] << random_obstacle_list_[1] << random_obstacle_list_[2]
   //                                   << random_obstacle_list_[3] << random_obstacle_list_[4] << random_obstacle_list_[5];
@@ -730,8 +745,9 @@ class Blackboard {
 
   // Subscriber
   ros::Subscriber ammo_scan_sub_;
-
   ros::Subscriber obstacle_scan_sub_;
+  ros::Publisher collected_ammo_pub_;
+  ros::Subscriber collected_ammo_sub_;
 
   //! Action client
   actionlib::SimpleActionClient<messages::LocalizationAction> localization_actionlib_client_;

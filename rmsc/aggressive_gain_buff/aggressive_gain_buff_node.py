@@ -49,37 +49,37 @@ class AggressiveGainBuffNode(object):
         self.chassis_mode_ = 0
         self._ac_navto = SimpleActionClient("nav_to_node_action", NavToAction)
         rospy.loginfo('GAIN_BUFF: Connecting NavTo action server...')
-        ret = self._ac_navto.wait_for_server(timeout=rospy.Duration(5.0))
+        ret = self._ac_navto.wait_for_server()
         rospy.loginfo('GAIN_BUFF: NavTo sever connected!') if ret else rospy.logerr('error: NavTo server not started!')
         self.nav_to_error_code = -1
     
     def ExecuteCB(self, goal):      
-        print 'Aggressive gain buff goal recieved!'
+        print 'GAIN_BUFF:Aggressive gain buff goal recieved!'
         route = goal.route_index
         CHASSIS_MODE = ChassisModeForm()
         self.nav_to_error_code = -1
         while not rospy.is_shutdown():
             if self._as.is_preempt_requested():
-                print 'PREEMPT REQ'
+                print 'GAIN_BUFF:PREEMPT REQ'
                 self.SetChassisMode(CHASSIS_MODE.AUTO_SEPARATE_GIMBAL)
                 self._ac_navto.cancel_all_goals()
                 self._as.set_preempted()
                 return
             if route == 1 or route == 2:
-                print 'Route %i received' % route
+                print 'GAIN_BUFF:Route %i received' % route
                 if route == 1:
                     self.SetChassisMode(CHASSIS_MODE.AGGRESSIVE_GAIN_BUFF_ONE)
                 if route == 2:
                     self.SetChassisMode(CHASSIS_MODE.AGGRESSIVE_GAIN_BUFF_TWO)
-                print 'Wait for chassis response...'
+                print 'GAIN_BUFF:Wait for chassis response...'
                 chassis_wait_start_time = rospy.get_time()
-                print 'chassis state is %i' % (self.chassis_state_)
+                print 'GAIN_BUFF:chassis state is %i' % (self.chassis_state_)
                 while self.chassis_state_ == 0 and (rospy.get_time() - chassis_wait_start_time) < CHASSIS_MODE_WAIT_TIME:
                     a=1
                 if self.chassis_state_ == 1:
-                    print 'Chassis has responded!'
+                    print 'GAIN_BUFF:Chassis has responded!'
                 else:
-                    print 'Chassis does not respond for the new mode! Return.'
+                    print 'GAIN_BUFF:Chassis does not respond for the new mode! Return.'
                     self.SetChassisMode(CHASSIS_MODE.AUTO_SEPARATE_GIMBAL)
                     self._as.set_aborted()
                     return
@@ -88,24 +88,25 @@ class AggressiveGainBuffNode(object):
                     if self.chassis_state_ == self.chassis_arrive_state.SUCCEEDED:
                         self._as.set_succeeded()
                         self.SetChassisMode(CHASSIS_MODE.AUTO_SEPARATE_GIMBAL)
-                        print 'Chassis Arrived Buff Area!'
+                        print 'GAIN_BUFF:Chassis Arrived Buff Area!'
                         return
                     #print 'Odom has running for %i seconds' % (rospy.get_time()-chassis_run_start_time)
-                print 'Chassis Aggressive gain buff FAILED, Time out!'
+                print 'GAIN_BUFF:Chassis Aggressive gain buff FAILED, Time out!'
                 self._as.set_aborted()
                 self.SetChassisMode(CHASSIS_MODE.AUTO_SEPARATE_GIMBAL)
                 return
             elif route == 3:
-                print 'Route 3 received'
+                print 'GAIN_BUFF:Route 3 received'
                 self.NavToBuff()
                 if self.nav_to_error_code == 0:
                     self.SetChassisMode(CHASSIS_MODE.AUTO_SEPARATE_GIMBAL)
                     self._as.set_succeeded()
-                    print 'Aggressive Gain Buff Route 3 SUCCEED!'
+                    print 'GAIN_BUFF:Aggressive Gain Buff Route 3 SUCCEED!'
                 return
             else:
+                self._as.set_aborted()
                 print 'No valied route'
-                return   
+                return
     
     # Set chassis mode to use odom navigation
     def SetChassisMode(self, chassis_mode):

@@ -644,7 +644,70 @@ class GetAmmoAction : public ActionNode {
   int ammobox_index_ = 0;
   GoalFactory::GoalFactoryPtr goal_factory_ptr_;
 
-}; // AuxiliaryAction
+}; // GetAmmoAction
+
+class AGBAction : public ActionNode {
+ public:
+
+  AGBAction(const Blackboard::Ptr &blackboard_ptr, GoalFactory::GoalFactoryPtr &goal_factory_ptr) :
+      ActionNode::ActionNode("agb_action", blackboard_ptr), goal_factory_ptr_(goal_factory_ptr) {
+
+  }
+
+  virtual ~AGBAction() = default;
+ private:
+  virtual void OnInitialize() {
+    LOG_INFO<<name_<<" "<<__FUNCTION__;
+  };
+
+  virtual BehaviorState Update() {
+
+    if (goal_factory_ptr_->GetAggressiveGainBuffState()!=BehaviorState::RUNNING) {
+      goal_factory_ptr_->CancelGoal();
+      int route_index;
+      int map_index = blackboard_ptr_->GetMapIndex();
+      switch(map_index) {
+        case 0: route_index = 1; break;
+        case 1: route_index = 1; break;
+        case 2: route_index = 2; break;
+        case 3: route_index = 1; break;
+        case 4: route_index = 1; break;
+        case 5: route_index = 3; break;
+        case 6: route_index = 1; break;
+        case 7: route_index = 3; break;
+        case 8: route_index = 3; break;
+        default: route_index = 3; break;
+      }
+      goal_factory_ptr_->SendAggressiveGainBuffGoal(route_index);
+    }
+
+    goal_factory_ptr_->UpdateAggressiveGainBuffState();
+    BehaviorState state = goal_factory_ptr_->GetAggressiveGainBuffState();
+    return state;
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+        goal_factory_ptr_->CancelAggressiveGainBuffGoal();
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" IDLE!";
+        break;
+      case BehaviorState::SUCCESS:
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" SUCCESS!";
+        break;
+      case BehaviorState::FAILURE:
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" FAILURE!";
+        break;
+      default:
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" ERROR!";
+        return;
+    }
+  }
+
+  int ammobox_index_ = 0;
+  GoalFactory::GoalFactoryPtr goal_factory_ptr_;
+
+}; // AGBAction
 }
 }
 
