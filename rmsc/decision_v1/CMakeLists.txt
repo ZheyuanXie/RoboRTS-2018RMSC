@@ -46,3 +46,17 @@ target_link_libraries(RMSC_decision_node_v1
   perception::map::costmap
   ${catkin_LIBRARIES}
 )
+
+add_executable(RMSC_decision_node_v2
+  ${CMAKE_CURRENT_SOURCE_DIR}/decision_node_final.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/goal_factory.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/action_behavior.h
+)
+
+target_link_libraries(RMSC_decision_node_v2
+  PRIVATE
+  common::log
+  RMSC_behavior_tree
+  perception::map::costmap
+  ${catkin_LIBRARIES}
+)

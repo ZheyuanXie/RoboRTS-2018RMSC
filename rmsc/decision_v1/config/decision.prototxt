@@ -136,7 +136,7 @@ buff_point {
 
   roll:  0
   pitch: 0
-  yaw:   -0.52
+  yaw:   0.52
 }
 
 buff_point {
@@ -158,7 +158,7 @@ buff_point {
 
   roll:  0
   pitch: 0
-  yaw:   -0.52
+  yaw:   0.52
 }
 
 search_limit {

@@ -679,6 +679,7 @@ class AGBAction : public ActionNode {
         default: route_index = 3; break;
       }
       goal_factory_ptr_->SendAggressiveGainBuffGoal(route_index);
+      blackboard_ptr_->SetAGBIssued();
     }
 
     goal_factory_ptr_->UpdateAggressiveGainBuffState();

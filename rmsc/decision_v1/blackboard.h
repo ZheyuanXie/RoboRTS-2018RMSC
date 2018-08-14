@@ -704,6 +704,13 @@ class Blackboard {
   // }
 
   /// Utility Functions ----------------------------------------------------------------------------------------------
+  bool GetAGBIssued() {
+    return AGB_issued;
+  }
+
+  void SetAGBIssued() {
+    AGB_issued = true;
+  }
 
   void PlaySound(const std::string &filename){
     std::string path = ros::package::getPath("roborts");
@@ -820,6 +827,8 @@ class Blackboard {
 
   bool obstacle_scan_get_ = false;
   int map_index_ = 0;
+  
+  bool AGB_issued = false;
 
 };
 } //namespace decision

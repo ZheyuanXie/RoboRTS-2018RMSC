@@ -591,7 +591,7 @@ class GoalFactory {
       }
       SendGoal(buff_position_[buff_count_%buff_size_]);
       buff_count_ = ++buff_count_ % buff_size_;
-      SendGoalTask(wing_bot_task_point_);
+      // SendGoalTask(wing_bot_task_point_);
     }
 
   }
