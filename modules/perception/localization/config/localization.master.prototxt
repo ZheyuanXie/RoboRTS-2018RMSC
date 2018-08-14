@@ -6,9 +6,9 @@ map_topic_name       : "map"
 init_pose_topic_name : "initialpose"
 transform_tolerance  : 0.1
 
-initial_pose_x :0.76 #8.40 #1.0
-initial_pose_y :1.38 #14.35 #1.0
-initial_pose_a :0.0
+initial_pose_x :1.30 #8.40 #1.0
+initial_pose_y :0.81 #14.35 #1.0
+initial_pose_a :1.57
 initial_cov_xx :0.1
 initial_cov_yy :0.1
 initial_cov_aa :0.1
