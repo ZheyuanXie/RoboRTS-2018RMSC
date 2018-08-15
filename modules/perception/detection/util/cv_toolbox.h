@@ -47,7 +47,7 @@ class CVToolbox {
 
     ros::NodeHandle nh;
     image_transport::ImageTransport it(nh);
-    unsigned long camera_num = camera_param_.GetCameraParam().size();
+    unsigned long camera_num = 2;//camera_param_.GetCameraParam().size();
     subs_.resize(camera_num);
     image_buffer_.resize(camera_num);
     write_index_.resize(buffer_size);
