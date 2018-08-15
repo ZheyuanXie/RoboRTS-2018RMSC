@@ -142,6 +142,7 @@ class Blackboard {
 
     LoadInitialAmmoList(decision_config);
     max_retries_ = decision_config.max_retries();
+    master_ = decision_config.master();
 
     last_get_hp_time_ = ros::Time::now();
 
@@ -335,6 +336,12 @@ class Blackboard {
   //Shoot Info
   void ShootInfoCallback(const messages::ShootInfo::ConstPtr & shoot_info){
     remain_bullet_ = shoot_info->remain_bullet;
+    if (remain_bullet_ == 0) {
+      no_bullet_ = true;
+    }
+    else {
+      no_bullet_ = false;
+    }
     sent_bullet_ = shoot_info->sent_bullet;
   }
   bool GetSentBulletStatus() {
@@ -631,7 +638,12 @@ class Blackboard {
   void SetAmmoNotCollected(unsigned int index) {
     LOG_WARNING << "Ammobox :" << index << ": FAILED";
     ammobox_list_[index-1] = ammobox_list_[index-1] + 10;
-    ammobox_retry_list_[index-1] = ammobox_retry_list_[index-1] + 1;
+    if (master_ || index >6) {
+      ammobox_retry_list_[index-1] = ammobox_retry_list_[index-1] + 1;
+    }
+    else {
+      ammobox_retry_list_[index-1] = ammobox_retry_list_[index-1] + 100;
+    }
   }
 
   unsigned int GetAmmoCount() {
@@ -847,6 +859,8 @@ class Blackboard {
   
   bool AGB_issued_ = false;
   int max_retries_ = 0;
+
+  bool master_ = false;
 
 };
 } //namespace decision

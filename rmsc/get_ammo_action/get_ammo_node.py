@@ -57,10 +57,10 @@ class AmmoType:
 
 AmmoBoxes = [
     # ground ----------------------------------
-    {'id':2,  'checkpoint':[(1.20,4.30,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':2,  'checkpoint':[(1.85,4.90,0.00)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     {'id':3,  'checkpoint':[(2.70,4.20,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
-    {'id':4,  'checkpoint':[(0.50,4.65,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
-    {'id':5,  'checkpoint':[(1.05,4.30,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':4,  'checkpoint':[(1.68,3.37,-0.3)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':5,  'checkpoint':[(1.90,3.22,0.00)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     # elevated ----------------------------------
     {'id':7,  'checkpoint':[(1.80,3.50,-1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
     {'id':9,  'checkpoint':[(0.85,1.85,-1.57)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
@@ -91,6 +91,28 @@ AmmoBoxes = [
     # {'id':28, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.75,0+3.14)],'conflict':[0,5],'type':AmmoType.ENEMY_ELEVATED},
     # {'id':29, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.20,0+3.14)],'conflict':[0,6],'type':AmmoType.ENEMY_ELEVATED},
     # {'id':30, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-0.50,0+3.14)],'conflict':[0,0],'type':AmmoType.ENEMY_ELEVATED}
+
+        # ground ----------------------------------
+    {'id':32,  'checkpoint':[(MAP_LENGTH-1.20,MAP_WIDTH-4.30,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':33,  'checkpoint':[(MAP_LENGTH-2.70,MAP_WIDTH-4.20,1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':34,  'checkpoint':[(MAP_LENGTH-0.50,MAP_WIDTH-4.65,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':35,  'checkpoint':[(MAP_LENGTH-1.05,MAP_WIDTH-4.30,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    # elevated ----------------------------------
+    {'id':37,  'checkpoint':[(MAP_LENGTH-1.80,MAP_WIDTH-3.50,1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':39,  'checkpoint':[(MAP_LENGTH-0.85,MAP_WIDTH-1.85,1.57)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':40, 'checkpoint':[(MAP_LENGTH-1.55,MAP_WIDTH-2.90,0)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':41, 'checkpoint':[(MAP_LENGTH-1.55,MAP_WIDTH-2.55,0)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':42, 'checkpoint':[(MAP_LENGTH-1.55,MAP_WIDTH-1.80,0)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':43, 'checkpoint':[(MAP_LENGTH-2.65,MAP_WIDTH-1.85,0)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':44, 'checkpoint':[(MAP_LENGTH-2.65,MAP_WIDTH-1.2,0)],'conflict':[0,6],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':45, 'checkpoint':[(MAP_LENGTH-2.65,MAP_WIDTH-0.80,0)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':46, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-0.65,3.14)],'conflict':[0,0],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':47, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.30,3.14)],'conflict':[0,6],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':48, 'checkpoint':[(MAP_LENGTH-4.20,MAP_WIDTH-1.85,3.14)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':49, 'checkpoint':[(MAP_LENGTH-2.85,MAP_WIDTH-1.80,3.14)],'conflict':[0,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':50, 'checkpoint':[(MAP_LENGTH-2.85,MAP_WIDTH-2.55,3.14)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':51, 'checkpoint':[(MAP_LENGTH-2.85,MAP_WIDTH-2.90,3.14)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':52,  'checkpoint':[(MAP_LENGTH-1.70,MAP_WIDTH-4.45,-1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
 ]
 
 
@@ -103,6 +125,7 @@ class GetAmmoStatus:
     GRASP       = 4
     WITHDRAW    = 5
     LOOKMOVE    = 6
+    VBLIND      = 7
 
 class GetAmmoNode(object):
     _feedback = GetAmmoActionFeedback()
@@ -252,7 +275,7 @@ class GetAmmoNode(object):
                     self.state = GetAmmoStatus.IDLE
                     break
                 if self.looknmove_cnt == 1:
-                    self.gripper.SetPosition(100,150)
+                    self.gripper.SetPosition(100,130)
                 self.looknmove_cnt += 1
                 if self.looknmove_no_target > 15:
                     rospy.loginfo('GETAMMO: Visual no target')
@@ -266,7 +289,7 @@ class GetAmmoNode(object):
                         break
                     self.blind_cnt = 0
                     self.gripper.SetState(GripperCmd.GRIP_LOW)
-                    self.state = GetAmmoStatus.BLIND
+                    self.state = GetAmmoStatus.VBLIND
                 self.blind_cnt = 0
                 # TIME-OUT
                 if self.looknmove_failed:# or self.visual_cnt > 120:
@@ -287,6 +310,26 @@ class GetAmmoNode(object):
                     # rospy.logwarn('BLIND_WITH')
                 else:
                     self.SendCmdVel(BLIND_APPROACH_VX,0.,0.)
+                    # rospy.logwarn('BLIND_APP')
+                if self.blind_cnt > 100:
+                    # rospy.logwarn('BLIND_EXIT')
+                    rospy.logerr('GETAMMO: Blind approach timeout.')
+                    self._as.set_aborted()
+                    self.state = GetAmmoStatus.IDLE
+                    break
+
+            elif self.state == GetAmmoStatus.VBLIND:
+                self.blind_cnt += 1
+                if self.gripper.feedback == GripperInfo.TOUCHED: 
+                    rospy.loginfo('GETAMMO: Gripper touched.')
+                    self.touch_cnt = 0
+                    self.state = GetAmmoStatus.GRASP
+                # BLIND APPROACH TIME-OUT
+                if self.blind_cnt > 80:
+                    self.SendCmdVel(WITHDRAW_VX,0.,0.)
+                    # rospy.logwarn('BLIND_WITH')
+                else:
+                    self.SendCmdVel(BLIND_APPROACH_VX * 6,0.,0.)
                     # rospy.logwarn('BLIND_APP')
                 if self.blind_cnt > 100:
                     # rospy.logwarn('BLIND_EXIT')
@@ -367,7 +410,7 @@ class GetAmmoNode(object):
                 # rospy.loginfo('CAMERA: NO TARGET')
             else:
                 err_y = (data.pose.position.z - 300) / 1000
-                err_x = data.pose.position.x / 1000
+                err_x = (data.pose.position.x - 100) / 1000
                 goal = LookAndMoveGoal()
                 goal.relative_pose.header.frame_id = "base_link"
                 goal.relative_pose.pose.position.x = -err_y

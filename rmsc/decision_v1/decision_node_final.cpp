@@ -57,8 +57,159 @@ int main(int argc, char **argv)
   auto agb_action_ = std::make_shared<rrts::decision::AGBAction>(blackboard_ptr_, goal_factory_);
   auto auxiliary_action = std::make_shared<rrts::decision::AuxiliaryAction>(blackboard_ptr_, goal_factory_);
   auto wing_auxiliary_action = std::make_shared<rrts::decision::AuxiliaryAction>(blackboard_ptr_, goal_factory_);
+  auto base_wait_action_ = std::make_shared<rrts::decision::BaseWaitAction>(blackboard_ptr_, goal_factory_);
 
   //tree
+
+  //offensive_selector
+  auto offensive_dmp_condition_ = std::make_shared<rrts::decision::PreconditionNode>("offensive dmp condition",
+                                                                                     blackboard_ptr_,
+                                                                                     escape_action_,
+                                                                                     [&]() {
+                                                                                       if (blackboard_ptr_->HurtedPerSecond() > 400 || blackboard_ptr_->GetSentBulletStatus())
+                                                                                       {
+                                                                                         return true;
+                                                                                       }
+                                                                                       else
+                                                                                       {
+                                                                                         return false;
+                                                                                       }
+                                                                                     },
+                                                                                     rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto offensive_detect_enemy_condition_ = std::make_shared<rrts::decision::PreconditionNode>("offensive_detect_enemy_condition",
+                                                                                              blackboard_ptr_,
+                                                                                              chase_action_,
+                                                                                              [&]() {
+                                                                                                if (blackboard_ptr_->GetEnemyDetected())
+                                                                                                {
+                                                                                                  return true;
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                  return false;
+                                                                                                }
+                                                                                              },
+                                                                                              rrts::decision::AbortType::BOTH);
+
+  auto offensive_under_attack_condition_ = std::make_shared<rrts::decision::PreconditionNode>("offensive_under_attack_condition",
+                                                                                              blackboard_ptr_,
+                                                                                              turn_to_hurt_action_,
+                                                                                              [&]() {
+                                                                                                if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::NONE && blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked::FRONT)
+                                                                                                {
+                                                                                                  return true;
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                  return false;
+                                                                                                }
+                                                                                              },
+                                                                                              rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto offensive_detected_condition_ = std::make_shared<rrts::decision::PreconditionNode>("offensive detected condition",
+                                                                                          blackboard_ptr_,
+                                                                                          color_detected_action_,
+                                                                                          [&]() {
+                                                                                            if (blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::NONE && blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::FRONT)
+                                                                                            {
+                                                                                              return true;
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                              return false;
+                                                                                            }
+                                                                                          },
+                                                                                          rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto master_receive_condition = std::make_shared<rrts::decision::PreconditionNode>("master receive condition", blackboard_ptr_,
+                                                                                     auxiliary_action,
+                                                                                     [&]() {
+                                                                                       if (blackboard_ptr_->GetAuxiliaryState())
+                                                                                       {
+                                                                                         return true;
+                                                                                       }
+                                                                                       else
+                                                                                       {
+                                                                                         return false;
+                                                                                       }
+                                                                                     },
+                                                                                     rrts::decision::AbortType::LOW_PRIORITY);
+  
+  auto master_acquire_ammo_condition = std::make_shared<rrts::decision::PreconditionNode>("master acquire ammo condition",
+                                                                                        blackboard_ptr_, get_ammo_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetAmmoIndex() == -1)
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto master_no_bullet_under_attack_condition = std::make_shared<rrts::decision::PreconditionNode>("master no bullet under attack condition",
+                                                                                        blackboard_ptr_, escape_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::NONE &&
+                                                                                                   blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::FRONT)
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+  
+  auto master_no_bullet_no_ammo_condition = std::make_shared<rrts::decision::PreconditionNode>("master no bullet no ammo condition",
+                                                                                        blackboard_ptr_, whirl_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetAmmoIndex() == -1)
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto master_no_bullet_selector_ = std::make_shared<rrts::decision::SelectorNode>("master no bullet selector", blackboard_ptr_);
+  master_no_bullet_selector_->AddChildren(master_no_bullet_under_attack_condition);
+  master_no_bullet_selector_->AddChildren(master_no_bullet_no_ammo_condition);
+  master_no_bullet_selector_->AddChildren(get_ammo_action_);
+  
+  auto master_no_bullet_condition = std::make_shared<rrts::decision::PreconditionNode>("master no bullet condition",
+                                                                                        blackboard_ptr_, master_no_bullet_selector_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetNoBullet() || (blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo()))
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::BOTH);
+
+  auto offensive_selector_ = std::make_shared<rrts::decision::SelectorNode>("offensive_selector", blackboard_ptr_);
+  offensive_selector_->AddChildren(master_no_bullet_condition);
+  offensive_selector_->AddChildren(offensive_dmp_condition_);
+  offensive_selector_->AddChildren(offensive_detect_enemy_condition_);
+  offensive_selector_->AddChildren(offensive_under_attack_condition_);
+  // offensive_selector_->AddChildren(offensive_detected_condition_);
+  offensive_selector_->AddChildren(master_receive_condition);
+  offensive_selector_->AddChildren(search_action_);
+  offensive_selector_->AddChildren(master_acquire_ammo_condition);
+  offensive_selector_->AddChildren(patrol_action_);
+
+
   auto agb_not_issued_condition_ = std::make_shared<rrts::decision::PreconditionNode>("rfid agb_not_issued_condition", blackboard_ptr_,
                                                                             agb_action_,
                                                                             [&]() {
@@ -94,28 +245,28 @@ int main(int argc, char **argv)
   auto search_buff_selector_ = std::make_shared<rrts::decision::SelectorNode>("gain buff selector", blackboard_ptr_);
   search_buff_selector_->AddChildren(rfid_condition_);
 
-  auto enemy_obtain_buff_condition_ = std::make_shared<rrts::decision::PreconditionNode>("enemy obtain buff", blackboard_ptr_,
-                                                                                         whirl_action_,
-                                                                                         [&]() {
-                                                                                           if (blackboard_ptr_->GetBuffStatus() == rrts::decision::BuffStatus::ENEMY)
-                                                                                           {
-                                                                                             return true;
-                                                                                           }
-                                                                                           else
-                                                                                           {
-                                                                                             return false;
-                                                                                           }
-                                                                                         },
-                                                                                         rrts::decision::AbortType::BOTH);
+  // auto enemy_obtain_buff_condition_ = std::make_shared<rrts::decision::PreconditionNode>("enemy obtain buff", blackboard_ptr_,
+  //                                                                                        whirl_action_,
+  //                                                                                        [&]() {
+  //                                                                                          if (blackboard_ptr_->GetBuffStatus() == rrts::decision::BuffStatus::ENEMY)
+  //                                                                                          {
+  //                                                                                            return true;
+  //                                                                                          }
+  //                                                                                          else
+  //                                                                                          {
+  //                                                                                            return false;
+  //                                                                                          }
+  //                                                                                        },
+  //                                                                                        rrts::decision::AbortType::BOTH);
 
-  auto without_buff_selector_ = std::make_shared<rrts::decision::SelectorNode>("without_buff_selector", blackboard_ptr_);
-  without_buff_selector_->AddChildren(enemy_obtain_buff_condition_);
-  without_buff_selector_->AddChildren(search_buff_selector_);
+  // auto without_buff_selector_ = std::make_shared<rrts::decision::SelectorNode>("without_buff_selector", blackboard_ptr_);
+  // without_buff_selector_->AddChildren(enemy_obtain_buff_condition_);
+  // without_buff_selector_->AddChildren(search_buff_selector_);
   
   auto obtain_buff_condition_ = std::make_shared<rrts::decision::PreconditionNode>("obtain buff condition", blackboard_ptr_,
-                                                                                   whirl_action_,
+                                                                                   offensive_selector_,
                                                                                    [&]() {
-                                                                                     if (blackboard_ptr_->GetBuffStatus() == rrts::decision::BuffStatus::SELF)
+                                                                                     if (blackboard_ptr_->GetBuffStatus() == rrts::decision::BuffStatus::SELF || blackboard_ptr_->GetBuffStatus() == rrts::decision::BuffStatus::ENEMY)
                                                                                      {
                                                                                        return true;
                                                                                      }
@@ -128,7 +279,7 @@ int main(int argc, char **argv)
 
   auto game_start_selector_ = std::make_shared<rrts::decision::SelectorNode>("game_start_selector", blackboard_ptr_);
   game_start_selector_->AddChildren(obtain_buff_condition_);
-  game_start_selector_->AddChildren(without_buff_selector_);
+  game_start_selector_->AddChildren(search_buff_selector_);
 
   auto game_stop_condition_ = std::make_shared<rrts::decision::PreconditionNode>("game_stop_condition", blackboard_ptr_,
                                                                                  wait_action_,
@@ -299,11 +450,11 @@ int main(int argc, char **argv)
   wing_bot_selector_->AddChildren(wing_no_bullet_condition);
   wing_bot_selector_->AddChildren(wing_dmp_condition_);
   wing_bot_selector_->AddChildren(wing_detect_condition);
-  wing_bot_selector_->AddChildren(wing_color_detect_condition);
+  // wing_bot_selector_->AddChildren(wing_color_detect_condition);
   wing_bot_selector_->AddChildren(wing_under_attack_condition);
   wing_bot_selector_->AddChildren(wing_receive_condition);
   wing_bot_selector_->AddChildren(wing_acquire_ammo_condition);
-  wing_bot_selector_->AddChildren(whirl_action_);
+  wing_bot_selector_->AddChildren(base_wait_action_);
 
   auto wing_bot_condition = std::make_shared<rrts::decision::PreconditionNode>("wing bot condition", blackboard_ptr_,
                                                                                wing_bot_selector_,
