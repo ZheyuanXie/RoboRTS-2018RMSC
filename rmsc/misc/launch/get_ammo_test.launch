@@ -31,8 +31,26 @@
     
   <node pkg="roborts" type="serial_com_node" name="serial_com_node" respawn="false" />
   <node pkg="roborts" type="camera_node" name="camera_node" respawn="false" />
+  <node pkg="uvc_camera" type="uvc_camera_node" name="uvc_camera" output="screen">
+    <param name="width" type="int" value="800" />
+    <param name="height" type="int" value="600" />
+    <param name="fps" type="int" value="30" />
+    <param name="frame" type="string" value="uvc_camera" />
+
+    <param name="auto_focus" type="bool" value="true" />
+    <param name="focus_absolute" type="int" value="0" />
+    <param name="auto_exposure" type="bool" value="false" />
+    <param name="exposure_absolute" type="int" value="1000" />
+    <param name="auto_white_balance" type="bool" value="true" />
+    <param name="white_balance_temperature" type="int" value="5500" />
+
+
+    <param name="device" type="string" value="/dev/video0" />
+    <param name="camera_info_url" type="string" value="file://$(find uvc_camera)/example.yaml" />
+    <remap from="image_raw" to="camera_1"/>
+  </node>
   <node name="uwb_tf_static_publisher" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 1 map uwb 100" />
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/tools/maps/$(arg map).yaml" respawn="false" />
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/6.yaml" respawn="false" />
   <!-- <node name="map_mux_node" pkg="roborts" type="map_mux_node.py" respawn="false" output="screen"/> -->
 
   <!--Official Nodes-->
@@ -52,7 +70,7 @@
   <!--Custom Perception Functions-->
   <!-- <node pkg="roborts" type="map_completion_test.py" name="map_comp" respawn="false" /> -->
   <!-- <node pkg="roborts" type="obstacle_scan_node" name="obstacle_scan_node" respawn="false" /> -->
-  <!-- <node pkg="roborts" type="ammo_visual_detect_node" name="ammo_visual_detect_node" respawn="false" /> -->
+  <node pkg="roborts" type="ammo_visual_detect_node" name="ammo_visual_detect_node" respawn="false" />
   <!-- <node pkg="roborts" type="seer_node" name="seer_node" respawn="false" /> -->
 
   <!--Custom Decision Functions-->
