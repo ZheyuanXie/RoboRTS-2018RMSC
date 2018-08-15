@@ -37,7 +37,7 @@ TARGET_OFFSET_X  = 0.5
 TARGET_OFFSET_Y = 0.07
 TARGET_OFFSET_YAW = -1.0
 KP_VX = 3.0
-KP_VY = 4.5
+KP_VY = 3.0
 KP_VYAW = 0.4#0.3
 MAX_LINEAR_VEL  = 0.3
 MAX_ANGULAR_VEL = 0.8
@@ -77,6 +77,9 @@ AmmoBoxes = [
     {'id':20, 'checkpoint':[(2.85,2.55,0.00)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
     {'id':21, 'checkpoint':[(2.85,2.90,0.00)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
     {'id':22,  'checkpoint':[(1.70,4.45,1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':23, 'checkpoint':[(4.0,3.60,3.14)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':24, 'checkpoint':[(4.0,4.19,3.14)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':25,  'checkpoint':[(4.0,4.45,3.14)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
     # enemy ground ----------------------------------
     # {'id':17, 'checkpoint':[(MAP_LENGTH-1.20,MAP_WIDTH-4.30,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
     # {'id':18, 'checkpoint':[(MAP_LENGTH-2.70,MAP_WIDTH-4.20,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},

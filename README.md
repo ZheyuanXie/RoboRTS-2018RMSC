@@ -19,7 +19,8 @@ The code is developed based on the official RoboRTS package.
  - 后视摄像机................重新插拔
  - 颜色检测....................配置为敌方颜色
  - 装甲板检测................配置为敌方颜色
- - 障碍块扫描................配置为我方启动区
-
+ - Seer结点................配置为我方启动区
+ - WingBot.................启动位置复位
+ - MasterBot...............启动位置
 ## Network Infrastructure
 <img src="docs/images/rmsc4_network.png" style="zoom:80%;display: inline-block; float:middle"/>
