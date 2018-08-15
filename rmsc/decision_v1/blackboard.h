@@ -141,6 +141,7 @@ class Blackboard {
     ros::NodeHandle nh;
 
     LoadInitialAmmoList(decision_config);
+    max_retries_ = decision_config.max_retries();
 
     last_get_hp_time_ = ros::Time::now();
 
@@ -606,11 +607,11 @@ class Blackboard {
 
 
   /// Collect Ammo Functions ----------------------------------------------------------------------------------------------
-  int GetAmmoIndex(const int priority_thres) {
-    int min_cnt = priority_thres + 1;
+  int GetAmmoIndex() {
+    int min_cnt = 9999;
     int min_index = -1;
     for (int i = 0; i < 30; i++){
-      if (ammobox_list_[i] < min_cnt && ammobox_list_[i] > 0){
+      if (ammobox_list_[i] < min_cnt && ammobox_list_[i] > 0 && ammobox_retry_list_[i] <= max_retries_){
         min_cnt = ammobox_list_[i];
         min_index = i + 1;
       }
@@ -629,7 +630,8 @@ class Blackboard {
 
   void SetAmmoNotCollected(unsigned int index) {
     LOG_WARNING << "Ammobox :" << index << ": FAILED";
-    ammobox_list_[index-1] = ammobox_list_[index-1] + 1;
+    ammobox_list_[index-1] = ammobox_list_[index-1] + 10;
+    ammobox_retry_list_[index-1] = ammobox_retry_list_[index-1] + 1;
   }
 
   unsigned int GetAmmoCount() {
@@ -705,11 +707,15 @@ class Blackboard {
 
   /// Utility Functions ----------------------------------------------------------------------------------------------
   bool GetAGBIssued() {
-    return AGB_issued;
+    return AGB_issued_;
   }
 
   void SetAGBIssued() {
-    AGB_issued = true;
+    AGB_issued_ = true;
+  }
+
+  bool GetNoBullet() {
+    return no_bullet_;
   }
 
   void PlaySound(const std::string &filename){
@@ -824,11 +830,23 @@ class Blackboard {
     -1,0,-1,0,0,
     0,0,0,0,0
   };
-
+  int ammobox_retry_list_[30] = 
+  {
+    // Domestic Ammo
+    0,0,0,0,0,
+    0,0,0,0,0,
+    0,0,0,0,0,
+    // Enemy Ammo
+    0,0,0,0,0,
+    0,0,0,0,0,
+    0,0,0,0,0
+  };
+  bool no_bullet_ = false;
   bool obstacle_scan_get_ = false;
   int map_index_ = 0;
   
-  bool AGB_issued = false;
+  bool AGB_issued_ = false;
+  int max_retries_ = 0;
 
 };
 } //namespace decision

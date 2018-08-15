@@ -128,8 +128,10 @@ class GoalFactory {
     LOG_INFO<<"Local planer server start!";
     get_ammo_actionlib_client_.waitForServer();
     LOG_INFO<<"Get ammo server start!";
-    aggressive_gain_buff_actionlib_client_.waitForServer();
-    LOG_INFO<<"Aggressive gain buff server start!";
+    if (master_) {
+        aggressive_gain_buff_actionlib_client_.waitForServer();
+        LOG_INFO<<"Aggressive gain buff server start!";
+    }
   }
 
   ~GoalFactory() = default;

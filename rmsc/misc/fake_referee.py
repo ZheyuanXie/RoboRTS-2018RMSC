@@ -19,6 +19,7 @@ if __name__ == "__main__":
     pub_game_info = rospy.Publisher("/master/fake_game_info",GameInfo,queue_size=1)
     pub_game_info_wing = rospy.Publisher("/wing/fake_game_info",GameInfo,queue_size=1)
     info = GameInfo()
+    info.remain_hp = 3000
     while not rospy.is_shutdown():
         help()
         cmd = raw_input('>')

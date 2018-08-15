@@ -1,8 +1,9 @@
 simulate: false
-master: true 
+master: false 
 use_referee: false
 use_adaptive_map: true
 minimum_ammo: 2
+max_retries: 2
 
 initial_ammo_list {
   # domestic ground 

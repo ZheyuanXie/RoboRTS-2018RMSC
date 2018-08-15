@@ -505,7 +505,7 @@ class WaitAction : public ActionNode {
   virtual void OnTerminate(BehaviorState state) {
     switch (state){
       case BehaviorState::IDLE:
-        goal_factory_ptr_->CancelGoal();
+        // goal_factory_ptr_->CancelGoal();
         LOG_INFO<<name_<<" "<<__FUNCTION__<<" IDLE!";
         break;
       case BehaviorState::SUCCESS:
@@ -601,7 +601,7 @@ class GetAmmoAction : public ActionNode {
 
     if (goal_factory_ptr_->GetGetAmmoActionState()!=BehaviorState::RUNNING){
       goal_factory_ptr_->CancelGoal();
-      ammobox_index_ = blackboard_ptr_->GetAmmoIndex(3);
+      ammobox_index_ = blackboard_ptr_->GetAmmoIndex();
       if (ammobox_index_ == -1){
         return BehaviorState::SUCCESS;
       }

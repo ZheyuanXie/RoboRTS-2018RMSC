@@ -59,4 +59,5 @@ message DecisionConfig {
     optional bool use_adaptive_map = 17 [default = false];
     optional int32 minimum_ammo = 18 [default = 1];
     optional InitialAmmoList initial_ammo_list = 19;
+    optional int32 max_retries = 20 [default = 3];
 }

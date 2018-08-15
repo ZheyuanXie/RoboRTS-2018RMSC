@@ -35,6 +35,7 @@ int main(int argc, char **argv)
   rrts::common::ReadProtoFromTextFile("/rmsc/decision_v1/config/decision.prototxt", &robot_config);
   LOG_WARNING << "Use Referee:" << robot_config.use_referee();
   LOG_WARNING << "Minimum Ammo:" << robot_config.minimum_ammo();
+  LOG_WARNING << "Max retries:" << robot_config.max_retries();
   LOG_WARNING << "Initializing Blackboard...";
   auto blackboard_ptr_ = std::make_shared<rrts::decision::Blackboard>("/rmsc/decision_v1/config/decision.prototxt");
   LOG_WARNING << "Initializing Goal Factory...";
@@ -46,14 +47,16 @@ int main(int argc, char **argv)
   auto whirl_action_ = std::make_shared<rrts::decision::WhirlAction>(blackboard_ptr_, goal_factory_);
   auto gain_buff_action_ = std::make_shared<rrts::decision::GainBuffAction>(blackboard_ptr_, goal_factory_);
   auto get_ammo_action_ = std::make_shared<rrts::decision::GetAmmoAction>(blackboard_ptr_, goal_factory_);
-  auto turn_to_hurt_action_ = std::make_shared<rrts::decision::TurnToWoundedArmorAction>(blackboard_ptr_,
-                                                                                         goal_factory_);
+  auto turn_to_hurt_action_ = std::make_shared<rrts::decision::TurnToWoundedArmorAction>(blackboard_ptr_, goal_factory_);
+  auto escape_action_ = std::make_shared<rrts::decision::EscapeAction>(blackboard_ptr_, goal_factory_);
   auto color_detected_action_ = std::make_shared<rrts::decision::TurnToDetectedDirection>(blackboard_ptr_, goal_factory_);
   auto chase_action_ = std::make_shared<rrts::decision::ChaseAction>(blackboard_ptr_, goal_factory_);
   auto shoot_action_ = std::make_shared<rrts::decision::ShootAction>(blackboard_ptr_, goal_factory_);
   auto patrol_action_ = std::make_shared<rrts::decision::PatrolAction>(blackboard_ptr_, goal_factory_);
   auto search_action_ = std::make_shared<rrts::decision::SearchAction>(blackboard_ptr_, goal_factory_);
   auto agb_action_ = std::make_shared<rrts::decision::AGBAction>(blackboard_ptr_, goal_factory_);
+  auto auxiliary_action = std::make_shared<rrts::decision::AuxiliaryAction>(blackboard_ptr_, goal_factory_);
+  auto wing_auxiliary_action = std::make_shared<rrts::decision::AuxiliaryAction>(blackboard_ptr_, goal_factory_);
 
   //tree
   auto agb_not_issued_condition_ = std::make_shared<rrts::decision::PreconditionNode>("rfid agb_not_issued_condition", blackboard_ptr_,
@@ -141,8 +144,169 @@ int main(int argc, char **argv)
   game_status_selector_->AddChildren(game_stop_condition_);
   game_status_selector_->AddChildren(game_start_selector_);
 
+  auto wing_stop_condition = std::make_shared<rrts::decision::PreconditionNode>("wing bot stop condition", blackboard_ptr_,
+                                                                                wait_action_,
+                                                                                [&]() {
+                                                                                  if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT)
+                                                                                  {
+                                                                                    return true;
+                                                                                  }
+                                                                                  else
+                                                                                  {
+                                                                                    return false;
+                                                                                  }
+                                                                                },
+                                                                                rrts::decision::AbortType::BOTH);
+
+  auto wing_dmp_condition_ = std::make_shared<rrts::decision::PreconditionNode>("wing dmp condition",
+                                                                                blackboard_ptr_,
+                                                                                escape_action_,
+                                                                                [&]() {
+                                                                                  if (blackboard_ptr_->HurtedPerSecond() > 400 || blackboard_ptr_->GetSentBulletStatus())
+                                                                                  {
+                                                                                    return true;
+                                                                                  }
+                                                                                  else
+                                                                                  {
+                                                                                    return false;
+                                                                                  }
+                                                                                },
+                                                                                rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto wing_receive_condition = std::make_shared<rrts::decision::PreconditionNode>("wing receive condition", blackboard_ptr_,
+                                                                                   auxiliary_action,
+                                                                                   [&]() {
+                                                                                     if (blackboard_ptr_->GetAuxiliaryState())
+                                                                                     {
+                                                                                       return true;
+                                                                                     }
+                                                                                     else
+                                                                                     {
+                                                                                       return false;
+                                                                                     }
+                                                                                   },
+                                                                                   rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto wing_detect_condition = std::make_shared<rrts::decision::PreconditionNode>("wing detect condition", blackboard_ptr_,
+                                                                                  shoot_action_,
+                                                                                  [&]() {
+                                                                                    if (blackboard_ptr_->GetEnemyDetected())
+                                                                                    {
+                                                                                      return true;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                      return false;
+                                                                                    }
+                                                                                  },
+                                                                                  rrts::decision::AbortType::BOTH);
+
+  auto wing_color_detect_condition = std::make_shared<rrts::decision::PreconditionNode>("wing color detect condition",
+                                                                                        blackboard_ptr_,
+                                                                                        color_detected_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::NONE && 
+                                                                                                  blackboard_ptr_->GetColordetected() != rrts::decision::ColorDetected ::FRONT)
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto wing_under_attack_condition = std::make_shared<rrts::decision::PreconditionNode>("wing under attack condition",
+                                                                                        blackboard_ptr_, turn_to_hurt_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::NONE &&
+                                                                                                   blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::FRONT)
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+  
+  auto wing_acquire_ammo_condition = std::make_shared<rrts::decision::PreconditionNode>("wing acquire ammo condition",
+                                                                                        blackboard_ptr_, get_ammo_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetAmmoIndex() == -1)
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto wing_no_bullet_under_attack_condition = std::make_shared<rrts::decision::PreconditionNode>("wing no bullet under attack condition",
+                                                                                        blackboard_ptr_, escape_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::NONE &&
+                                                                                                   blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::FRONT)
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+  
+  auto wing_no_bullet_no_ammo_condition = std::make_shared<rrts::decision::PreconditionNode>("wing no bullet no ammo condition",
+                                                                                        blackboard_ptr_, whirl_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetAmmoIndex() == -1)
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+
+  auto wing_no_bullet_selector_ = std::make_shared<rrts::decision::SelectorNode>("wing no bullet selector", blackboard_ptr_);
+  wing_no_bullet_selector_->AddChildren(wing_no_bullet_under_attack_condition);
+  wing_no_bullet_selector_->AddChildren(wing_no_bullet_no_ammo_condition);
+  wing_no_bullet_selector_->AddChildren(get_ammo_action_);
+  
+  auto wing_no_bullet_condition = std::make_shared<rrts::decision::PreconditionNode>("wing no bullet condition",
+                                                                                        blackboard_ptr_, wing_no_bullet_selector_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetNoBullet() || (blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo()))
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::BOTH);
+
+  auto wing_bot_selector_ = std::make_shared<rrts::decision::SelectorNode>("wing bot selector", blackboard_ptr_);
+  wing_bot_selector_->AddChildren(wing_stop_condition);
+  wing_bot_selector_->AddChildren(wing_no_bullet_condition);
+  wing_bot_selector_->AddChildren(wing_dmp_condition_);
+  wing_bot_selector_->AddChildren(wing_detect_condition);
+  wing_bot_selector_->AddChildren(wing_color_detect_condition);
+  wing_bot_selector_->AddChildren(wing_under_attack_condition);
+  wing_bot_selector_->AddChildren(wing_receive_condition);
+  wing_bot_selector_->AddChildren(wing_acquire_ammo_condition);
+  wing_bot_selector_->AddChildren(whirl_action_);
+
   auto wing_bot_condition = std::make_shared<rrts::decision::PreconditionNode>("wing bot condition", blackboard_ptr_,
-                                                                               wait_action_,
+                                                                               wing_bot_selector_,
                                                                                [&]() {
                                                                                  if (robot_config.master())
                                                                                  {
