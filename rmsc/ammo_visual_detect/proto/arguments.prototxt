@@ -1,42 +1,57 @@
+   iam : "RED"
    subscribe_topic : "camera_1"
-   results_topic : "visual_pose"
-   detected_topic : "viusal_detected"
-   medianBlur_size : 3
    box_width : 100
    box_height : 100
+   enable_debug : true
+   rect_area_threshold : 2500
+   area_ratio_threshold : 0.2
 
-   thresholds {
-     data: 15
-     data: 111
-     data: 102
+   thresholds_red {
+   # day - wing
+   #  data: 38
+   #  data: 170
+   #  data: 110
+   #  data: 139
+   #  data: 129
+   #  data: 163
+
+   # day - master
+     data: 67
+     data: 180
+     data: 104
+     data: 165
      data: 135
-     data: 141
+     data: 180
+
+   }
+
+   thresholds_blue {
+     data: 11
+     data: 111
+     data: 100
+     data: 128
+     data: 136
      data: 165
    }
 
-   enable_debug : false
-
-camera:{
-  video_path: "/dev/video0"
-
-  camera_matrix {
-    data: 613.362168
-    data: 0.0
-    data: 311.279808
-    data: 0.0
-    data: 613.541245
-    data: 250.105115
-    data: 0.0
-    data: 0.0
-    data: 1.0
+   camera:{
+     camera_matrix {
+       data: 613.362168
+       data: 0.0
+       data: 311.279808
+       data: 0.0
+       data: 613.541245
+       data: 250.105115
+       data: 0.0
+       data: 0.0
+       data: 1.0
+     }
+     camera_distortion {
+       data: -0.404043
+       data: 0.184541
+       data: 0.002191
+       data: 0.000455
+       data: 0.0
+     }
   }
-
-  camera_distortion {
-    data: -0.404043
-    data: 0.184541
-    data: 0.002191
-    data: 0.000455
-    data: 0.0
-  }
-}
 

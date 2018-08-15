@@ -1,35 +1,27 @@
 syntax = "proto2";
 package mag_track;
 
-message CameraMatrix {
-  repeated double data = 1;
-}
-
-message CameraDistortion {
-  repeated double data = 1;
-}
-
-message Thresholds {
+message Array {
   repeated double data = 1;
 }
 
 message Camera {
-   required string video_path = 1;
-   required CameraMatrix camera_matrix = 2;
-   required CameraDistortion camera_distortion = 3;
+   required Array camera_matrix = 1;
+   required Array camera_distortion = 2;
 }
 
 message Arguments {
-   required string subscribe_topic = 1;
-   required string results_topic = 2;
-   required string detected_topic = 3;
-   required int32 medianBlur_size = 4;
-   required double box_width = 5;
-   required double box_height = 6;
-   required Thresholds thresholds = 7;
-   required Camera camera = 8;
+   required string iam = 1;
+   required string subscribe_topic = 2;
+   required double box_width = 3;
+   required double box_height = 4;
+   required bool enable_debug = 5;
 
-   required bool enable_debug = 9;
+   required int32 rect_area_threshold = 6;
+   required double area_ratio_threshold = 7;
+   required Camera camera = 8;
+   required Array thresholds_red = 9;
+   required Array thresholds_blue = 10;
 }
 
 
