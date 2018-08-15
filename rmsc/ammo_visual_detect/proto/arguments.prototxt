@@ -7,15 +7,20 @@
    area_ratio_threshold : 0.2
 
    thresholds_red {
-   # day - wing
-   #  data: 38
-   #  data: 170
-   #  data: 110
-   #  data: 139
-   #  data: 129
-   #  data: 163
-
-   # day - master
+    # wing
+    # data: 38
+    # data: 170
+    # data: 110
+    # data: 139
+    # data: 129
+    # data: 163
+    # master
+    # data: 67
+    # data: 180
+    # data: 104
+    # data: 165
+    # data: 143
+    # data: 180
      data: 67
      data: 180
      data: 104
@@ -26,6 +31,20 @@
    }
 
    thresholds_blue {
+    # wing
+    # data: 68
+    # data: 146
+    # data: 75
+    # data: 142
+    # data: 120
+    # data:176
+    # master
+    # data: 56
+    # data: 164
+    # data: 81
+    # data: 129
+    # data: 145
+    # data: 185
      data: 11
      data: 111
      data: 100
