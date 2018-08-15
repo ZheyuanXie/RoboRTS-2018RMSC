@@ -44,8 +44,8 @@ initial_ammo_list {
 
 wing_bot {
   start_position {
-    x: 1.25 # 7.23
-    y: 1.17 # 4.32
+    x: 1.35 # 7.23
+    y: 1.35 # 4.32
     z: 0
 
     roll:  0
@@ -56,13 +56,13 @@ wing_bot {
 
 master_bot {
   start_position {
-    x: 0.56 # 7.68
-    y: 0.56 # 4.77
+    x: 1.35 # 7.68
+    y: 1.35 # 4.77
     z: 0
 
     roll:  0
     pitch: 0
-    yaw:   0 # 3.14
+    yaw:   1.57 # 3.14
   }
 }
 
