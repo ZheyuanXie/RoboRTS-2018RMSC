@@ -82,30 +82,31 @@
   #####################
 
   red_obstacle_location {
-    # Obstacle 
+    # Obstacle 2
+    data: -2.75833
+    data: -2.80833
+    # Obstacle 3
     data: -1.69167
     data: -1.76667
-    # Obstacle 
+    # Obstacle 4
     data: -1.14167
     data: -1.13333
-    # Obstacle 
+    # Obstacle 6
     data: -1.4
     data: 0.208333
-    # Obstacle 2
-    # data: -2.75833
-    # data: -2.80833
-
-
   }
 
   blue_obstacle_location {
-     # ammobox 7 :
+     # Obstacle 2
+     data: -2.75833
+     data: -2.80833
+     # Obstacle 3
      data: 2.675
      data: -0.435
-     # ammobox 8 :
+     # Obstacle 4
      data: 100
      data: 100
-     # ammobox 9 :
+     # Obstacle 6
      data: 1.26
      data: 0.485
   }
