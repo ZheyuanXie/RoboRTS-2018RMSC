@@ -52,12 +52,13 @@ class Seer
         cv::Point2f obst_location[30];
         cv::Point2f ammobox_location[30];
        
-        int which_obst;
+        int which_obst_123;
+        int which_obst_456;
         int obst_exist[30];
         bool ammobox_known, obst_known;
         int ammobox_exist[35] = {0};
 
-        int trans[35] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 14, 13, 12, 11, 10, 7};
+        int trans[35] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 14, 13, 12, 11, 10, 7, 13, 14, 15};
         bool running_;
         bool outputOnce;
 };

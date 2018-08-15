@@ -1,5 +1,5 @@
 #2018/8/9 10:17:00 
-  iam : "BLUE"
+  iam : "RED"
 
   ammobox_dis_thres : 0.15
   obst_dis_thres : 0.22
@@ -116,64 +116,138 @@
   ####################
 
   obst4m {
+     data: 7
+     data: 5
+     data: 4
+     data: 2
+  }
+  
+  obst15m {
+     data: 23
      data: 3
+     data: 7
+     data: 5
+     data: 4
+     data: 2
+  }
+  
+  obst16m {
+     data: 23
+     data: 24
+     data: 25
+     data: 3
+     data: 5
+     data: 4
+     data: 2
+  }
+  
+  obst25m {
+     data: 23
+     data: 3
+     data: 2
+     data: 4
+     data: 5
+  }
+  
+  obst26m {
+     data: 23
+     data: 24
+     data: 25
+     data: 3
+     data: 2
+     data: 4
+     data: 5
+  }
+  
+  obst35m {
+     data: 23
+     data: 3
+     data: 22
      data: 2
      data: 4
      data: 5
   }
 
-  obst5m {
-     data: 18
+  obst36m {
+     data: 23
+     data: 24
+     data: 25
      data: 3
+     data: 22
      data: 2
      data: 4
      data: 5
   }
 
-  obst6m {
-     data: 18
-     data: 17
-     data: 16
-     data: 3
-     data: 2
-     data: 4
-     data: 5
-  }
 
   ####################
   # checklist - Wing #
   ####################
   obst4w {
-     data: 9
-     data: 15
-     data: 14
      data: 13
+     data: 14
+     data: 15
      data: 19
      data: 20
      data: 21
-     data: 7
+     data: 3
+     data: 9
   }
-
-  obst5w {
+  
+  obst15w {
      data: 15
      data: 14
-     data: 12
-     data: 11
+     data: 5
      data: 10
+     data: 11
+     data: 12
      data: 9
+  }
+  
+  obst16w {
      data: 7
      data: 5
-     data: 4
+     data: 10
+     data: 11
+     data: 12
+     data: 9
+  }
+  
+  obst25w {
+     data: 15
+     data: 14
+     data: 7
+     data: 5
+     data: 10
+     data: 11
+     data: 12
+     data: 9
+  }
+  
+  obst26w {
+     data: 7
+     data: 5
+     data: 10
+     data: 11
+     data: 12
+     data: 9
+  }
+  
+  obst35w {
+     data: 15
+     data: 14
+     data: 5
+     data: 10
+     data: 11
+     data: 12
+     data: 9
   }
 
-  obst6w {
-     data: 12
-     data: 11
-     data: 10
-     data: 9
-     data: 7
+  obst36w {
      data: 5
      data: 4
-     data: 2
-     data: 3 
+     data: 10
+     data: 11
+     data: 12
+     data: 9
   }

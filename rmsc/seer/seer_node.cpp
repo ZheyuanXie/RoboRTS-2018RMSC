@@ -201,13 +201,14 @@ void Seer::lowLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
         obst_exist[6] = 1;
         obst_exist[4] = 0;
         obst_exist[5] = 0;
-        which_obst = 6;
+        which_obst_456 = 6;
 
         if (obst_vote[3] >= obst_vote_thres)
         {
             obst_exist[3] = 1;
             obst_exist[1] = 0;
             obst_exist[2] = 0;
+            which_obst_123 = 3;
         }
         else
         {
@@ -216,12 +217,14 @@ void Seer::lowLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
                obst_exist[2] = 1;
                obst_exist[3] = 0;
                obst_exist[1] = 0;
+               which_obst_123 = 2;
             }
             else
             {
                obst_exist[1] = 1;
                obst_exist[2] = 0;
                obst_exist[3] = 0;
+               which_obst_123 = 1;
             }
         }
 
@@ -233,11 +236,12 @@ void Seer::lowLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
         obst_exist[4] = 1;
         obst_exist[5] = 0;
         obst_exist[6] = 0;
-        which_obst = 4;
+        which_obst_456 = 4;
 
         obst_exist[1] = -1;
         obst_exist[2] = -1;
         obst_exist[3] = -1;
+        which_obst_123 = 0;
         
         obst_known = true;
     }
@@ -247,13 +251,14 @@ void Seer::lowLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
         obst_exist[5] = 1;
         obst_exist[4] = 0;
         obst_exist[6] = 0;
-        which_obst = 5;
+        which_obst_456 = 5;
 
         if (obst_vote[3] >= obst_vote_thres)
         {
             obst_exist[3] = 1;
             obst_exist[1] = 0;
             obst_exist[2] = 0;
+            which_obst_123 = 3;
         }
         else
         {
@@ -262,15 +267,16 @@ void Seer::lowLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
                obst_exist[2] = 1;
                obst_exist[3] = 0;
                obst_exist[1] = 0;
+               which_obst_123 = 2;
             }
             else
             {
                obst_exist[1] = 1;
                obst_exist[2] = 0;
                obst_exist[3] = 0;
+               which_obst_123 = 1;
             }
         }
-        
         obst_known = true;
     }
 
@@ -404,18 +410,18 @@ void Seer::highLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 
 void Seer::arrange()
 {
-
-
     ammobox_exist[2] = 1;
     ammobox_exist[3] = 1;
     ammobox_exist[4] = 1;
     ammobox_exist[5] = 1;
 
     /*
+    cout << "input obstacle number: (1-3)" ;
+    cin >> which_obst_123;
     cout << "input obstacle number: (4-6)" ;
-    cin >> which_obst;
+    cin >> which_obst_456;
     obst_exist[3] = 1;
-    cout << "input ammobox number: (7-15)";
+    cout << "input ammobox number: 3 of (7-15)";
     
     for (int i = 0; i < 3; i++)
     {
@@ -435,12 +441,14 @@ void Seer::arrange()
     }
     
     cout << endl;
-    
     */
+    
     vector<int> m_cl;
     vector<int> w_cl;
 
-    switch (which_obst)
+    int obstCase = which_obst_123 * 10 + which_obst_456;
+
+    switch (obstCase)
     {
         case 4:
             for (int i = 0; i < args.obst4m().data_size(); i++)
@@ -452,38 +460,80 @@ void Seer::arrange()
                 w_cl.push_back(args.obst4w().data(i));
             }    
             break;
-        case 5:
-            for (int i = 0; i < args.obst5m().data_size(); i++)
+        case 15:
+            for (int i = 0; i < args.obst15m().data_size(); i++)
             {
-                m_cl.push_back(args.obst5m().data(i));
+                m_cl.push_back(args.obst15m().data(i));
             }
-            for (int i = 0; i < args.obst5w().data_size(); i++)
+            for (int i = 0; i < args.obst15w().data_size(); i++)
             {
-                w_cl.push_back(args.obst5w().data(i));
+                w_cl.push_back(args.obst15w().data(i));
             }    
             break;
-        case 6:
-            for (int i = 0; i < args.obst6m().data_size(); i++)
+        case 25:
+            for (int i = 0; i < args.obst25m().data_size(); i++)
             {
-                m_cl.push_back(args.obst6m().data(i));
+                m_cl.push_back(args.obst25m().data(i));
             }
-            for (int i = 0; i < args.obst6w().data_size(); i++)
+            for (int i = 0; i < args.obst25w().data_size(); i++)
             {
-                w_cl.push_back(args.obst6w().data(i));
+                w_cl.push_back(args.obst25w().data(i));
+            }    
+            break;
+        case 35:
+            for (int i = 0; i < args.obst35m().data_size(); i++)
+            {
+                m_cl.push_back(args.obst35m().data(i));
+            }
+            for (int i = 0; i < args.obst35w().data_size(); i++)
+            {
+                w_cl.push_back(args.obst35w().data(i));
+            }    
+            break;
+        case 16:
+            for (int i = 0; i < args.obst16m().data_size(); i++)
+            {
+                m_cl.push_back(args.obst16m().data(i));
+            }
+            for (int i = 0; i < args.obst16w().data_size(); i++)
+            {
+                w_cl.push_back(args.obst16w().data(i));
+            }    
+            break;
+       case 26:
+            for (int i = 0; i < args.obst26m().data_size(); i++)
+            {
+                m_cl.push_back(args.obst26m().data(i));
+            }
+            for (int i = 0; i < args.obst26w().data_size(); i++)
+            {
+                w_cl.push_back(args.obst26w().data(i));
+            }    
+            break;
+        case 36:
+            for (int i = 0; i < args.obst36m().data_size(); i++)
+            {
+                m_cl.push_back(args.obst36m().data(i));
+            }
+            for (int i = 0; i < args.obst36w().data_size(); i++)
+            {
+                w_cl.push_back(args.obst36w().data(i));
             }    
             break;
         default:
-            cout << "no obstacle in 4, 5 or 6" << endl;
+            cout << "invalid case" << endl;
     }
-
+    
+    /*
     for(int i = 0; i < w_cl.size(); i++)
         if ((w_cl[i] == 7)&&(obst_exist[3] == 1))
             w_cl[i] = 22;
+    */
 
     std::vector<int> m_goal, w_goal;
     for (int i = 0; i < m_cl.size(); i++)
     {
-        if(ammobox_exist[trans[m_cl[i]]])
+        if(ammobox_exist[trans[m_cl[i]]] == 1)
         {
             m_goal.push_back(m_cl[i]);
         }
@@ -491,7 +541,7 @@ void Seer::arrange()
     
     for (int i = 0; i < w_cl.size(); i++)
     {
-        if(ammobox_exist[trans[w_cl[i]]])
+        if(ammobox_exist[trans[w_cl[i]]] == 1)
         {
             w_goal.push_back(w_cl[i]);
         }
@@ -501,12 +551,12 @@ void Seer::arrange()
     std_msgs::Int32 obst_result;
     std_msgs::Int32MultiArray master_result, wing_result, ammobox_result;
 
-    obst_result.data = which_obst - 3;
-    if (obst_exist[3] == 1)
+    obst_result.data = which_obst_456 - 3;
+    if (which_obst_123 == 3)
        obst_result.data +=3;
-    if (obst_exist[2] == 1)
+    if (which_obst_123 == 2)
         obst_result.data +=6;
-    if (obst_exist[1] == 1)
+    if (which_obst_123 == 1)
         obst_result.data +=9;
     obstacle_pub_.publish(obst_result);
 

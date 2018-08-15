@@ -28,10 +28,18 @@ message Arguments {
    
    required Array obst4m = 16;
    required Array obst4w = 17;
-   required Array obst5m = 18;
-   required Array obst5w = 19;
-   required Array obst6m = 20;
-   required Array obst6w = 21;
+   required Array obst15m = 18;
+   required Array obst15w = 19;
+   required Array obst16m = 20;
+   required Array obst16w = 21;
+   required Array obst25m = 22;
+   required Array obst25w = 23;
+   required Array obst26m = 24;
+   required Array obst26w = 25;
+   required Array obst35m = 26;
+   required Array obst35w = 27;
+   required Array obst36m = 28;
+   required Array obst36w = 29;
 }
 
 
