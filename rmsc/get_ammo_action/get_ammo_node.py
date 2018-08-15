@@ -252,7 +252,7 @@ class GetAmmoNode(object):
                     self.state = GetAmmoStatus.IDLE
                     break
                 if self.looknmove_cnt == 1:
-                    self.gripper.SetPosition(100,200)
+                    self.gripper.SetPosition(100,150)
                 self.looknmove_cnt += 1
                 if self.looknmove_no_target > 15:
                     rospy.loginfo('GETAMMO: Visual no target')

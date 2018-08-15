@@ -103,7 +103,7 @@ MagTrack::~MagTrack()
 bool MagTrack::loadArguments() 
 {
       //string path = ros::package::getPath("ammo_visual_detect") + "/proto/arguments.prototxt";
-      string path = ros::package::getPath("roborts") + "/rmsc/mag_track/proto/arguments.prototxt";
+      string path = ros::package::getPath("roborts") + "/rmsc/ammo_visual_detect/proto/arguments.prototxt";
       std::ifstream f1(path.c_str());
       std::string input((std::istreambuf_iterator<char>(f1)), std::istreambuf_iterator<char>());
       bool success = google::protobuf::TextFormat::ParseFromString(input, &args);
