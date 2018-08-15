@@ -2,7 +2,7 @@
    subscribe_topic : "camera_1"
    box_width : 100
    box_height : 100
-   enable_debug : true
+   enable_debug : false
    rect_area_threshold : 2500
    area_ratio_threshold : 0.2
 
