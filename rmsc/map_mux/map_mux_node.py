@@ -22,6 +22,18 @@ class MapMux(object):
         self.map35_meta = MapMetaData()
         self.map36 = OccupancyGrid()
         self.map36_meta = MapMetaData()
+        self.map24 = OccupancyGrid()
+        self.map24_meta = MapMetaData()
+        self.map25 = OccupancyGrid()
+        self.map25_meta = MapMetaData()
+        self.map26 = OccupancyGrid()
+        self.map26_meta = MapMetaData()
+        self.map14 = OccupancyGrid()
+        self.map14_meta = MapMetaData()
+        self.map15 = OccupancyGrid()
+        self.map15_meta = MapMetaData()
+        self.map16 = OccupancyGrid()
+        self.map16_meta = MapMetaData()
 
         self.sub_map0 = rospy.Subscriber("/map0/map",OccupancyGrid,self.map0CB)
         self.sub_map0_meta = rospy.Subscriber("/map0/map_metadata",MapMetaData,self.mapmeta0CB)
@@ -38,6 +50,20 @@ class MapMux(object):
         self.sub_map36 = rospy.Subscriber("/map36/map",OccupancyGrid,self.map36CB)
         self.sub_map36_meta = rospy.Subscriber("/map36/map_metadata",MapMetaData,self.mapmeta36CB)
         
+        self.sub_map24 = rospy.Subscriber("/map24/map",OccupancyGrid,self.map24CB)
+        self.sub_map24_meta = rospy.Subscriber("/map24/map_metadata",MapMetaData,self.mapmeta24CB)
+        self.sub_map25 = rospy.Subscriber("/map25/map",OccupancyGrid,self.map25CB)
+        self.sub_map25_meta = rospy.Subscriber("/map25/map_metadata",MapMetaData,self.mapmeta25CB)
+        self.sub_map26 = rospy.Subscriber("/map26/map",OccupancyGrid,self.map26CB)
+        self.sub_map26_meta = rospy.Subscriber("/map26/map_metadata",MapMetaData,self.mapmeta26CB)
+        
+        self.sub_map14 = rospy.Subscriber("/map14/map",OccupancyGrid,self.map14CB)
+        self.sub_map14_meta = rospy.Subscriber("/map14/map_metadata",MapMetaData,self.mapmeta14CB)
+        self.sub_map15 = rospy.Subscriber("/map15/map",OccupancyGrid,self.map15CB)
+        self.sub_map15_meta = rospy.Subscriber("/map15/map_metadata",MapMetaData,self.mapmeta15CB)
+        self.sub_map16 = rospy.Subscriber("/map16/map",OccupancyGrid,self.map16CB)
+        self.sub_map16_meta = rospy.Subscriber("/map16/map_metadata",MapMetaData,self.mapmeta16CB)
+
         self.pub_map = rospy.Publisher("map",OccupancyGrid,queue_size=1,latch=True)
         self.pub_map_meta = rospy.Publisher("map_metadata",MapMetaData,queue_size=1,latch=True)
         self._as = SimpleActionServer("map_mux_node_action", MapMuxAction, self.ExecuteCB, auto_start=False)
@@ -66,6 +92,24 @@ class MapMux(object):
         elif map_index == 6:
             self.pub_map.publish(self.map36)
             self.pub_map_meta.publish(self.map36_meta)
+        elif map_index == 7:
+            self.pub_map.publish(self.map24)
+            self.pub_map_meta.publish(self.map24_meta)
+        elif map_index == 8:
+            self.pub_map.publish(self.map25)
+            self.pub_map_meta.publish(self.map25_meta)
+        elif map_index == 9:
+            self.pub_map.publish(self.map26)
+            self.pub_map_meta.publish(self.map26_meta)
+        elif map_index == 10:
+            self.pub_map.publish(self.map14)
+            self.pub_map_meta.publish(self.map14_meta)
+        elif map_index == 11:
+            self.pub_map.publish(self.map15)
+            self.pub_map_meta.publish(self.map15_meta)
+        elif map_index == 12:
+            self.pub_map.publish(self.map16)
+            self.pub_map_meta.publish(self.map16_meta)
         self._as.set_succeeded()
     
     def map0CB(self,data):
@@ -95,6 +139,30 @@ class MapMux(object):
     def map36CB(self,data):
         print 'MAP36 RCV',len(data.data)
         self.map36 = data
+
+    def map24CB(self,data):
+        print 'MAP24 RCV',len(data.data)
+        self.map24 = data
+    
+    def map25CB(self,data):
+        print 'MAP25 RCV',len(data.data)
+        self.map25 = data
+    
+    def map26CB(self,data):
+        print 'MAP26 RCV',len(data.data)
+        self.map26 = data
+
+    def map14CB(self,data):
+        print 'MAP14 RCV',len(data.data)
+        self.map14 = data
+    
+    def map15CB(self,data):
+        print 'MAP15 RCV',len(data.data)
+        self.map15 = data
+    
+    def map16CB(self,data):
+        print 'MAP16 RCV',len(data.data)
+        self.map16 = data
     
     def mapmeta0CB(self,data):
         self.map0_meta = data
@@ -116,6 +184,24 @@ class MapMux(object):
     
     def mapmeta36CB(self,data):
         self.map36_meta = data
+
+    def mapmeta24CB(self,data):
+        self.map24_meta = data
+    
+    def mapmeta25CB(self,data):
+        self.map25_meta = data
+    
+    def mapmeta26CB(self,data):
+        self.map26_meta = data
+
+    def mapmeta14CB(self,data):
+        self.map14_meta = data
+    
+    def mapmeta15CB(self,data):
+        self.map15_meta = data
+    
+    def mapmeta16CB(self,data):
+        self.map16_meta = data
 
 if __name__ == "__main__":
     rospy.init_node("map_mux_node")
