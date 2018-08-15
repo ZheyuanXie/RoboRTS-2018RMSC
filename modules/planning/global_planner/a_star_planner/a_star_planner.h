@@ -112,6 +112,8 @@ class AStarPlanner : public GlobalPlannerBase {
   //! inaccessible_cost
   unsigned int inaccessible_cost_;
   //! goal_search_tolerance
+  unsigned int start_search_tolerance_;
+  //! goal_search_tolerance
   unsigned int goal_search_tolerance_;
   //! gridmap height size
   unsigned int gridmap_height_;

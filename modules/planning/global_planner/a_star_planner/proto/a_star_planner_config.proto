@@ -5,4 +5,5 @@ message AStarPlannerConfig {
     optional uint32 inaccessible_cost = 1 [default = 253];
     optional float heuristic_factor = 2 [default = 1.0];
     optional float goal_search_tolerance = 3 [default = 0.25];
+    optional float start_search_tolerance = 4 [default = 0.1];
 }

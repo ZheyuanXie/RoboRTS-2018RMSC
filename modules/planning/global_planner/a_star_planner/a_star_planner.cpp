@@ -39,6 +39,7 @@ AStarPlanner::AStarPlanner(CostmapPtr costmap_ptr) :
   heuristic_factor_ = a_star_planner_config.heuristic_factor();
   inaccessible_cost_ = a_star_planner_config.inaccessible_cost();
   goal_search_tolerance_ = a_star_planner_config.goal_search_tolerance()/costmap_ptr->GetCostMap()->GetResolution();
+  start_search_tolerance_ = a_star_planner_config.start_search_tolerance()/costmap_ptr->GetCostMap()->GetResolution();
 }
 
 AStarPlanner::~AStarPlanner(){
@@ -49,7 +50,7 @@ ErrorInfo AStarPlanner::Plan(const geometry_msgs::PoseStamped &start,
                              const geometry_msgs::PoseStamped &goal,
                              std::vector<geometry_msgs::PoseStamped> &path) {
 
-  unsigned int start_x, start_y, goal_x, goal_y, tmp_goal_x, tmp_goal_y;
+  unsigned int start_x, start_y, goal_x, goal_y, tmp_goal_x, tmp_goal_y, tmp_start_x, tmp_start_y;
   unsigned int valid_goal[2];
   unsigned  int shortest_dist = std::numeric_limits<unsigned int>::max();
   bool goal_valid = false;
@@ -70,14 +71,33 @@ ErrorInfo AStarPlanner::Plan(const geometry_msgs::PoseStamped &start,
     return ErrorInfo(ErrorCode::GP_POSE_TRANSFORM_ERROR,
                      "Goal pose can't be transformed to costmap frame.");
   }
+
+  if (costmap_ptr_->GetCostMap()->GetCost(start_x,start_y) >= inaccessible_cost_){
+
+    tmp_start_x = start_x;
+    tmp_start_y = start_y - start_search_tolerance_;
+
+    while(tmp_start_y <= start_y + start_search_tolerance_){
+      tmp_start_x = start_x - start_search_tolerance_;
+      while(tmp_start_x <= start_x + start_search_tolerance_){
+        unsigned char cost = costmap_ptr_->GetCostMap()->GetCost(tmp_goal_x, tmp_goal_y);
+        if (cost >=inaccessible_cost_ ) {
+          costmap_ptr_->GetCostMap()->SetCost(tmp_start_x, tmp_start_y,rrts::perception::map::FREE_SPACE);
+        }
+        tmp_start_x += 1;
+      }
+      tmp_start_y += 1;
+    }
+  }
+
   if (costmap_ptr_->GetCostMap()->GetCost(goal_x,goal_y)<inaccessible_cost_){
    valid_goal[0] = goal_x;
    valid_goal[1] = goal_y;
-   goal_valid = true; 
+   goal_valid = true;
   }else{
   tmp_goal_x = goal_x;
   tmp_goal_y = goal_y - goal_search_tolerance_;
-  
+
   while(tmp_goal_y <= goal_y + goal_search_tolerance_){
     tmp_goal_x = goal_x - goal_search_tolerance_;
     while(tmp_goal_x <= goal_x + goal_search_tolerance_){
@@ -94,6 +114,7 @@ ErrorInfo AStarPlanner::Plan(const geometry_msgs::PoseStamped &start,
     tmp_goal_y += 1;
   }
   }
+
   ErrorInfo error_info;
   if (!goal_valid){
     error_info=ErrorInfo(ErrorCode::GP_GOAL_INVALID_ERROR);
@@ -104,7 +125,6 @@ ErrorInfo AStarPlanner::Plan(const geometry_msgs::PoseStamped &start,
     start_index = costmap_ptr_->GetCostMap()->GetIndex(start_x, start_y);
     goal_index = costmap_ptr_->GetCostMap()->GetIndex(valid_goal[0], valid_goal[1]);
 
-    costmap_ptr_->GetCostMap()->SetCost(start_x, start_y,rrts::perception::map::FREE_SPACE);
 
     if(start_index == goal_index){
       error_info=ErrorInfo::OK();
