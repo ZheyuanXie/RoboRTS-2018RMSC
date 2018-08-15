@@ -1,9 +1,15 @@
 <launch>
-  <group ns="map0"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map0.yaml" respawn="false" /></group>
-  <group ns="map4"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map4.yaml" respawn="false" /></group>
-  <group ns="map5"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map5.yaml" respawn="false" /></group>
-  <group ns="map6"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map6.yaml" respawn="false" /></group>
-  <group ns="map34"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map34.yaml" respawn="false" /></group>
-  <group ns="map35"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map35.yaml" respawn="false" /></group>
-  <group ns="map36"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/map36.yaml" respawn="false" /></group>
+  <group ns="map0"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/icra.yaml" respawn="false" /></group>
+  <group ns="map4"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/4.yaml" respawn="false" /></group>
+  <group ns="map5"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/5.yaml" respawn="false" /></group>
+  <group ns="map6"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/6.yaml" respawn="false" /></group>
+  <group ns="map34"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/34.yaml" respawn="false" /></group>
+  <group ns="map35"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/35.yaml" respawn="false" /></group>
+  <group ns="map36"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/36.yaml" respawn="false" /></group>
+  <group ns="map24"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/24.yaml" respawn="false" /></group>
+  <group ns="map25"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/25.yaml" respawn="false" /></group>
+  <group ns="map26"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/26.yaml" respawn="false" /></group>
+  <group ns="map14"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/14.yaml" respawn="false" /></group>
+  <group ns="map15"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/15.yaml" respawn="false" /></group>
+  <group ns="map16"><node name="map_server" pkg="map_server" type="map_server" args="$(find roborts)/rmsc/map_mux/maps/16.yaml" respawn="false" /></group>
 </launch>

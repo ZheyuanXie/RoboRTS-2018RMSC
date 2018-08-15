@@ -1,4 +1,4 @@
-   iam : "BLUE"
+   iam : "RED"
    subscribe_topic : "camera_1"
    box_width : 100
    box_height : 100
@@ -8,36 +8,36 @@
 
    thresholds_red {
     # wing
-    data: 38
-    data: 170
-    data: 110
-    data: 139
-    data: 129
-    data: 163
+    # data: 38
+    # data: 170
+    # data: 110
+    # data: 139
+    # data: 129
+    # data: 163
     # master
-    # data: 67
-    # data: 180
-    # data: 104
-    # data: 165
-    # data: 143
-    # data: 180
+    data: 67
+    data: 180
+    data: 104
+    data: 165
+    data: 143
+    data: 180
    }
 
    thresholds_blue {
     # wing
-    data: 68
-    data: 146
-    data: 75
-    data: 142
-    data: 120
-    data:176
+    # data: 68
+    # data: 146
+    # data: 75
+    # data: 142
+    # data: 120
+    # data: ss176
     # master
-    # data: 56
-    # data: 164
-    # data: 81
-    # data: 129
-    # data: 145
-    # data: 185
+    data: 56
+    data: 164
+    data: 81
+    data: 129
+    data: 145
+    data: 185
    }
 
    camera:{

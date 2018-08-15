@@ -1,4 +1,4 @@
-   iam : "BLUE"
+   iam : "RED"
    subscribe_topic : "camera_1"
    box_width : 100
    box_height : 100

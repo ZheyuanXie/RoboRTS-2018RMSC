@@ -28,6 +28,25 @@
       <param name="inverted" type="bool" value="false"/>
       <param name="angle_compensate" type="bool" value="true"/>
   </node>
+
+  <node pkg="uvc_camera" type="uvc_camera_node" name="uvc_camera" output="screen">
+    <param name="width" type="int" value="800" />
+    <param name="height" type="int" value="600" />
+    <param name="fps" type="int" value="15" />
+    <param name="frame" type="string" value="uvc_camera" />
+
+    <param name="auto_focus" type="bool" value="false" />
+    <param name="focus_absolute" type="int" value="0" />
+    <param name="auto_exposure" type="bool" value="false" />
+    <param name="exposure_absolute" type="int" value="800" />
+    <param name="auto_white_balance" type="bool" value="false" />
+    <param name="white_balance_temperature" type="int" value="3500" />
+
+
+    <param name="device" type="string" value="/dev/video0" />
+    <param name="camera_info_url" type="string" value="file://$(find uvc_camera)/example.yaml" />
+    <remap from="image_raw" to="camera_1"/>
+  </node>
     
   <node pkg="roborts" type="serial_com_node" name="serial_com_node" respawn="false" />
   <node pkg="roborts" type="camera_node" name="camera_node" respawn="false" />

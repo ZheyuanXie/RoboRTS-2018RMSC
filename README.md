@@ -20,3 +20,6 @@ The code is developed based on the official RoboRTS package.
  - 颜色检测....................配置为敌方颜色
  - 装甲板检测................配置为敌方颜色
  - 障碍块扫描................配置为我方启动区
+
+## Network Infrastructure
+<img src="docs/images/rmsc4_network.png" style="zoom:80%;display: inline-block; float:middle"/>

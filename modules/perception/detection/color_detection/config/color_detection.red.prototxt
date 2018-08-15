@@ -1,5 +1,5 @@
 #0: blue, 1: red
-enemy_color: 1
+enemy_color: 0
 using_hsv: false
 enable_debug: false
 threshold: 80

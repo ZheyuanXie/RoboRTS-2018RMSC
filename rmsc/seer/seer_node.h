@@ -53,7 +53,7 @@ class Seer
         cv::Point2f ammobox_location[30];
        
         int which_obst;
-        int obst_exist[15];
+        int obst_exist[30];
         bool ammobox_known, obst_known;
         int ammobox_exist[35] = {0};
 

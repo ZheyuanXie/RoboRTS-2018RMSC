@@ -73,9 +73,10 @@ Seer::Seer():as_(nh_, "seer_action", boost::bind(&Seer::ActionCB, this, _1), fal
 
     if (args.iam() == "RED")
     {
-        obst_location[3] = cv::Point2f(args.red_obstacle_location().data(0), args.red_obstacle_location().data(1));
-        obst_location[4] = cv::Point2f(args.red_obstacle_location().data(2), args.red_obstacle_location().data(3));
-        obst_location[6] = cv::Point2f(args.red_obstacle_location().data(4), args.red_obstacle_location().data(5));
+        obst_location[2] = cv::Point2f(args.red_obstacle_location().data(0), args.red_obstacle_location().data(1));
+        obst_location[3] = cv::Point2f(args.red_obstacle_location().data(2), args.red_obstacle_location().data(3));
+        obst_location[4] = cv::Point2f(args.red_obstacle_location().data(4), args.red_obstacle_location().data(5));
+        obst_location[6] = cv::Point2f(args.red_obstacle_location().data(6), args.red_obstacle_location().data(7));
         
         ammobox_location[7] = cv::Point2f(args.red_ammobox_location().data(0), args.red_ammobox_location().data(1));
         ammobox_location[8] = cv::Point2f(args.red_ammobox_location().data(2), args.red_ammobox_location().data(3));
@@ -90,9 +91,10 @@ Seer::Seer():as_(nh_, "seer_action", boost::bind(&Seer::ActionCB, this, _1), fal
     
     if (args.iam() == "BLUE")
     {
-        obst_location[3] = cv::Point2f(args.blue_obstacle_location().data(0), args.blue_obstacle_location().data(1));
-        obst_location[4] = cv::Point2f(args.blue_obstacle_location().data(2), args.blue_obstacle_location().data(3));
-        obst_location[6] = cv::Point2f(args.blue_obstacle_location().data(4), args.blue_obstacle_location().data(5));
+        obst_location[2] = cv::Point2f(args.blue_obstacle_location().data(0), args.blue_obstacle_location().data(1));
+        obst_location[3] = cv::Point2f(args.blue_obstacle_location().data(2), args.blue_obstacle_location().data(3));
+        obst_location[4] = cv::Point2f(args.blue_obstacle_location().data(4), args.blue_obstacle_location().data(5));
+        obst_location[6] = cv::Point2f(args.blue_obstacle_location().data(6), args.blue_obstacle_location().data(7));
         
         ammobox_location[7] = cv::Point2f(args.blue_ammobox_location().data(0), args.blue_ammobox_location().data(1));
         ammobox_location[8] = cv::Point2f(args.blue_ammobox_location().data(2), args.blue_ammobox_location().data(3));
@@ -114,7 +116,6 @@ Seer::Seer():as_(nh_, "seer_action", boost::bind(&Seer::ActionCB, this, _1), fal
     }
 
     cout << "waiting for lider data ..." << endl;
-
     as_.start();
 }
 
@@ -173,6 +174,7 @@ void Seer::lowLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
     }
 
     vector<int> cl; // = checklist;
+    cl.push_back(2);
     cl.push_back(3);
     cl.push_back(4);
     cl.push_back(6);
@@ -209,9 +211,18 @@ void Seer::lowLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
         }
         else
         {
-            obst_exist[3] = 0;
-            obst_exist[1] = -1;
-            obst_exist[2] = -1;
+            if (obst_vote[2] >= obst_vote_thres)
+            {
+               obst_exist[2] = 1;
+               obst_exist[3] = 0;
+               obst_exist[1] = 0;
+            }
+            else
+            {
+               obst_exist[1] = 1;
+               obst_exist[2] = 0;
+               obst_exist[3] = 0;
+            }
         }
 
         obst_known = true;
@@ -246,9 +257,18 @@ void Seer::lowLidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
         }
         else
         {
-            obst_exist[3] = 0;
-            obst_exist[1] = -1;
-            obst_exist[2] = -1;
+            if (obst_vote[2] >= obst_vote_thres)
+            {
+               obst_exist[2] = 1;
+               obst_exist[3] = 0;
+               obst_exist[1] = 0;
+            }
+            else
+            {
+               obst_exist[1] = 1;
+               obst_exist[2] = 0;
+               obst_exist[3] = 0;
+            }
         }
         
         obst_known = true;
@@ -484,6 +504,10 @@ void Seer::arrange()
     obst_result.data = which_obst - 3;
     if (obst_exist[3] == 1)
        obst_result.data +=3;
+    if (obst_exist[2] == 1)
+        obst_result.data +=6;
+    if (obst_exist[1] == 1)
+        obst_result.data +=9;
     obstacle_pub_.publish(obst_result);
 
     for (int i = 0; i < m_goal.size(); i++)
