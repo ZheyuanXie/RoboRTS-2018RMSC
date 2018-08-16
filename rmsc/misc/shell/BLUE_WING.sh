@@ -5,7 +5,7 @@ cp /home/dji/catkin_ws/src/rmsc4/rmsc/seer/proto/arguments.blue.prototxt /home/d
 cp /home/dji/catkin_ws/src/rmsc4/rmsc/decision_v1/config/decision.wing.prototxt /home/dji/catkin_ws/src/rmsc4/rmsc/decision_v1/config/decision.prototxt
 
 # Armor Detection Node
-cp /home/dji/catkin_ws/src/rmsc4/modules/perception/detection/armor_detection/constraint_set/config/constraint_set.blue.prototxt /home/dji/catkin_ws/src/rmsc4/modules/perception/detection/armor_detection/constraint_set/config/constraint_set.prototxt
+cp /home/dji/catkin_ws/src/rmsc4/modules/perception/detection/armor_detection/constraint_set/config/constraint_set.blue.wing.prototxt /home/dji/catkin_ws/src/rmsc4/modules/perception/detection/armor_detection/constraint_set/config/constraint_set.prototxt
 
 # Color Detection Node
 cp /home/dji/catkin_ws/src/rmsc4/modules/perception/detection/color_detection/config/color_detection.blue.prototxt /home/dji/catkin_ws/src/rmsc4/modules/perception/detection/color_detection/config/color_detection.prototxt
