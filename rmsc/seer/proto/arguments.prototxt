@@ -1,5 +1,5 @@
 #2018/8/9 10:17:00 
-  iam : "RED"
+  iam : "BLUE"
 
   ammobox_dis_thres : 0.15
   obst_dis_thres : 0.22
@@ -18,63 +18,65 @@
   # ammobox_location #
   ####################
   red_ammobox_location {
-    # Ammobox
+    # Ammobox 7
     data: 1.21667
     data: 2.61667
-    # Ammobox
-    data: -1.56667
-    data: 2.4
-    # Ammobox
+    # Ammobox 8
+    data: 100
+    data: 100
+    # Ammobox 9
     data: 0.166667
     data: 1.175
-    # Ammobox
+    # Ammobox 10
     data: 1.55833
     data: 1.46667
-    # Ammobox
+    # Ammobox 11
     data: 1.575
     data: 1
-    # Ammobox
+    # Ammobox 12
     data: 1.575
     data: 0.5
-    # Ammobox
+    # Ammobox 13
     data: 2.76667
     data: 0.433333
-    # Ammobox
+    # Ammobox 14
     data: 2.74167
     data: -0.108333
-    # Ammobox
+    # Ammobox 15
     data: 2.7
     data: -0.55
   }
 
   blue_ammobox_location {
-     # ammobox 7 :
-     data: 2.675
-     data: -0.435
-     # ammobox 8 :
-     data: 100
-     data: 100
-     # ammobox 9 :
-     data: 1.26
-     data: 0.485
-     # ammobox 10 :
-     data: 1.565
-     data: -0.81
-     # ammobox 11 :
-     data: 1.105
-     data: -0.83
-     # ammobox 12 :
-     data: 0.605
-     data: -0.835
-     # ammobox 13 :
-     data: 0.625
-     data: -2.05
-     # ammobox 14 :
-     data: 0.075
-     data: -2.095
-     # ammobox 15 :
-     data: -0.415
-     data: -2.09
+    # Ammobox 7
+    data: 0.775
+    data: 2.825
+    # Ammobox 8
+    data: 100
+    data: 100
+    # Ammobox 9
+    data: -0.075
+    data: 1.23333
+    # Ammobox 10
+    data: 1.19167
+    data: 1.7
+    # Ammobox 11
+    data: 1.26667
+    data: 1.23333
+    # Ammobox 12
+    data: 1.33333
+    data: 0.783333
+    # Ammobox 13
+    data: 2.55
+    data: 0.925
+    # Ammobox 14
+    data: 2.6
+    data: 0.408333
+    # Ammobox 15
+    data: 2.675
+    data: -0.108333
+
+
   }
 
   #####################
@@ -89,29 +91,31 @@
     data: -1.69167
     data: -1.76667
     # Obstacle 4
-    data: -1.14167
-    data: -1.13333
+    data: -1.10833
+    data: -1.10833
     # Obstacle 6
     data: -1.4
     data: 0.208333
   }
 
   blue_obstacle_location {
-     # Obstacle 2
-     data: -2.75833
-     data: -2.80833
-     # Obstacle 3
-     data: 2.675
-     data: -0.435
-     # Obstacle 4
-     data: 100
-     data: 100
-     # Obstacle 6
-     data: 1.26
-     data: 0.485
+    # Obstacle 2
+    data: -2.1
+    data: -3.21667
+    # Obstacle 3
+    data: -1.28333
+    data: -1.99167
+    # Obstacle 4
+    data: -0.533333
+    data: -1.33333
+    # Obstacle 6
+    data: -1.35
+    data: -0.0166667
+
+
   }
 
-  ####################
+####################
   #checklist - Master#
   ####################
 
@@ -187,10 +191,10 @@
      data: 13
      data: 14
      data: 15
-     data: 19
-     data: 20
-     data: 21
      data: 3
+     data: 21
+     data: 20
+     data: 19
      data: 9
   }
   
@@ -251,3 +255,4 @@
      data: 12
      data: 9
   }
+
