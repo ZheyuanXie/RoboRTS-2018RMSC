@@ -385,6 +385,11 @@ class GetAmmoNode(object):
                     rospy.logerr('GETAMMO: Gripper done.')
                     self.withdraw_cnt = 0
                     self.state = GetAmmoStatus.WITHDRAW
+                # TIMEOUT!
+                if self.touch_cnt > 200:
+                    self._as.set_aborted()
+                    self.state = GetAmmoStatus.IDLE
+                    break
 
             elif self.state == GetAmmoStatus.WITHDRAW:
                 self.SendCmdVel(WITHDRAW_VX,0.,0.)
