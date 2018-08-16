@@ -2,6 +2,7 @@
 import rospy
 import tf
 import numpy as np
+from threading import Thread
 from rmsc_messages.msg import AggressiveGainBuffAction, AggressiveGainBuffInfo
 from rmsc_messages.msg import NavToAction, NavToActionGoal, NavToActionResult
 from rmsc_messages.msg import LookAndMoveAction, LookAndMoveActionGoal, LookAndMoveActionResult
@@ -53,7 +54,6 @@ class AggressiveGainBuffNode(object):
     def __init__(self, name="aggressive_gain_buff_action"):
         self.action_name = name
         self._as = SimpleActionServer(self.action_name, AggressiveGainBuffAction, execute_cb=self.ExecuteCB, auto_start=False)
-        self._as.start()
         
         self.gain_buff_state = GainBuffState.ROUTE
 
@@ -76,6 +76,10 @@ class AggressiveGainBuffNode(object):
         rospy.loginfo('GAIN_BUFF: Look and Move sever connected!') if ret else rospy.logerr('error: Look and Move server not started!')
         self.Look_n_move_error_code = -1
 
+        self.thread_ = Thread(target=self.Loop)
+        self.thread_.start()
+        self._as.start()
+
     
     def ExecuteCB(self, goal):      
         print 'GAIN_BUFF:Aggressive gain buff goal recieved!'
@@ -87,6 +91,7 @@ class AggressiveGainBuffNode(object):
                 print 'GAIN_BUFF:PREEMPT REQ'
                 self.SetChassisMode(CHASSIS_MODE.AUTO_SEPARATE_GIMBAL)
                 self._ac_navto.cancel_all_goals()
+                self._ac_look_n_move.cancel_all_goals()
                 self._as.set_preempted()
                 return
             if self.gain_buff_state == GainBuffState.ROUTE:
@@ -149,6 +154,17 @@ class AggressiveGainBuffNode(object):
                 self._as.set_aborted()
                 self.SetChassisMode(CHASSIS_MODE.AUTO_SEPARATE_GIMBAL)
                 return
+
+    def Loop(self):
+        rate = rospy.Rate(10)
+        while not rospy.is_shutdown():
+            if self._as.is_preempt_requested():
+                self._ac_look_n_move.cancel_all_goals()
+                self._ac_navto.cancel_all_goals()
+            try:
+                rate.sleep()
+            except:
+                rospy.loginfo('GAIN_BUFF: exiting')
 
     # Set chassis mode to use odom navigation
     def SetChassisMode(self, chassis_mode):

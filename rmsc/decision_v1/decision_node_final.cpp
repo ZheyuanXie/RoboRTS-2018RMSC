@@ -187,7 +187,7 @@ int main(int argc, char **argv)
   auto master_no_bullet_condition = std::make_shared<rrts::decision::PreconditionNode>("master no bullet condition",
                                                                                         blackboard_ptr_, master_no_bullet_selector_,
                                                                                         [&]() {
-                                                                                          if (blackboard_ptr_->GetNoBullet() || (blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo()))
+                                                                                          if (blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo())//blackboard_ptr_->GetNoBullet() || 
                                                                                           {
                                                                                             return true;
                                                                                           }
@@ -205,7 +205,7 @@ int main(int argc, char **argv)
   offensive_selector_->AddChildren(offensive_under_attack_condition_);
   // offensive_selector_->AddChildren(offensive_detected_condition_);
   offensive_selector_->AddChildren(master_receive_condition);
-  offensive_selector_->AddChildren(search_action_);
+  // offensive_selector_->AddChildren(search_action_);
   offensive_selector_->AddChildren(master_acquire_ammo_condition);
   offensive_selector_->AddChildren(patrol_action_);
 
@@ -225,7 +225,7 @@ int main(int argc, char **argv)
                                                                             rrts::decision::AbortType::LOW_PRIORITY);
                                                                             
   auto plan_buff_selector_ = std::make_shared<rrts::decision::SelectorNode>("plan buff selector", blackboard_ptr_);
-  plan_buff_selector_->AddChildren(agb_not_issued_condition_);
+  // plan_buff_selector_->AddChildren(agb_not_issued_condition_);
   plan_buff_selector_->AddChildren(gain_buff_action_);
 
   auto rfid_condition_ = std::make_shared<rrts::decision::PreconditionNode>("rfid condition", blackboard_ptr_,
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
                                                                                        return false;
                                                                                      }
                                                                                    },
-                                                                                   rrts::decision::AbortType::BOTH);
+                                                                                   rrts::decision::AbortType::LOW_PRIORITY);
 
   auto game_start_selector_ = std::make_shared<rrts::decision::SelectorNode>("game_start_selector", blackboard_ptr_);
   game_start_selector_->AddChildren(obtain_buff_condition_);
@@ -434,7 +434,7 @@ int main(int argc, char **argv)
   auto wing_no_bullet_condition = std::make_shared<rrts::decision::PreconditionNode>("wing no bullet condition",
                                                                                         blackboard_ptr_, wing_no_bullet_selector_,
                                                                                         [&]() {
-                                                                                          if (blackboard_ptr_->GetNoBullet() || (blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo()))
+                                                                                          if (blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo())
                                                                                           {
                                                                                             return true;
                                                                                           }
