@@ -1,5 +1,6 @@
 #include "mag_track_node.h"
 #include <ros/package.h>
+#include <thread>
 
 using namespace std;
 using namespace cv;
@@ -15,13 +16,14 @@ MagTrack::MagTrack():it_(nh_)//,
 {
     loadArguments();
     Init();
-    sub_ = it_.subscribe(sub_topic, 1, &MagTrack::receiveCallback, this);
+    //sub_ = it_.subscribe(sub_topic, 1, &MagTrack::receiveCallback, this);
     resultsPub_ = nh_.advertise<geometry_msgs::PoseStamped>("visual_pose", 1);
    
     //as_.start();
 
     //std::cerr << "waiting for goal!" << endl;
     running_ = true;
+    executeThread = std::thread(&MagTrack::ExecuteLoop, this);
     
 }
 
@@ -44,6 +46,62 @@ void MagTrack::ActionCB(const MagTrackGoal::ConstPtr &data)
     }
 }
 */
+MagTrack::~MagTrack()
+{
+  running_ = false;
+  if (executeThread.joinable()) {
+    executeThread.join();
+  }
+}
+
+void MagTrack::ExecuteLoop()
+{
+    while (running_)
+    {
+        usleep(5);
+        cv::Mat originImg;
+        cv_toolbox_.NextImage(originImg, 1);
+        if (!originImg.empty())
+        {
+        cv::undistort(originImg, srcImg, camera_matrix, dist_coeffs);
+
+        if(enable_debug_)
+        {
+          visImg = srcImg.clone();
+           cv::imshow("thresImg", srcImg);
+           cv::createTrackbar("chn1_low", "thresImg", &params[0], 255);
+           cv::createTrackbar("chn1_high", "thresImg", &params[1], 255);
+           cv::createTrackbar("chn2_low", "thresImg", &params[2], 255);
+           cv::createTrackbar("chn2_high", "thresImg", &params[3], 255);
+           cv::createTrackbar("chn3_low", "thresImg", &params[4], 255);
+           cv::createTrackbar("chn3_high", "thresImg", &params[5], 255);
+        }
+    
+        cv::Mat processedImg;
+        Preprocessing(srcImg, processedImg);
+
+        cv::Mat edgeImg;
+        EdgeDetection(processedImg, edgeImg);
+
+        vector<Point2f> contour;
+        cv::Vec3d magRvec, magTvec;
+        FindContour(edgeImg, contour);
+        if(CalcTransform(contour, magRvec, magTvec))
+            Publish(true, magRvec, magTvec);
+        else
+           Publish(false, magRvec, magTvec);
+
+        if(enable_debug_)
+        {
+           cv::imshow("visImg", visImg);
+           cv::waitKey(5);
+           std::cout << "----------" << endl;
+        }
+        else
+          cout << "wait for images!" << endl;
+        }
+    }
+}
 
 void MagTrack::Init()
 {
@@ -95,10 +153,6 @@ void MagTrack::Init()
     area_ratio_threshold = args.area_ratio_threshold();
 }
 
-
-MagTrack::~MagTrack()
-{
-}
 
 bool MagTrack::loadArguments() 
 {

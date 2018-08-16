@@ -22,6 +22,8 @@
 #include "arguments.pb.h"
 #include <google/protobuf/text_format.h>
 
+#include "modules/perception/detection/util/cv_toolbox.h"
+
 using namespace std;
 using namespace cv;
 using namespace mag_track;
@@ -31,7 +33,7 @@ class MagTrack
 public:
   MagTrack();
   ~MagTrack();
-
+  void ExecuteLoop();
   void receiveCallback(const sensor_msgs::ImageConstPtr& msg);
   void Preprocessing(const Mat src, cv::Mat &dst);
   void EdgeDetection(Mat &edgeImg, cv::Mat &dst);
@@ -65,6 +67,9 @@ private:
   cv::Mat visImg;
   cv::Mat grayImg;
   std::vector<cv::Point3f> modelPoints;
+
+  rrts::perception::detection::CVToolbox cv_toolbox_;
+  std::thread executeThread;
   
   int params[10];  
 
