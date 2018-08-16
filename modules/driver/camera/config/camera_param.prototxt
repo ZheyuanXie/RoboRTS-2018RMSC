@@ -31,7 +31,7 @@ camera: {
     height: 500
 
     width_offset: 0
-    height_offset: 524
+    height_offset: 480
   }
 
   fps: 80

@@ -30,8 +30,8 @@ armor_size {
 gimbal_offset_z:  130
 camera_and_armor_diff: 0.25
 optical_axis_offset: 200000 
-yaw_offset: 0.00
-pitch_offset: -0.08
+yaw_offset: 0.02
+pitch_offset: -0.09
 bullet_speed: 15
 
 init_camera_id: 0

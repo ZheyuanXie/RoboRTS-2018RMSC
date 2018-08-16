@@ -374,7 +374,7 @@ void ConstraintSet::CalcControlInfo(const ArmorInfo & armor,
   std::vector<cv::Point2f> armor_vectex;
   for (int j=0; j < armor.vertex.size(); j++)
   {
-      armor_vectex.push_back(cv::Point(armor.vertex[j].x, armor.vertex[j].y + 524));
+      armor_vectex.push_back(cv::Point(armor.vertex[j].x, armor.vertex[j].y + 480));
   }
   std::cout << "x: " << armor.vertex[0].x << "y: " << armor.vertex[0].y << std::endl;
   cv::solvePnP(armor_points_,
@@ -408,6 +408,13 @@ void ConstraintSet::CalcControlInfo(const ArmorInfo & armor,
   
   distance = sqrt(tvec.at<double>(0)*tvec.at<double>(0) + tvec.at<double>(2)*tvec.at<double>(2))/1000.;
   
+  if (distance < 1.5)
+      bullet_speed = 10;
+  if ((distance >=1.5) && (distance < 2.5))
+      bullet_speed = 15;
+  if ((distance >=2.5))
+      bullet_speed = 20;
+          
   std::cout << "tvec" << tvec << std::endl;
   double fly_time = distance / bullet_speed;
   std::cout << "fly_time: " << fly_time << std::endl;
