@@ -352,7 +352,7 @@ class GoalFactory {
 
 
       }
-      // SendGoalTask(wing_bot_goal);  0808
+      SendGoalTask(wing_bot_goal);  // comment on 0808, uncomment on 0816
       //SendGoal(blackboard_ptr_->GetEnemy());
 
 
