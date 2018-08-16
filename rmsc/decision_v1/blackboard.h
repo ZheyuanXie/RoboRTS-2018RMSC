@@ -265,6 +265,11 @@ class Blackboard {
   // Game Info
   void GameInfoCallback(const messages::GameInfo::ConstPtr & game_info){
     game_process_ = static_cast<GameProcess>(game_info->game_process);
+    int16_t count_down_sec = static_cast<int16_t>(game_info->remain_time);
+    if (count_down_sec == 1) {
+      LOG_WARNING << "GAME STARTED!";
+      game_start_time_ = ros::Time::now();
+    }
     remain_hp_ = static_cast<unsigned int>(game_info->remain_hp);
   }
 
@@ -730,6 +735,10 @@ class Blackboard {
     return no_bullet_;
   }
 
+  ros::Duration GetTime() {
+    return ros::Time::now() - game_start_time_;
+  }
+
   void PlaySound(const std::string &filename){
     std::string path = ros::package::getPath("roborts");
     LOG_INFO << "PLAY:" << path+filename;
@@ -861,6 +870,7 @@ class Blackboard {
   int max_retries_ = 0;
 
   bool master_ = false;
+  ros::Time game_start_time_;
 
 };
 } //namespace decision

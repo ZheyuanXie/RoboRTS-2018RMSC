@@ -298,7 +298,7 @@ int main(int argc, char **argv)
   auto wing_stop_condition = std::make_shared<rrts::decision::PreconditionNode>("wing bot stop condition", blackboard_ptr_,
                                                                                 wait_action_,
                                                                                 [&]() {
-                                                                                  if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT)
+                                                                                  if (blackboard_ptr_->GetGameProcess() != rrts::decision::GameProcess::FIGHT  || blackboard_ptr_->GetTime() < ros::Duration(3.0))
                                                                                   {
                                                                                     return true;
                                                                                   }
