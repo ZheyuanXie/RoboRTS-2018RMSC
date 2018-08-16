@@ -7,7 +7,7 @@
   </node>
 
   <node name="master_sync" pkg="master_sync_fkie" type="master_sync">
-    <rosparam param="sync_topics">[/master/goal_task,/wing/goal_task,/master/ammo_scan,/wing/ammo_scan,/obstacle_scan]</rosparam>
+    <rosparam param="sync_topics">[/master/goal_task,/wing/goal_task,/master/ammo_scan,/wing/ammo_scan,/obstacle_scan,/collected_ammo]</rosparam>
     <rosparam param="ignore_services">[/*]</rosparam>
   </node>
 

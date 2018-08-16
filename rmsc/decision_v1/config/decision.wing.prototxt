@@ -1,8 +1,8 @@
 simulate: false
 master: false 
-use_referee: false
+use_referee: true
 use_adaptive_map: true
-minimum_ammo: 2
+minimum_ammo: 1
 max_retries: 2
 
 initial_ammo_list {
@@ -44,47 +44,47 @@ initial_ammo_list {
 
 wing_bot {
   start_position {
-    x: 1.35 # 7.23
-    y: 1.35 # 4.32
+    x: 1 # 7.23
+    y: 1 # 4.32
     z: 0
 
     roll:  0
     pitch: 0
-    yaw:   1.57 # -1.57
+    yaw:   0 # -1.57
   }
 }
 
 master_bot {
   start_position {
-    x: 1.35 # 7.68
-    y: 1.35 # 4.77
+    x: 1 # 7.68
+    y: 1 # 4.77
     z: 0
 
     roll:  0
     pitch: 0
-    yaw:   1.57 # 3.14
+    yaw:   0 # 3.14
   }
 }
 
 # icra map 
 point {
-  x: 6.14
-  y: 4.45
+  x: 4
+  y: 2
   z: 0
 
   roll:  0
   pitch: 0
-  yaw:   1.57
+  yaw:   0
 }
 
 point {
-  x: 6.73
-  y: 0.82
+  x: 4
+  y: 3
   z: 0
 
   roll:  0
   pitch: 0
-  yaw:   -1.57
+  yaw:   0
 }
 
 

@@ -1,8 +1,8 @@
 simulate: false
 master: false 
-use_referee: false
+use_referee: true
 use_adaptive_map: true
-minimum_ammo: 2
+minimum_ammo: 1
 max_retries: 2
 
 initial_ammo_list {

@@ -1,8 +1,8 @@
 simulate: false
 master: true 
-use_referee: false
+use_referee: true
 use_adaptive_map: true
-minimum_ammo: 2
+minimum_ammo: 1
 max_retries: 2
 
 initial_ammo_list {
@@ -68,23 +68,23 @@ master_bot {
 
 # icra map 
 point {
-  x: 6.14
-  y: 4.45
+  x: 4
+  y: 2
   z: 0
 
   roll:  0
   pitch: 0
-  yaw:   1.57
+  yaw:   0
 }
 
 point {
-  x: 6.73
-  y: 0.82
+  x: 4
+  y: 3
   z: 0
 
   roll:  0
   pitch: 0
-  yaw:   -1.57
+  yaw:   0
 }
 
 
