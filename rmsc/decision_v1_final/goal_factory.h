@@ -947,17 +947,62 @@ class GoalFactory {
 
       if (action_state_ == BehaviorState::SUCCESS) {
         arrive_ = true;
-        SendGoalTask(wing_bot_position_);
-        if(blackboard_ptr_->GetGameProcess() == GameProcess::NOT_START){
-          self_check_done_ = false; 
-        }
-        if(blackboard_ptr_->GetGameProcess() == GameProcess::PREPARATION && !self_check_done_){
-          blackboard_ptr_->StartSelfCheck();
-          self_check_done_ = true;
+        // SendGoalTask(wing_bot_position_);
+        // if(blackboard_ptr_->GetGameProcess() == GameProcess::NOT_START){
+        //   self_check_done_ = false; 
+        // }
+        // if(blackboard_ptr_->GetGameProcess() == GameProcess::PREPARATION && !self_check_done_){
+        //   blackboard_ptr_->StartSelfCheck();
+        //   self_check_done_ = true;
         }
       }
 
     }
+
+  void GoEnemyBase() {
+
+    UpdateRobotPose();
+    if (action_state_ != BehaviorState::RUNNING) {
+      auto dx = enemy_base_pose_.pose.position.x - robot_map_pose_.pose.position.x;
+      auto dy = enemy_base_pose_.pose.position.y - robot_map_pose_.pose.position.y;
+
+      auto start_yaw = tf::getYaw(enemy_base_pose_.pose.orientation);
+      auto last_yaw = tf::getYaw(robot_map_pose_.pose.orientation);
+
+      tf::Quaternion rot1, rot2;
+      tf::quaternionMsgToTF(enemy_base_pose_.pose.orientation, rot1);
+      tf::quaternionMsgToTF(robot_map_pose_.pose.orientation, rot2);
+      auto d_yaw =  rot1.angleShortestPath(rot2);
+
+      //auto d_yaw = std::abs(start_yaw - last_yaw);
+//      LOG_INFO << "robot qua: " << robot_map_pose_.pose.orientation;
+//      LOG_INFO << "master qua: " << master_start_position_.pose.orientation;
+//      LOG_INFO << "rot1 qua: " << rot1;
+//      LOG_INFO << "rot2 qua: " << rot2;
+
+      if (std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) > 0.2 || d_yaw > 0.5) {
+//        LOG_INFO << "dist: " << std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
+//        LOG_INFO << "yaw: " << d_yaw;
+        blackboard_ptr_->SetGimbalMode(GimbalMode::GIMBAL_PATROL_MODE);
+        blackboard_ptr_->SetChassisMode(ChassisMode::AUTO_SEPARATE_GIMBAL);
+        SendGoal(enemy_base_pose_);
+        //arrive_ = false;
+        //SendGoalTask(wing_bot_position_);
+        //last_goal_ = start_position_;
+      }
+
+      if (action_state_ == BehaviorState::SUCCESS) {
+        arrive_ = true;
+        // SendGoalTask(wing_bot_position_);
+        // if(blackboard_ptr_->GetGameProcess() == GameProcess::NOT_START){
+        //   self_check_done_ = false; 
+        // }
+        // if(blackboard_ptr_->GetGameProcess() == GameProcess::PREPARATION && !self_check_done_){
+        //   blackboard_ptr_->StartSelfCheck();
+        //   self_check_done_ = true;
+        }
+      }
+
 
   }
 
@@ -1077,11 +1122,20 @@ class GoalFactory {
     master_start_position_.pose.position.z = decision_config.master_bot().start_position().z();
     master_start_position_.pose.position.y = decision_config.master_bot().start_position().y();
 
+    enemy_base_pose_.pose.position.x = decision_config.enemy_base_pose().x();
+    enemy_base_pose_.pose.position.y = decision_config.enemy_base_pose().y();
+    enemy_base_pose_.pose.position.z = decision_config.enemy_base_pose().z();
+
     auto master_quaternion = tf::createQuaternionMsgFromRollPitchYaw(decision_config.master_bot().start_position().roll(),
                                                                      decision_config.master_bot().start_position().pitch(),
                                                                      decision_config.master_bot().start_position().yaw());
     master_start_position_.pose.orientation = master_quaternion;
     //LOG_INFO << "master qua: " << master_quaternion;
+
+    auto enemy_base_quaternion = tf::createQuaternionMsgFromRollPitchYaw(decision_config.enemy_base_pose().roll(),
+                                                                     decision_config.enemy_base_pose().pitch(),
+                                                                     decision_config.enemy_base_pose().yaw());
+    enemy_base_pose_.pose.orientation = enemy_base_quaternion;
 
 
 
@@ -1205,6 +1259,7 @@ class GoalFactory {
   double yaw_;
 
   geometry_msgs::PoseStamped master_start_position_;
+  geometry_msgs::PoseStamped enemy_base_pose_;
   geometry_msgs::PoseStamped wing_bot_position_;
   geometry_msgs::PoseStamped wing_bot_task_point_;
 

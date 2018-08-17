@@ -15,8 +15,8 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  ***************************************************************************/
 
-#include "rmsc/decision_v1/behavior_tree.h"
-#include "rmsc/decision_v1/action_behavior.h"
+#include "rmsc/decision_v1_final/behavior_tree.h"
+#include "rmsc/decision_v1_final/action_behavior.h"
 
 #include "common/log.h"
 
@@ -58,6 +58,8 @@ int main(int argc, char **argv)
   auto auxiliary_action = std::make_shared<rrts::decision::AuxiliaryAction>(blackboard_ptr_, goal_factory_);
   auto wing_auxiliary_action = std::make_shared<rrts::decision::AuxiliaryAction>(blackboard_ptr_, goal_factory_);
   auto base_wait_action_ = std::make_shared<rrts::decision::BaseWaitAction>(blackboard_ptr_, goal_factory_);
+  auto go_enemy_base_action_ = std::make_shared<rrts::decision::GoEnemyBaseAction>(blackboard_ptr_, goal_factory_);
+  
 
   //tree
 
@@ -187,7 +189,7 @@ int main(int argc, char **argv)
   auto master_no_bullet_condition = std::make_shared<rrts::decision::PreconditionNode>("master no bullet condition",
                                                                                         blackboard_ptr_, master_no_bullet_selector_,
                                                                                         [&]() {
-                                                                                          if (blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo())//blackboard_ptr_->GetNoBullet() || 
+                                                                                          if (blackboard_ptr_->GetNoBullet() || blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo())//blackboard_ptr_->GetNoBullet() || 
                                                                                           {
                                                                                             return true;
                                                                                           }
@@ -339,7 +341,7 @@ int main(int argc, char **argv)
                                                                                    rrts::decision::AbortType::LOW_PRIORITY);
 
   auto wing_detect_condition = std::make_shared<rrts::decision::PreconditionNode>("wing detect condition", blackboard_ptr_,
-                                                                                  shoot_action_,
+                                                                                  chase_action_,
                                                                                   [&]() {
                                                                                     if (blackboard_ptr_->GetEnemyDetected())
                                                                                     {
@@ -400,8 +402,7 @@ int main(int argc, char **argv)
   auto wing_no_bullet_under_attack_condition = std::make_shared<rrts::decision::PreconditionNode>("wing no bullet under attack condition",
                                                                                         blackboard_ptr_, escape_action_,
                                                                                         [&]() {
-                                                                                          if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::NONE &&
-                                                                                                   blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::FRONT)
+                                                                                          if (blackboard_ptr_->GetArmorAttacked() != rrts::decision::ArmorAttacked ::NONE)
                                                                                           {
                                                                                             return true;
                                                                                           }
@@ -434,7 +435,7 @@ int main(int argc, char **argv)
   auto wing_no_bullet_condition = std::make_shared<rrts::decision::PreconditionNode>("wing no bullet condition",
                                                                                         blackboard_ptr_, wing_no_bullet_selector_,
                                                                                         [&]() {
-                                                                                          if (blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo())
+                                                                                          if (blackboard_ptr_->GetNoBullet() || blackboard_ptr_->GetAmmoCount() < robot_config.minimum_ammo())
                                                                                           {
                                                                                             return true;
                                                                                           }
@@ -445,6 +446,21 @@ int main(int argc, char **argv)
                                                                                         },
                                                                                         rrts::decision::AbortType::BOTH);
 
+  // TODO
+  auto wing_engage_condition = std::make_shared<rrts::decision::PreconditionNode>("wing engage condition",
+                                                                                        blackboard_ptr_, go_enemy_base_action_,
+                                                                                        [&]() {
+                                                                                          if (blackboard_ptr_->GetTime() > ros::Duration(robot_config.wing_engage_time()) && blackboard_ptr_->GetAmmoCount() >= robot_config.minimum_ammo())
+                                                                                          {
+                                                                                            return true;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                            return false;
+                                                                                          }
+                                                                                        },
+                                                                                        rrts::decision::AbortType::LOW_PRIORITY);
+
   auto wing_bot_selector_ = std::make_shared<rrts::decision::SelectorNode>("wing bot selector", blackboard_ptr_);
   wing_bot_selector_->AddChildren(wing_stop_condition);
   wing_bot_selector_->AddChildren(wing_no_bullet_condition);
@@ -454,7 +470,7 @@ int main(int argc, char **argv)
   wing_bot_selector_->AddChildren(wing_under_attack_condition);
   wing_bot_selector_->AddChildren(wing_receive_condition);
   wing_bot_selector_->AddChildren(wing_acquire_ammo_condition);
-  // wing_bot_selector_->AddChildren(wing_patrol_condition);
+  wing_bot_selector_->AddChildren(wing_engage_condition);
   wing_bot_selector_->AddChildren(base_wait_action_);
 
   auto wing_bot_condition = std::make_shared<rrts::decision::PreconditionNode>("wing bot condition", blackboard_ptr_,

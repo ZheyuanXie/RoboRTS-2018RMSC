@@ -1,6 +1,9 @@
 # Decision Node
 cp /home/dji/catkin_ws/src/rmsc4/rmsc/decision_v1/config/decision.master.prototxt /home/dji/catkin_ws/src/rmsc4/rmsc/decision_v1/config/decision.prototxt
 
+# Decision Node
+cp /home/dji/catkin_ws/src/rmsc4/rmsc/decision_v1_final/config/decision.master.prototxt /home/dji/catkin_ws/src/rmsc4/rmsc/decision_v1_final/config/decision.prototxt
+
 # Armor Detection Node
 cp /home/dji/catkin_ws/src/rmsc4/modules/perception/detection/armor_detection/constraint_set/config/constraint_set.red.master.prototxt /home/dji/catkin_ws/src/rmsc4/modules/perception/detection/armor_detection/constraint_set/config/constraint_set.prototxt
 

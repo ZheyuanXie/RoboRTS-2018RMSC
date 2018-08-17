@@ -769,6 +769,62 @@ class BaseWaitAction : public ActionNode {
   GoalFactory::GoalFactoryPtr goal_factory_ptr_;
 
 }; // waitAction
+
+class GoEnemyBaseAction : public ActionNode {
+ public:
+
+  GoEnemyBaseAction(const Blackboard::Ptr &blackboard_ptr, GoalFactory::GoalFactoryPtr &goal_factory_ptr) :
+      ActionNode::ActionNode("go enemy base action", blackboard_ptr), goal_factory_ptr_(goal_factory_ptr) {
+
+  }
+
+  virtual ~GoEnemyBaseAction() = default;
+ private:
+  virtual void OnInitialize() {
+    LOG_INFO<<name_<<" "<<__FUNCTION__;
+  };
+
+  virtual BehaviorState Update() {
+
+    goal_factory_ptr_->GoEnemyBase();
+
+    goal_factory_ptr_->UpdateActionState();
+
+    // if (goal_factory_ptr_->GetActionState() == BehaviorState::SUCCESS) {
+    //   blackboard_ptr_->SetChassisMode(ChassisMode::AUTO_SEPARATE_GIMBAL);
+    //   blackboard_ptr_->SetGimbalMode(GimbalMode::GIMBAL_RELAX);
+    // }
+    // blackboard_ptr_->ResetAllStatus();
+
+//    if (goal_factory_ptr_->GetState() != BehaviorState::SUCCESS) {
+//      blackboard_ptr_->SetGimbalMode(GimbalMode::GIMBAL_PATROL_MODE);
+//      blackboard_ptr_->SetChassisMode(ChassisMode::AUTO_SEPARATE_GIMBAL);
+//    } else if (goal_factory_ptr_->GetState() == BehaviorState::SUCCESS) {
+//    }
+    return BehaviorState::RUNNING;
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+        goal_factory_ptr_->CancelGoal();
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" IDLE!";
+        break;
+      case BehaviorState::SUCCESS:
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" SUCCESS!";
+        break;
+      case BehaviorState::FAILURE:
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" FAILURE!";
+        break;
+      default:
+        LOG_INFO<<name_<<" "<<__FUNCTION__<<" ERROR!";
+        return;
+    }
+  }
+
+  GoalFactory::GoalFactoryPtr goal_factory_ptr_;
+
+}; // goEnemyBaseAction
 }
 }
 

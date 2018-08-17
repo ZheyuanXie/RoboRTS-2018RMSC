@@ -60,4 +60,6 @@ message DecisionConfig {
     optional int32 minimum_ammo = 18 [default = 1];
     optional InitialAmmoList initial_ammo_list = 19;
     optional int32 max_retries = 20 [default = 3];
+    optional int32 wing_engage_time = 21 [default = 120];
+    optional Point enemy_base_pose = 22;
 }

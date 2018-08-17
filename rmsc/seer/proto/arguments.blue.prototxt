@@ -202,6 +202,7 @@
      data: 15
      data: 14
      data: 5
+     data: 26
      data: 10
      data: 11
      data: 12
@@ -211,6 +212,7 @@
   obst16w {
      data: 7
      data: 5
+     data: 26
      data: 10
      data: 11
      data: 12
@@ -222,6 +224,7 @@
      data: 14
      data: 7
      data: 5
+     data: 26
      data: 10
      data: 11
      data: 12
@@ -231,6 +234,7 @@
   obst26w {
      data: 7
      data: 5
+     data: 26
      data: 10
      data: 11
      data: 12
@@ -241,6 +245,7 @@
      data: 15
      data: 14
      data: 5
+     data: 26
      data: 10
      data: 11
      data: 12
@@ -250,6 +255,7 @@
   obst36w {
      data: 5
      data: 4
+     data: 26
      data: 10
      data: 11
      data: 12

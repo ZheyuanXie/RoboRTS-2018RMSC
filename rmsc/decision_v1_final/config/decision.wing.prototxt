@@ -4,6 +4,7 @@ use_referee: true
 use_adaptive_map: true
 minimum_ammo: 1
 max_retries: 2
+wing_engage_time: 90
 
 initial_ammo_list {
   # domestic ground 
@@ -42,27 +43,36 @@ initial_ammo_list {
   state:0     # 15
 }
 
+enemy_base_pose {
+  x: 7.68
+  y: 4.77
+  z: 0
+  roll: 0
+  pitch: 0
+  yaw: 0
+}
+
 wing_bot {
   start_position {
-    x: 1 # 7.23
-    y: 1 # 4.32
+    x: 1.2 # 7.23
+    y: 1.0 # 4.32
     z: 0
 
     roll:  0
     pitch: 0
-    yaw:   0 # -1.57
+    yaw:   0.785 # -1.57
   }
 }
 
 master_bot {
   start_position {
-    x: 1 # 7.68
-    y: 1 # 4.77
+    x: 1.2 # 7.68
+    y: 1.0 # 4.77
     z: 0
 
     roll:  0
     pitch: 0
-    yaw:   0 # 3.14
+    yaw:   0.785 # 3.14
   }
 }
 
@@ -170,7 +180,7 @@ search_limit {
 whirl_vel {
   angle_x_vel: 0
   angle_y_vel: 0
-  angle_z_vel: 1
+  angle_z_vel: 3
 }
 wing_bot_task_point {
   x: 4.2 

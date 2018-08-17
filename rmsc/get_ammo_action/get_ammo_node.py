@@ -61,7 +61,7 @@ class AmmoType:
 AmmoBoxes_RED = [
     # ground ----------------------------------
     {'id':2,  'checkpoint':[(1.85,4.90,0.00)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
-    {'id':3,  'checkpoint':[(2.70,4.20,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
+    {'id':3,  'checkpoint':[(2.65,4.20,-1.57)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     {'id':4,  'checkpoint':[(1.68,3.37,-0.3)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     {'id':5,  'checkpoint':[(1.90,3.22,0.00)],'conflict':[],'type':AmmoType.DOMESTIC_GROUND},
     # elevated ----------------------------------
@@ -80,9 +80,10 @@ AmmoBoxes_RED = [
     {'id':20, 'checkpoint':[(2.85,2.55,0.00)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
     {'id':21, 'checkpoint':[(2.85,2.90,0.00)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
     {'id':22,  'checkpoint':[(1.70,4.45,1.57)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':23, 'checkpoint':[(4.0,3.60,3.14)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':24, 'checkpoint':[(4.0,4.19,3.14)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
-    {'id':25,  'checkpoint':[(4.0,4.45,3.14)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':23, 'checkpoint':[(4.2,3.60,3.14)],'conflict':[4,5],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':24, 'checkpoint':[(4.2,4.19,3.14)],'conflict':[0,4],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':25,  'checkpoint':[(4.2,4.45,3.14)],'conflict':[0,1],'type':AmmoType.DOMESTIC_ELEVATED},
+    {'id':26,  'checkpoint':[(0.80,3.22,0.00)],'conflict':[0,1],'type':AmmoType.DOMESTIC_GROUND},
     # enemy ground ----------------------------------
     # {'id':17, 'checkpoint':[(MAP_LENGTH-1.20,MAP_WIDTH-4.30,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
     # {'id':18, 'checkpoint':[(MAP_LENGTH-2.70,MAP_WIDTH-4.20,-1.57+3.14)],'conflict':[],'type':AmmoType.ENEMY_GROUND},
@@ -279,7 +280,10 @@ class GetAmmoNode(object):
                     self._as.set_aborted()
                     self.state = GetAmmoStatus.IDLE
                     break
-
+                if self.goal.ammobox_index == 26:
+                    self._as.set_succeeded()
+                    self.state = GetAmmoStatus.IDLE
+                    break
 
             elif self.state == GetAmmoStatus.SERVO:
                 # print self.servo_top_reached, self.servo_base_reached
@@ -380,7 +384,12 @@ class GetAmmoNode(object):
                 if self.touch_cnt > 10:
                     self.SendCmdVel(0.,0.,0.)
                 else:
-                    self.SendCmdVel(WITHDRAW_VX,0.,0.)
+                    if goal.ammobox_index == 5:
+                        self.SendCmdVel(-WITHDRAW_VX * 6,0.,0.)
+                    elif goal.ammobox_index  == 4:
+                        self.SendCmdVel(0.,0.,0.)
+                    else:
+                        self.SendCmdVel(WITHDRAW_VX,0.,0.)
                 if self.gripper.feedback == GripperInfo.DONE:
                     rospy.logerr('GETAMMO: Gripper done.')
                     self.withdraw_cnt = 0
@@ -409,7 +418,7 @@ class GetAmmoNode(object):
         if self.state == GetAmmoStatus.SERVO:
             theta = np.deg2rad(np.linspace(-SERVO_AOV/2,SERVO_AOV/2,num=SERVO_AOV+1))
             dist = np.array(data.ranges[179-SERVO_AOV/2:179+SERVO_AOV/2+1])
-            range_cut_index = list(np.where(np.abs(dist - 0.5)>0.2)[0])
+            range_cut_index = list(np.where(np.abs(dist - 0.5)>0.25)[0])
             theta_cut = np.delete(theta, range_cut_index)
             dist_cut = np.delete(dist, range_cut_index)
             if theta_cut.size == 0:

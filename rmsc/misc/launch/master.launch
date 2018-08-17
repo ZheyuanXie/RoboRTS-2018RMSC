@@ -76,7 +76,7 @@
 
   <!--Custom Decision Functions-->
   <!--node pkg="sound_play" type="soundplay_node.py" name="sound_play_node" respawn="false" /-->
-  <node pkg="roborts" type="RMSC_decision_node_v1" name="RMSC_decision_node" respawn="false" />
+  <node pkg="roborts" type="RMSC_decision_node_v1_final" name="RMSC_decision_node" respawn="false" />
 
   </group>
 </launch>

@@ -414,6 +414,7 @@ void Seer::arrange()
     ammobox_exist[3] = 1;
     ammobox_exist[4] = 1;
     ammobox_exist[5] = 1;
+    ammobox_exist[26] = 1;
 
     /*
     cout << "input obstacle number: (1-3)" ;

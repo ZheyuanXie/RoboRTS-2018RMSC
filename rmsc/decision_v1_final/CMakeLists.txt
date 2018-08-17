@@ -3,12 +3,12 @@ project(rmsc_decision_final)
 # protobuf
 
 file(GLOB ProtoFiles "${CMAKE_CURRENT_SOURCE_DIR}/proto/*.proto")
-rrts_protobuf_generate_cpp(${CMAKE_CURRENT_SOURCE_DIR}/proto RMSCDecisionProtoSrc RMSCDecisionProtoHds ${ProtoFiles})
+rrts_protobuf_generate_cpp(${CMAKE_CURRENT_SOURCE_DIR}/proto RMSCFinalDecisionProtoSrc RMSCFinalDecisionProtoHds ${ProtoFiles})
 
 add_library(RMSC_behavior_tree_config_final
   SHARED
-  ${RMSCDecisionProtoSrc}
-  ${RMSCDecisionProtoHds}
+  ${RMSCFinalDecisionProtoSrc}
+  ${RMSCFinalDecisionProtoHds}
 )
 target_link_libraries(RMSC_behavior_tree_config_final
   PUBLIC
@@ -23,11 +23,11 @@ target_sources(RMSC_behavior_tree_final
   ${CMAKE_CURRENT_SOURCE_DIR}/behavior_node.h
   ${CMAKE_CURRENT_SOURCE_DIR}/behavior_tree.h
   ${CMAKE_CURRENT_SOURCE_DIR}/blackboard.h)
-target_link_libraries(RMSC_behavior_tree
+target_link_libraries(RMSC_behavior_tree_final
   INTERFACE
   common::io
   common::log
-  RMSC_behavior_tree_config
+  RMSC_behavior_tree_config_final
   ${catkin_LIBRARIES}
 )
 
@@ -42,7 +42,7 @@ add_executable(RMSC_decision_node_v1_final
 target_link_libraries(RMSC_decision_node_v1_final
   PRIVATE
   common::log
-  RMSC_behavior_tree
+  RMSC_behavior_tree_final
   perception::map::costmap
   ${catkin_LIBRARIES}
 )

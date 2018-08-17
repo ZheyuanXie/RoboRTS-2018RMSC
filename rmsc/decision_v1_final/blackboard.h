@@ -633,6 +633,9 @@ class Blackboard {
   
   void SetAmmoCollected(unsigned int index) {
     LOG_WARNING << "Ammobox " << index << ": SUCCESS";
+    if (index == 26) {
+      return;
+    }
     ammobox_collected_cnt++;
     ammobox_list_[index-1] = -1;
     std_msgs::Int32 msg;
@@ -643,7 +646,7 @@ class Blackboard {
   void SetAmmoNotCollected(unsigned int index) {
     LOG_WARNING << "Ammobox :" << index << ": FAILED";
     ammobox_list_[index-1] = ammobox_list_[index-1] + 10;
-    if (master_ || index >6) {
+    if (master_ || (index >6 && index != 26)) {
       ammobox_retry_list_[index-1] = ammobox_retry_list_[index-1] + 1;
     }
     else {
